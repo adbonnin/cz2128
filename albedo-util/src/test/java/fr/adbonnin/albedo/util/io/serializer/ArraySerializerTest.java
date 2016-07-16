@@ -17,11 +17,11 @@ import static fr.adbonnin.albedo.util.IdentifiableUtils.equalsIdPredicate;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
-public class EntitySerializerTest {
+public class ArraySerializerTest {
 
-    private EntitySerializer serializer;
+    private ArraySerializer serializer;
 
-    public EntitySerializerTest(EntitySerializer serializer) {
+    public ArraySerializerTest(ArraySerializer serializer) {
         this.serializer = serializer;
     }
 
@@ -189,8 +189,8 @@ public class EntitySerializerTest {
     @Parameterized.Parameters
     public static Collection<Object[]> instancesToTest() {
         return Arrays.asList(
-            new Object[]{new JacksonEntitySerializer()},
-            new Object[]{new GsonEntitySerializer()}
+            new Object[]{new JacksonArraySerializer()},
+            new Object[]{new GsonArraySerializer()}
         );
     }
 }
