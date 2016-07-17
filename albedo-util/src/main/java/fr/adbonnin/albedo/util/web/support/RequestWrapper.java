@@ -1,7 +1,7 @@
 package fr.adbonnin.albedo.util.web.support;
 
 import fr.adbonnin.albedo.util.web.Request;
-import fr.adbonnin.albedo.util.web.UnmodifiableEntries;
+import fr.adbonnin.albedo.util.collect.UnmodifiableIterableMap;
 
 import java.net.URI;
 
@@ -26,7 +26,7 @@ public abstract class RequestWrapper implements Request {
     }
 
     @Override
-    public UnmodifiableEntries pathVariables() {
+    public UnmodifiableIterableMap<String, String> pathVariables() {
         return request.pathVariables();
     }
 }

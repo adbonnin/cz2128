@@ -2,8 +2,7 @@ package fr.adbonnin.albedo.util.collect;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 import static fr.adbonnin.albedo.util.collect.IteratorUtils.asIterator;
 import static org.junit.Assert.assertEquals;

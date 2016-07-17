@@ -2,11 +2,9 @@ package fr.adbonnin.albedo.util.collect;
 
 import fr.adbonnin.albedo.util.Predicate;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
+import static java.util.Collections.emptyIterator;
 import static java.util.Objects.requireNonNull;
 
 public final class IteratorUtils {
@@ -165,31 +163,30 @@ public final class IteratorUtils {
         };
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> Iterator<T> emptyIterator() {
-        return (Iterator<T>) ObjectIterator.EMPTY_ITERATOR;
-    }
+    public static <K, V> Iterator<V> asValuesIterator(final Iterator<? extends Map.Entry<? extends K, ? extends V>> iterator) {
 
-    enum ObjectIterator implements Iterator<Object> {
+        if (iterator == null) {
+            return emptyIterator();
+        }
 
-        /** @see IteratorUtils#emptyIterator() */
-        EMPTY_ITERATOR {
+        return new Iterator<V>() {
 
             @Override
             public boolean hasNext() {
-                return false;
+                return iterator.hasNext();
             }
 
             @Override
-            public Object next() {
-                throw new NoSuchElementException();
+            public V next() {
+                final Map.Entry<? extends K, ? extends V> next = iterator.next();
+                return next == null ? null : next.getValue();
             }
 
             @Override
             public void remove() {
-                throw new UnsupportedOperationException();
+                iterator.remove();
             }
-        }
+        };
     }
 
     private IteratorUtils() { /* Cannot be instantiated */ }
