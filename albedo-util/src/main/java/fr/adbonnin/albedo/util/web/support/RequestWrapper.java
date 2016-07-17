@@ -1,5 +1,6 @@
 package fr.adbonnin.albedo.util.web.support;
 
+import fr.adbonnin.albedo.util.web.PartialFilter;
 import fr.adbonnin.albedo.util.web.Request;
 import fr.adbonnin.albedo.util.collect.UnmodifiableIterableMap;
 
@@ -28,5 +29,10 @@ public abstract class RequestWrapper implements Request {
     @Override
     public UnmodifiableIterableMap<String, String> pathVariables() {
         return request.pathVariables();
+    }
+
+    @Override
+    public PartialFilter partialResponse() {
+        return request.partialResponse();
     }
 }

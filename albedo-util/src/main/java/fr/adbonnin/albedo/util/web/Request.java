@@ -11,4 +11,6 @@ public interface Request {
     URI uri();
 
     UnmodifiableIterableMap<String, String> pathVariables();
+
+    PartialFilter partialResponse();
 }

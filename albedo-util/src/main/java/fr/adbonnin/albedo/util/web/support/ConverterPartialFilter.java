@@ -7,18 +7,24 @@ import fr.adbonnin.albedo.util.web.PartialFilter;
 import java.util.Iterator;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public class ConverterPartialFilter implements PartialFilter, IterableMap<Object, Object> {
 
     private final PartialFilter filter;
 
     private final ConverterPartialFilter parent;
 
+    public ConverterPartialFilter() {
+        this(PartialResponseFilter.buildWildcard());
+    }
+
     public ConverterPartialFilter(PartialFilter filter) {
         this(filter, null);
     }
 
     protected ConverterPartialFilter(PartialFilter filter, ConverterPartialFilter parent) {
-        this.filter = filter;
+        this.filter = requireNonNull(filter);
         this.parent = parent;
     }
 
@@ -49,12 +55,12 @@ public class ConverterPartialFilter implements PartialFilter, IterableMap<Object
 
     @Override
     public PartialFilter in(String field) {
-        throw new UnsupportedOperationException(); // TODO
+        return filter.in(field);
     }
 
     @Override
     public boolean match(String field) {
-        throw new UnsupportedOperationException(); // TODO
+        return filter.match(field);
     }
 
     public <A, B, F> Converter<A, B, F> matched(String field, Converter<? extends A, ? extends B, ? extends F> converter) {

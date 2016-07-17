@@ -14,17 +14,19 @@ public class ObjectUtilsTest {
     }
 
     @Test
-    public void testRequireNonEmpty() {
+    public void testRequireNonEmptyStr() {
         assertEquals("test", ObjectUtils.requireNonEmpty("test"));
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRequireNonEmptyWithNull() {
+    public void testRequireNonEmptyStrWithNull() {
         ObjectUtils.requireNonEmpty(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRequireNonEmptyWithEmpty() {
+    public void testRequireNonEmptyStrWithEmpty() {
         ObjectUtils.requireNonEmpty("");
     }
+
+
 }
