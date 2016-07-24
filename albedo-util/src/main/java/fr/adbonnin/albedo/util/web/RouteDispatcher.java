@@ -1,5 +1,6 @@
 package fr.adbonnin.albedo.util.web;
 
+import fr.adbonnin.albedo.util.collect.UnmodifiableIterableMap;
 import fr.adbonnin.albedo.util.web.support.RequestWrapper;
 import org.weborganic.furi.URIPattern;
 import org.weborganic.furi.URIResolveResult;
@@ -9,6 +10,7 @@ import java.net.URI;
 import java.util.*;
 
 import static fr.adbonnin.albedo.util.collect.IteratorUtils.asIterator;
+import static fr.adbonnin.albedo.util.collect.IteratorUtils.next;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyIterator;
 import static java.util.Collections.unmodifiableSet;
@@ -81,7 +83,7 @@ public class RouteDispatcher implements RouteChain {
             final URIResolveResult resolveResult = holder.resolve(resolver);
             if (resolveResult.getStatus() == URIResolveResult.Status.RESOLVED) {
 
-                final UnmodifiableEntries pathVariables = new URIResolveResultEntries(resolveResult);
+                final URIResolveResultMap pathVariables = new URIResolveResultMap(resolveResult);
                 final Request wrapped = wrapRequest(request, pathVariables);
                 serveRoute(wrapped, response, holder.route());
                 return;
@@ -96,7 +98,7 @@ public class RouteDispatcher implements RouteChain {
         return method.toLowerCase();
     }
 
-    protected Request wrapRequest(Request request, UnmodifiableEntries values) {
+    protected Request wrapRequest(Request request, UnmodifiableIterableMap<String, String> values) {
         return new DispatcherRequest(request, values);
     }
 
@@ -127,22 +129,22 @@ public class RouteDispatcher implements RouteChain {
         }
     }
 
-    private static class URIResolveResultEntries implements UnmodifiableEntries {
+    private static class URIResolveResultMap implements UnmodifiableIterableMap<String, String> {
 
         private final URIResolveResult resolveResult;
 
-        public URIResolveResultEntries(URIResolveResult resolveResult) {
+        public URIResolveResultMap(URIResolveResult resolveResult) {
             this.resolveResult = requireNonNull(resolveResult);
         }
 
         @Override
-        public Set<String> names() {
+        public Set<String> keys() {
             return unmodifiableSet(resolveResult.names());
         }
 
         @Override
-        public Iterator<String> values(String name) {
-            final Object value = resolveResult.get(name);
+        public Iterator<String> values(String key) {
+            final Object value = resolveResult.get(key);
             if (value instanceof String[]) {
                 return asList((String[]) value).iterator();
             }
@@ -155,8 +157,13 @@ public class RouteDispatcher implements RouteChain {
         }
 
         @Override
-        public String first(String name) {
-            return values(name).next();
+        public String first(String key) {
+            return values(key).next();
+        }
+
+        @Override
+        public String first(String key, String defaultValue) {
+            return next(values(key), defaultValue);
         }
 
         @Override
@@ -167,15 +174,15 @@ public class RouteDispatcher implements RouteChain {
 
     private static class DispatcherRequest extends RequestWrapper {
 
-        private final UnmodifiableEntries pathVariables;
+        private final UnmodifiableIterableMap<String, String> pathVariables;
 
-        public DispatcherRequest(Request request, UnmodifiableEntries pathVariables) {
+        public DispatcherRequest(Request request, UnmodifiableIterableMap<String, String> pathVariables) {
             super(request);
             this.pathVariables = requireNonNull(pathVariables);
         }
 
         @Override
-        public UnmodifiableEntries pathVariables() {
+        public UnmodifiableIterableMap<String, String> pathVariables() {
             return pathVariables;
         }
     }

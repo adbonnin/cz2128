@@ -2,6 +2,8 @@ package fr.adbonnin.albedo.util.collect;
 
 import java.util.*;
 
+import static fr.adbonnin.albedo.util.collect.IteratorUtils.asValuesIterator;
+
 public class LinkedHashLine<K, V> {
 
     private final Map<K, LineEntry<K, V>> values = new HashMap<>();
@@ -86,7 +88,7 @@ public class LinkedHashLine<K, V> {
     }
 
     public Iterator<Map.Entry<K, V>> entries() {
-        return tail == null ? IteratorUtils.<Map.Entry<K, V>>emptyIterator() : entries(tail.getKey());
+        return tail == null ? Collections.<Map.Entry<K, V>>emptyIterator() : entries(tail.getKey());
     }
 
     public Iterator<V> values(K from) {
@@ -95,27 +97,6 @@ public class LinkedHashLine<K, V> {
 
     public Iterator<V> values() {
         return asValuesIterator(entries());
-    }
-
-    public Iterator<V> asValuesIterator(final Iterator<Map.Entry<K, V>> iterator) {
-        return new Iterator<V>() {
-
-            @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
-
-            @Override
-            public V next() {
-                final Map.Entry<K, V> next = iterator.next();
-                return next == null ? null : next.getValue();
-            }
-
-            @Override
-            public void remove() {
-                iterator.remove();
-            }
-        };
     }
 
     private static class LineEntry<K, V> implements Map.Entry<K, V> {
@@ -162,8 +143,8 @@ public class LinkedHashLine<K, V> {
             }
 
             final Map.Entry<?,?> other = (Map.Entry<?,?>) obj;
-            return Objects.equals(key, other.getKey())
-                && Objects.equals(value, other.getValue());
+            return Objects.equals(key, other.getKey()) &&
+                   Objects.equals(value, other.getValue());
         }
 
         @Override

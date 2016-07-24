@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SimpleEntriesTest {
+public class IterableHashMapTest {
 
     @Test
     public void values() throws Exception {

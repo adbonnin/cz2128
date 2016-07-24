@@ -1,5 +1,7 @@
 package fr.adbonnin.albedo.util.web;
 
+import fr.adbonnin.albedo.util.collect.UnmodifiableIterableMap;
+
 import java.net.URI;
 
 public interface Request {
@@ -8,5 +10,7 @@ public interface Request {
 
     URI uri();
 
-    UnmodifiableEntries pathVariables();
+    UnmodifiableIterableMap<String, String> pathVariables();
+
+    PartialFilter partialResponse();
 }

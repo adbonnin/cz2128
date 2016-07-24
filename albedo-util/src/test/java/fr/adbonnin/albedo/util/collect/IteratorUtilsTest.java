@@ -3,10 +3,10 @@ package fr.adbonnin.albedo.util.collect;
 import fr.adbonnin.albedo.util.Predicate;
 import org.junit.Test;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static fr.adbonnin.albedo.util.collect.IteratorUtils.*;
+import static java.util.Collections.emptyIterator;
 import static org.junit.Assert.*;
 
 public class IteratorUtilsTest {
@@ -32,17 +32,6 @@ public class IteratorUtilsTest {
     }
 
     @Test
-    public void testEmptyIterator() {
-        final Iterator<Integer> itr = emptyIterator();
-        assertFalse(itr.hasNext());
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void testNextEmptyIterator() {
-        emptyIterator().next();
-    }
-
-    @Test
     public void testAsIterator() {
         final Iterator<String> itr = asIterator("test");
         assertTrue(itr.hasNext());
@@ -64,7 +53,7 @@ public class IteratorUtilsTest {
 
     @Test
     public void testSize() {
-        assertEquals(0, count(IteratorUtils.emptyIterator()));
+        assertEquals(0, count(emptyIterator()));
 
         final Iterator<String> itr = asIterator("test1", "test2");
         assertEquals(2, count(itr));
@@ -122,9 +111,9 @@ public class IteratorUtilsTest {
 
         // Test only empty
         itr = concat(asIterator(
-            IteratorUtils.<String>emptyIterator(),
-            IteratorUtils.<String>emptyIterator(),
-            IteratorUtils.<String>emptyIterator()));
+            Collections.<String>emptyIterator(),
+            Collections.<String>emptyIterator(),
+            Collections.<String>emptyIterator()));
         assertFalse(itr.hasNext());
 
         // Test multiple
@@ -133,6 +122,20 @@ public class IteratorUtilsTest {
         assertEquals("test1", itr.next());
         assertTrue(itr.hasNext());
         assertEquals("test2", itr.next());
+        assertFalse(itr.hasNext());
+    }
+
+    @Test
+    public void testAsValuesIterator() {
+        final List<Map.Entry<Integer, Integer>> list = new ArrayList<>();
+        list.add(new AbstractMap.SimpleEntry<>(1, 2));
+        list.add(new AbstractMap.SimpleEntry<>(3, 4));
+
+        final Iterator<Integer> itr = asValuesIterator(list.iterator());
+        assertTrue(itr.hasNext());
+        assertEquals(new Integer(2), itr.next());
+        assertTrue(itr.hasNext());
+        assertEquals(new Integer(4), itr.next());
         assertFalse(itr.hasNext());
     }
 }

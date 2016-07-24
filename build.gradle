@@ -12,6 +12,8 @@ project(':albedo-util') {
 	dependencies {
         compile files('lib/wo-furi-0.8.4/wo-furi-0.8.4.jar')
 
+        compile group: 'com.pressassociation.partial-response', name: 'matcher', version: '1.0'
+
         // Test dependencies
 		testCompile 'junit:junit:4.12'
         testCompile project(':albedo-gson')
