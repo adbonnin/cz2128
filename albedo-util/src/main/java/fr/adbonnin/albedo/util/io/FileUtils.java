@@ -2,6 +2,9 @@ package fr.adbonnin.albedo.util.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 public final class FileUtils {
 
@@ -33,10 +36,6 @@ public final class FileUtils {
      * @return
      */
     public static String cleanFilename(String filename) {
-
-        if (filename == null) {
-            return "";
-        }
 
         while (filename.endsWith(" ") || filename.endsWith(".")) {
             filename = filename.substring(0, filename.length() - 1);
