@@ -2,8 +2,17 @@ package fr.adbonnin.albedo.util.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.TERMINATE;
+import static java.nio.file.Files.createFile;
+import static java.nio.file.Files.setLastModifiedTime;
+import static java.nio.file.attribute.FileTime.fromMillis;
 import static java.util.Objects.requireNonNull;
 
 public final class FileUtils {
@@ -21,6 +30,8 @@ public final class FileUtils {
     };
 
     public static String tryCanonicalPath(File file) {
+        requireNonNull(file);
+
         try {
             return file.getCanonicalPath();
         }
@@ -36,6 +47,7 @@ public final class FileUtils {
      * @return
      */
     public static String cleanFilename(String filename) {
+        requireNonNull(filename);
 
         while (filename.endsWith(" ") || filename.endsWith(".")) {
             filename = filename.substring(0, filename.length() - 1);
@@ -77,6 +89,41 @@ public final class FileUtils {
         }
 
         return false;
+    }
+
+    public static void touch(Path file) throws IOException {
+        requireNonNull(file);
+
+        try {
+            createFile(file);
+        }
+        catch (FileAlreadyExistsException | AccessDeniedException e) { // AccessDeniedException is thrown when a directory already exists
+            setLastModifiedTime(file, fromMillis(System.currentTimeMillis()));
+        }
+    }
+
+    public static void deleteRecursively(Path file) throws IOException {
+        requireNonNull(file);
+
+        Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (exc == null) {
+                    Files.delete(dir);
+                    return CONTINUE;
+                }
+                else {
+                    throw exc;
+                }
+            }
+        });
     }
 
     private FileUtils() { /* Cannot be instantiated */ }
