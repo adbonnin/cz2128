@@ -15,7 +15,7 @@ import static fr.adbonnin.albedo.util.IdentifiableUtils.equalsIdPredicate;
 import static fr.adbonnin.albedo.util.IdentifiableUtils.toIdIterator;
 import static java.util.Collections.singletonList;
 
-public abstract class AbstractEntitySerializer implements EntitySerializer {
+public abstract class AbstractArraySerializer implements ArraySerializer {
 
     @Override
     public <T extends Identifiable> long count(Predicate<T> predicate, Reader reader, Type typeOfT) throws IOException {
@@ -28,13 +28,13 @@ public abstract class AbstractEntitySerializer implements EntitySerializer {
     }
 
     @Override
-    public <T extends Identifiable> boolean delete(Iterable<T> entities, Reader reader, Writer writer, Type typeOfT) throws IOException {
-        return delete(equalsIdPredicate(toIdIterator(entities.iterator())), reader, writer, typeOfT);
+    public <T extends Identifiable> boolean delete(Iterable<T> elements, Reader reader, Writer writer, Type typeOfT) throws IOException {
+        return delete(equalsIdPredicate(toIdIterator(elements.iterator())), reader, writer, typeOfT);
     }
 
     @Override
-    public <T extends Identifiable> boolean delete(T entity, Reader reader, Writer writer, Type typeOfT) throws IOException {
-        return delete(equalsIdPredicate(entity), reader, writer, typeOfT);
+    public <T extends Identifiable> boolean delete(T element, Reader reader, Writer writer, Type typeOfT) throws IOException {
+        return delete(equalsIdPredicate(element), reader, writer, typeOfT);
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class AbstractEntitySerializer implements EntitySerializer {
     }
 
     @Override
-    public <T extends Identifiable> boolean save(T entity, Reader reader, Writer writer, Type typeOfT) throws IOException {
-        return save(singletonList(entity), reader, writer, typeOfT);
+    public <T extends Identifiable> boolean save(T element, Reader reader, Writer writer, Type typeOfT) throws IOException {
+        return save(singletonList(element), reader, writer, typeOfT);
     }
 }

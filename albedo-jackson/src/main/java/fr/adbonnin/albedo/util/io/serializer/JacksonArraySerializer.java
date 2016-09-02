@@ -28,7 +28,7 @@ import static fr.adbonnin.albedo.util.IdentifiableUtils.indexByIds;
 import static fr.adbonnin.albedo.util.io.IOUtils.closeQuietly;
 import static java.util.Objects.requireNonNull;
 
-public class JacksonEntitySerializer extends IterableEntitySerializer {
+public class JacksonArraySerializer extends IterableArraySerializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
         .configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -38,7 +38,7 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
     private static final JsonFactory JSON_FACTORY = OBJECT_MAPPER.getFactory();
 
     @Override
-    public <T extends Identifiable> boolean delete(Predicate<T> predicate, Reader reader, Writer writer, Type typeOfT) throws IOException {
+    public <E extends Identifiable> boolean delete(Predicate<E> predicate, Reader reader, Writer writer, Type typeOfT) throws IOException {
         final ObjectReader objectReader = buildObjectReader(typeOfT);
         boolean updated = false;
 
@@ -51,9 +51,9 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
             itr = asJsonNodeIterator(reader);
             while (itr.hasNext()) {
                 final JsonNode node = itr.next();
-                final T entity = objectReader.readValue(node);
+                final E element = objectReader.readValue(node);
 
-                if (predicate.evaluate(entity)) {
+                if (predicate.evaluate(element)) {
                     updated = true;
                 }
                 else {
@@ -72,8 +72,8 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
     }
 
     @Override
-    public <T extends Identifiable> boolean save(Iterable<T> entities, Reader reader, Writer writer, Type typeOfT) throws IOException {
-        final Map<Object, T> entitiesById = indexByIds(entities);
+    public <E extends Identifiable> boolean save(Iterable<E> elements, Reader reader, Writer writer, Type typeOfT) throws IOException {
+        final Map<Object, E> elementsById = indexByIds(elements);
         final ObjectReader objectReader = buildObjectReader(typeOfT);
         boolean updated = false;
 
@@ -83,18 +83,18 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
             jsonGenerator = JSON_FACTORY.createGenerator(writer);
             jsonGenerator.writeStartArray();
 
-            // Update old entities
+            // Update old elements
             itr = asJsonNodeIterator(reader);
             while (itr.hasNext()) {
                 final JsonNode oldNode = itr.next();
-                final T oldEntity = objectReader.readValue(oldNode);
-                final T newEntity = entitiesById.remove(oldEntity.id());
-                updated = saveObject(oldNode, newEntity, jsonGenerator) || updated;
+                final E oldElement = objectReader.readValue(oldNode);
+                final E newElement = elementsById.remove(oldElement.id());
+                updated = saveObject(oldNode, newElement, jsonGenerator) || updated;
             }
 
-            // Create new entities
-            for (T newEntity : entitiesById.values()) {
-                updated = saveObject(null, newEntity, jsonGenerator) || updated;
+            // Create new elements
+            for (E newElement : elementsById.values()) {
+                updated = saveObject(null, newElement, jsonGenerator) || updated;
             }
 
             jsonGenerator.writeEndArray();
@@ -107,16 +107,16 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
         return updated;
     }
 
-    protected <T extends Identifiable> boolean saveObject(JsonNode oldNode, T newEntity, JsonGenerator jsonGenerator) throws IOException {
+    protected <E extends Identifiable> boolean saveObject(JsonNode oldNode, E newElement, JsonGenerator jsonGenerator) throws IOException {
 
-        if (newEntity == null) {
+        if (newElement == null) {
             if (oldNode != null) {
                 jsonGenerator.writeTree(oldNode);
             }
             return false;
         }
         else {
-            final JsonNode newNode = OBJECT_MAPPER.valueToTree(newEntity);
+            final JsonNode newNode = OBJECT_MAPPER.valueToTree(newElement);
 
             if (oldNode == null) {
                 jsonGenerator.writeTree(newNode);
@@ -234,7 +234,7 @@ public class JacksonEntitySerializer extends IterableEntitySerializer {
     }
 
     @Override
-    protected <T> CloseableIterator<T> asEntityIterator(Reader reader, final Type typeOfT) throws IOException {
+    protected <T> CloseableIterator<T> asElementIterator(Reader reader, final Type typeOfT) throws IOException {
         final JacksonArrayIterator itr = new JacksonArrayIterator(reader);
         final ObjectReader objectReader = buildObjectReader(typeOfT);
         return new CloseableIterator<T>() {

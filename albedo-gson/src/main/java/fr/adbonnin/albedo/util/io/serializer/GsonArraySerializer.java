@@ -22,7 +22,7 @@ import static fr.adbonnin.albedo.util.IdentifiableUtils.indexByIds;
 import static fr.adbonnin.albedo.util.io.IOUtils.closeQuietly;
 import static java.util.Objects.requireNonNull;
 
-public class GsonEntitySerializer extends IterableEntitySerializer {
+public class GsonArraySerializer extends IterableArraySerializer {
 
     private static final Gson GSON = new GsonBuilder()
         .setPrettyPrinting()
@@ -31,7 +31,7 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
     private static final JsonParser JSON_PARSER = new JsonParser();
 
     @Override
-    public <T extends Identifiable> boolean delete(Predicate<T> predicate, Reader reader, Writer writer, Type typeOfT) throws IOException {
+    public <E extends Identifiable> boolean delete(Predicate<E> predicate, Reader reader, Writer writer, Type typeOfT) throws IOException {
         boolean updated = false;
 
         CloseableIterator<JsonObject> itr = null;
@@ -43,9 +43,9 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
             itr = asJsonObjectIterator(reader);
             while (itr.hasNext()) {
                 final JsonObject node = itr.next();
-                final T entity = GSON.fromJson(node, typeOfT);
+                final E element = GSON.fromJson(node, typeOfT);
 
-                if (predicate.evaluate(entity)) {
+                if (predicate.evaluate(element)) {
                     updated = true;
                 }
                 else {
@@ -63,8 +63,8 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
     }
 
     @Override
-    public <T extends Identifiable> boolean save(Iterable<T> entities, Reader reader, Writer writer, Type typeOfT) throws IOException {
-        final Map<Object, T> entitiesById = indexByIds(entities);
+    public <E extends Identifiable> boolean save(Iterable<E> elements, Reader reader, Writer writer, Type typeOfT) throws IOException {
+        final Map<Object, E> elementsById = indexByIds(elements);
         boolean updated = false;
 
         CloseableIterator<JsonObject> itr = null;
@@ -73,18 +73,18 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
             jsonWriter = GSON.newJsonWriter(writer);
             jsonWriter.beginArray();
 
-            // Update old entities
+            // Update old elements
             itr = asJsonObjectIterator(reader);
             while (itr.hasNext()) {
                 final JsonObject oldNode = itr.next();
-                final T oldEntity = GSON.fromJson(oldNode, typeOfT);
-                final T newEntity = entitiesById.remove(oldEntity.id());
-                updated = saveObject(oldNode, newEntity, jsonWriter, typeOfT) || updated;
+                final E oldElement = GSON.fromJson(oldNode, typeOfT);
+                final E newElement = elementsById.remove(oldElement.id());
+                updated = saveObject(oldNode, newElement, jsonWriter, typeOfT) || updated;
             }
 
-            // Create new entities
-            for (T newEntity : entitiesById.values()) {
-                updated = saveObject(null, newEntity, jsonWriter, typeOfT) || updated;
+            // Create new elements
+            for (E newElement : elementsById.values()) {
+                updated = saveObject(null, newElement, jsonWriter, typeOfT) || updated;
             }
 
             jsonWriter.endArray();
@@ -96,16 +96,16 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
         return updated;
     }
 
-    protected <T extends Identifiable> boolean saveObject(JsonObject oldNode, T newEntity, JsonWriter jsonWriter, Type typeOfT) throws IOException {
+    protected <E extends Identifiable> boolean saveObject(JsonObject oldNode, E newElement, JsonWriter jsonWriter, Type typeOfT) throws IOException {
 
-        if (newEntity == null) {
+        if (newElement == null) {
             if (oldNode != null) {
                 GSON.toJson(oldNode, jsonWriter);
             }
             return false;
         }
         else {
-            final JsonElement newJsonElement = GSON.toJsonTree(newEntity, typeOfT);
+            final JsonElement newJsonElement = GSON.toJsonTree(newElement, typeOfT);
             final JsonObject newNode = newJsonElement.getAsJsonObject();
 
             if (oldNode == null) {
@@ -183,9 +183,9 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
     }
 
     @Override
-    protected <T> CloseableIterator<T> asEntityIterator(Reader reader, final Type typeOfT) {
+    protected <E> CloseableIterator<E> asElementIterator(Reader reader, final Type typeOfT) {
         final GsonArrayIterator itr = new GsonArrayIterator(reader);
-        return new CloseableIterator<T>() {
+        return new CloseableIterator<E>() {
 
             @Override
             public boolean hasNext() {
@@ -193,7 +193,7 @@ public class GsonEntitySerializer extends IterableEntitySerializer {
             }
 
             @Override
-            public T next() {
+            public E next() {
                 return GSON.fromJson(itr.next(), typeOfT);
             }
 

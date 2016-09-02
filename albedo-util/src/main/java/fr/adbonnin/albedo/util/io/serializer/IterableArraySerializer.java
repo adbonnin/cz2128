@@ -15,11 +15,11 @@ import static fr.adbonnin.albedo.util.collect.IteratorUtils.filter;
 import static fr.adbonnin.albedo.util.collect.IteratorUtils.find;
 import static fr.adbonnin.albedo.util.io.IOUtils.closeQuietly;
 
-public abstract class IterableEntitySerializer extends AbstractEntitySerializer {
+public abstract class IterableArraySerializer extends AbstractArraySerializer {
 
     protected abstract CloseableIterator<Void> asSkippedValueIterator(Reader reader) throws IOException;
 
-    protected abstract <T> CloseableIterator<T> asEntityIterator(Reader reader, final Type typeOfT) throws IOException;
+    protected abstract <T> CloseableIterator<T> asElementIterator(Reader reader, final Type typeOfT) throws IOException;
 
     @Override
     public long count(Reader reader) throws IOException {
@@ -37,7 +37,7 @@ public abstract class IterableEntitySerializer extends AbstractEntitySerializer 
     public <T extends Identifiable> long count(Predicate<T> predicate, Reader reader, Type typeOfT) throws IOException {
         CloseableIterator<T> itr = null;
         try {
-            itr = asEntityIterator(reader, typeOfT);
+            itr = asElementIterator(reader, typeOfT);
             return IteratorUtils.count(filter(itr, predicate));
         }
         finally {
@@ -49,7 +49,7 @@ public abstract class IterableEntitySerializer extends AbstractEntitySerializer 
     public <T extends Identifiable> List<T> findAll(Predicate<T> predicate, Reader reader, Type typeOfT) throws IOException {
         CloseableIterator<T> itr = null;
         try {
-            itr = asEntityIterator(reader, typeOfT);
+            itr = asElementIterator(reader, typeOfT);
             return newArrayList(filter(itr, predicate));
         }
         finally {
@@ -61,7 +61,7 @@ public abstract class IterableEntitySerializer extends AbstractEntitySerializer 
     public <T extends Identifiable> T findOne(Predicate<T> predicate, Reader reader, Type typeOfT) throws IOException {
         CloseableIterator<T> itr = null;
         try {
-            itr = asEntityIterator(reader, typeOfT);
+            itr = asElementIterator(reader, typeOfT);
             return find(itr, predicate, null);
         }
         finally {
