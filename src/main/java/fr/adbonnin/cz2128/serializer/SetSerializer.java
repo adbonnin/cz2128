@@ -3,35 +3,64 @@ package fr.adbonnin.cz2128.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.adbonnin.cz2128.base.Identifiable;
-import fr.adbonnin.cz2128.base.IdentifiableUtils;
 import fr.adbonnin.cz2128.base.Predicate;
 import fr.adbonnin.cz2128.collect.AbstractIterator;
-import fr.adbonnin.cz2128.exception.JacksonIOException;
+import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.io.CloseableIterator;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonToken.*;
+import static fr.adbonnin.cz2128.collect.CollectionUtils.newArrayList;
 import static fr.adbonnin.cz2128.io.IOUtils.closeQuietly;
 import static java.util.Objects.requireNonNull;
 
-public class JacksonIdentifiableSerializer extends IterableIdentifiableSerializer {
+public class SetSerializer implements Serializer {
 
     private final ObjectMapper mapper;
 
-    public JacksonIdentifiableSerializer(ObjectMapper mapper) {
+    public SetSerializer(ObjectMapper mapper) {
         this.mapper = requireNonNull(mapper);
     }
 
     @Override
-    public <E extends Identifiable> boolean delete(Predicate<E> predicate, JsonParser parser, JsonGenerator generator, JavaType typeOfT) throws IOException {
-        boolean updated = false;
+    public long count(JsonParser parser) throws IOException {
+        CloseableIterator<Void> itr = null;
+        try {
+            itr = asSkippedElementIterator(parser);
+            return IteratorUtils.count(itr);
+        }
+        catch (JacksonIOException e) {
+            throw e.getCause();
+        }
+        finally {
+            closeQuietly(itr);
+        }
+    }
 
+    @Override
+    public <E> long count(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
+        CloseableIterator<E> itr = null;
+        try {
+            itr = asElementIterator(parser, reader);
+            return IteratorUtils.count(IteratorUtils.filter(itr, predicate));
+        }
+        catch (JacksonIOException e) {
+            throw e.getCause();
+        }
+        finally {
+            closeQuietly(itr);
+        }
+    }
+
+    @Override
+    public <E> boolean delete(JsonParser parser, ValueReader<E> reader, JsonGenerator generator, Predicate<? super E> predicate) throws IOException {
+        boolean updated = false;
         CloseableIterator<ObjectNode> itr = null;
         try {
             generator.writeStartArray();
@@ -39,7 +68,7 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
             itr = asObjectNodeIterator(parser);
             while (itr.hasNext()) {
                 final ObjectNode node = itr.next();
-                final E element = mapper.convertValue(node, typeOfT);
+                final E element = reader.read(node);
 
                 if (predicate.evaluate(element)) {
                     updated = true;
@@ -51,6 +80,9 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
 
             generator.writeEndArray();
         }
+        catch (JacksonIOException e) {
+            throw e.getCause();
+        }
         finally {
             closeQuietly(itr);
         }
@@ -59,10 +91,39 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
     }
 
     @Override
-    public <E extends Identifiable> boolean save(Iterable<E> elements, JsonParser parser, JsonGenerator generator, JavaType typeOfT) throws IOException {
-        final Map<Object, E> elementsById = IdentifiableUtils.indexByIds(elements);
-        boolean updated = false;
+    public <E> List<E> findAll(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
+        CloseableIterator<E> itr = null;
+        try {
+            itr = asElementIterator(parser, reader);
+            return newArrayList(IteratorUtils.filter(itr, predicate));
+        }
+        catch (JacksonIOException e) {
+            throw e.getCause();
+        }
+        finally {
+            closeQuietly(itr);
+        }
+    }
 
+    @Override
+    public <E> E findOne(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate, E defaultValue) throws IOException {
+        CloseableIterator<E> itr = null;
+        try {
+            itr = asElementIterator(parser, reader);
+            return IteratorUtils.find(itr, predicate, defaultValue);
+        }
+        catch (JacksonIOException e) {
+            throw e.getCause();
+        }
+        finally {
+            closeQuietly(itr);
+        }
+    }
+
+    @Override
+    public <E> boolean save(Iterable<E> elements, JsonParser parser, ValueReader<E> reader, JsonGenerator generator) throws IOException {
+        final Map<E, E> newElements = mapElements(elements);
+        boolean updated = false;
         CloseableIterator<ObjectNode> itr = null;
         try {
             generator.writeStartArray();
@@ -71,19 +132,23 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
             itr = asObjectNodeIterator(parser);
             while (itr.hasNext()) {
                 final ObjectNode oldNode = itr.next();
-                final E oldElement = mapper.convertValue(oldNode, typeOfT);
-                final E newElement = elementsById.remove(oldElement.id());
-                final ObjectNode newNode = mapper.convertValue(newElement, typeOfT);
+                final E oldElement = reader.read(oldNode);
+
+                final E newElement = newElements.remove(oldElement);
+                final ObjectNode newNode = mapper.valueToTree(newElement);
                 updated = JacksonUtils.updateObject(oldNode, newNode, generator) || updated;
             }
 
             // Create new elements
-            for (E newElement : elementsById.values()) {
-                final ObjectNode newNode = mapper.convertValue(newElement, typeOfT);
+            for (E newElement : newElements.values()) {
+                final ObjectNode newNode = mapper.valueToTree(newElement);
                 updated = JacksonUtils.updateObject(null, newNode, generator) || updated;
             }
 
             generator.writeEndArray();
+        }
+        catch (JacksonIOException e) {
+            throw e.getCause();
         }
         finally {
             closeQuietly(generator);
@@ -93,8 +158,18 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
         return updated;
     }
 
-    @Override
-    protected CloseableIterator<Void> asSkippedElementIterator(JsonParser parser) throws IOException {
+    private static <E> Map<E, E> mapElements(Iterable<? extends E> elements) {
+        requireNonNull(elements);
+
+        final Map<E, E> map = new HashMap<>();
+        for (E element : elements) {
+            map.put(element, element);
+        }
+
+        return map;
+    }
+
+    private CloseableIterator<Void> asSkippedElementIterator(JsonParser parser) throws IOException {
         final JacksonArrayIterator itr = new JacksonArrayIterator(parser);
         return new CloseableIterator<Void>() {
 
@@ -107,11 +182,11 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
             public Void next() {
                 try {
                     itr.next().skipChildren();
+                    return null;
                 }
                 catch (IOException e) {
                     throw new JacksonIOException(e);
                 }
-                return null;
             }
 
             @Override
@@ -126,9 +201,8 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
         };
     }
 
-    @Override
-    protected <T> CloseableIterator<T> asElementIterator(JsonParser parser, final JavaType typeOfT) throws IOException {
-        final JacksonArrayIterator itr = new JacksonArrayIterator(parser);
+    private <T> CloseableIterator<T> asElementIterator(JsonParser parser, final ValueReader<T> reader) throws IOException {
+        final CloseableIterator<ObjectNode> itr = asObjectNodeIterator(parser);
         return new CloseableIterator<T>() {
 
             @Override
@@ -136,10 +210,14 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
                 return itr.hasNext();
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             public T next() {
-                return (T) mapper.convertValue(itr.next(), typeOfT);
+                try {
+                    return reader.read(itr.next());
+                }
+                catch (IOException e) {
+                    throw new JacksonIOException(e);
+                }
             }
 
             @Override
@@ -232,6 +310,21 @@ public class JacksonIdentifiableSerializer extends IterableIdentifiableSerialize
         @Override
         public void close() throws IOException {
             parser.close();
+        }
+    }
+
+    private static class JacksonIOException extends RuntimeException {
+
+        private final IOException cause;
+
+        public JacksonIOException(IOException cause) {
+            super(cause);
+            this.cause = cause;
+        }
+
+        @Override
+        public IOException getCause() {
+            return cause;
         }
     }
 }
