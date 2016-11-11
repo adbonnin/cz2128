@@ -1,6 +1,8 @@
 package fr.adbonnin.cz2128.io.stream;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -42,19 +44,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
     }
 
     @Override
-    public long read(ReadLongFunction function) throws IOException {
-        InputStream input = null;
-        try {
-            input = acquireReadLockThenCreateInputStream();
-            return function.read(input);
-        }
-        finally {
-            closeQuietlyThenReleaseReadLock(input);
-        }
-    }
-
-    @Override
-    public boolean write(WriteBooleanFunction function) throws IOException {
+    public <T> T write(WriteFunction<? extends T> function) throws IOException {
         InputStream input = null;
         OutputStream output = null;
         try {

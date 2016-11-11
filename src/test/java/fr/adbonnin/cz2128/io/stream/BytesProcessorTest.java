@@ -1,7 +1,7 @@
 package fr.adbonnin.cz2128.io.stream;
 
-import fr.adbonnin.cz2128.io.stream.StreamProcessor.ReadLongFunction;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor.WriteBooleanFunction;
+import fr.adbonnin.cz2128.io.stream.StreamProcessor.ReadFunction;
+import fr.adbonnin.cz2128.io.stream.StreamProcessor.WriteFunction;
 import org.apache.commons.io.IOUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,16 +32,16 @@ public class BytesProcessorTest {
 
     @Test
     public void testReturns() throws IOException {
-        assertEquals(processor.read(new ReadLongFunction() {
+        assertEquals(processor.read(new ReadFunction<Long>() {
             @Override
-            public long read(InputStream input) throws IOException {
-                return 5;
+            public Long read(InputStream input) throws IOException {
+                return 5L;
             }
-        }), 5);
+        }), new Long(5));
 
-        assertTrue(processor.write(new WriteBooleanFunction() {
+        assertTrue(processor.write(new WriteFunction<Boolean>() {
             @Override
-            public boolean write(InputStream input, OutputStream output) throws IOException {
+            public Boolean write(InputStream input, OutputStream output) throws IOException {
                 return true;
             }
         }));
@@ -51,9 +51,9 @@ public class BytesProcessorTest {
     public void test() throws Exception {
 
         // Read empty and write "test1"
-        processor.write(new WriteBooleanFunction() {
+        processor.write(new WriteFunction<Object>() {
             @Override
-            public boolean write(InputStream input, OutputStream output) throws IOException {
+            public Boolean write(InputStream input, OutputStream output) throws IOException {
                 assertTrue(IOUtils.toString(input, DEFAULT_ENCODING).isEmpty());
                 IOUtils.write("test1", output, DEFAULT_ENCODING);
                 return false;
@@ -64,18 +64,18 @@ public class BytesProcessorTest {
         assertEquals(processor.getBytes(), "test1".getBytes());
 
         // Read "test1"
-        processor.read(new ReadLongFunction() {
+        processor.read(new ReadFunction<Long>() {
             @Override
-            public long read(InputStream input) throws IOException {
+            public Long read(InputStream input) throws IOException {
                 assertEquals(IOUtils.toString(input, DEFAULT_ENCODING), "test1");
-                return 0;
+                return 0L;
             }
         });
 
         // Read "test1" and write "test2"
-        processor.write(new WriteBooleanFunction() {
+        processor.write(new WriteFunction<Boolean>() {
             @Override
-            public boolean write(InputStream input, OutputStream output) throws IOException {
+            public Boolean write(InputStream input, OutputStream output) throws IOException {
                 assertEquals(IOUtils.toString(input, DEFAULT_ENCODING), "test1");
                 IOUtils.write("test2", output, DEFAULT_ENCODING);
                 return false;
