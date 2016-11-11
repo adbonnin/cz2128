@@ -35,7 +35,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
     public <T> T read(ReadFunction<? extends T> function) throws IOException {
         InputStream input = null;
         try {
-            input = acquireReadLockThenCreateInputStream();
+            input = tryAcquireReadLockThenCreateInputStream();
             return function.read(input);
         }
         finally {
@@ -48,16 +48,16 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
         InputStream input = null;
         OutputStream output = null;
         try {
-            input = acquireWriteLockThenCreateInputStream();
+            input = tryAcquireWriteLockThenCreateInputStream();
             output = createOutputStream();
             return function.write(input, output);
         }
         finally {
-            closeQuietlyThenSwapThenReleaseWriteLock(input, output);
+            closeQuietlyTrySwapFinallyReleaseWriteLock(input, output);
         }
     }
 
-    private InputStream acquireReadLockThenCreateInputStream() throws IOException {
+    private InputStream tryAcquireReadLockThenCreateInputStream() throws IOException {
         try {
             readLock.tryLock(timeout, TimeUnit.MILLISECONDS);
         }
@@ -68,7 +68,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
         return createInputStream();
     }
 
-    private InputStream acquireWriteLockThenCreateInputStream() throws IOException {
+    private InputStream tryAcquireWriteLockThenCreateInputStream() throws IOException {
         try {
             writeLock.tryLock(timeout, TimeUnit.MILLISECONDS);
         }
@@ -84,7 +84,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
         readLock.unlock();
     }
 
-    private void closeQuietlyThenSwapThenReleaseWriteLock(InputStream input, OutputStream output) throws IOException {
+    private void closeQuietlyTrySwapFinallyReleaseWriteLock(InputStream input, OutputStream output) throws IOException {
         closeQuietly(input);
         closeQuietly(output);
 
