@@ -11,13 +11,13 @@ public interface Serializer {
 
     long count(JsonParser parser) throws IOException;
 
-    <E> long count(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException;
+    <T> long count(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException;
 
-    <E> boolean delete(JsonParser parser, ValueReader<E> reader, JsonGenerator generator, Predicate<? super E> predicate) throws IOException;
+    <T> boolean delete(JsonParser parser, ValueReader<T> reader, JsonGenerator generator, Predicate<? super T> predicate) throws IOException;
 
-    <E> List<E> findAll(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException;
+    <T> List<T> findAll(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException;
 
-    <E> E findOne(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate, E defaultValue) throws IOException;
+    <T> T findOne(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate, T defaultValue) throws IOException;
 
-    <E> boolean save(Iterable<E> elements, JsonParser parser, ValueReader<E> reader, JsonGenerator generator) throws IOException;
+    <T> boolean save(Iterable<T> elements, JsonParser parser, ValueReader<T> reader, JsonGenerator generator) throws IOException;
 }

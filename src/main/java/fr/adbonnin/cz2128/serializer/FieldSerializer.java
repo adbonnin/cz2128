@@ -26,27 +26,27 @@ public class FieldSerializer implements Serializer {
     }
 
     @Override
-    public <E> long count(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
+    public <T> long count(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException {
         return 0;
     }
 
     @Override
-    public <E> boolean delete(JsonParser parser, ValueReader<E> reader, JsonGenerator generator, Predicate<? super E> predicate) throws IOException {
+    public <T> boolean delete(JsonParser parser, ValueReader<T> reader, JsonGenerator generator, Predicate<? super T> predicate) throws IOException {
         return false;
     }
 
     @Override
-    public <E> List<E> findAll(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
+    public <T> List<T> findAll(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException {
         return null;
     }
 
     @Override
-    public <E> E findOne(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate, E defaultValue) throws IOException {
+    public <T> T findOne(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate, T defaultValue) throws IOException {
         return null;
     }
 
     @Override
-    public <E> boolean save(Iterable<E> elements, JsonParser parser, ValueReader<E> reader, JsonGenerator generator) throws IOException {
+    public <T> boolean save(Iterable<T> elements, JsonParser parser, ValueReader<T> reader, JsonGenerator generator) throws IOException {
         return false;
     }
 }

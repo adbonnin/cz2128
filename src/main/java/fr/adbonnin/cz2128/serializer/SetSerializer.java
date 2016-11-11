@@ -44,8 +44,8 @@ public class SetSerializer implements Serializer {
     }
 
     @Override
-    public <E> long count(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
-        CloseableIterator<E> itr = null;
+    public <T> long count(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException {
+        CloseableIterator<T> itr = null;
         try {
             itr = asElementIterator(parser, reader);
             return IteratorUtils.count(IteratorUtils.filter(itr, predicate));
@@ -59,7 +59,7 @@ public class SetSerializer implements Serializer {
     }
 
     @Override
-    public <E> boolean delete(JsonParser parser, ValueReader<E> reader, JsonGenerator generator, Predicate<? super E> predicate) throws IOException {
+    public <T> boolean delete(JsonParser parser, ValueReader<T> reader, JsonGenerator generator, Predicate<? super T> predicate) throws IOException {
         boolean updated = false;
         CloseableIterator<ObjectNode> itr = null;
         try {
@@ -68,7 +68,7 @@ public class SetSerializer implements Serializer {
             itr = asObjectNodeIterator(parser);
             while (itr.hasNext()) {
                 final ObjectNode node = itr.next();
-                final E element = reader.read(node);
+                final T element = reader.read(node);
 
                 if (predicate.evaluate(element)) {
                     updated = true;
@@ -91,8 +91,8 @@ public class SetSerializer implements Serializer {
     }
 
     @Override
-    public <E> List<E> findAll(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate) throws IOException {
-        CloseableIterator<E> itr = null;
+    public <T> List<T> findAll(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate) throws IOException {
+        CloseableIterator<T> itr = null;
         try {
             itr = asElementIterator(parser, reader);
             return newArrayList(IteratorUtils.filter(itr, predicate));
@@ -106,8 +106,8 @@ public class SetSerializer implements Serializer {
     }
 
     @Override
-    public <E> E findOne(JsonParser parser, ValueReader<E> reader, Predicate<? super E> predicate, E defaultValue) throws IOException {
-        CloseableIterator<E> itr = null;
+    public <T> T findOne(JsonParser parser, ValueReader<T> reader, Predicate<? super T> predicate, T defaultValue) throws IOException {
+        CloseableIterator<T> itr = null;
         try {
             itr = asElementIterator(parser, reader);
             return IteratorUtils.find(itr, predicate, defaultValue);
@@ -121,8 +121,8 @@ public class SetSerializer implements Serializer {
     }
 
     @Override
-    public <E> boolean save(Iterable<E> elements, JsonParser parser, ValueReader<E> reader, JsonGenerator generator) throws IOException {
-        final Map<E, E> newElements = mapElements(elements);
+    public <T> boolean save(Iterable<T> elements, JsonParser parser, ValueReader<T> reader, JsonGenerator generator) throws IOException {
+        final Map<T, T> newElements = mapElements(elements);
         boolean updated = false;
         CloseableIterator<ObjectNode> itr = null;
         try {
@@ -132,15 +132,15 @@ public class SetSerializer implements Serializer {
             itr = asObjectNodeIterator(parser);
             while (itr.hasNext()) {
                 final ObjectNode oldNode = itr.next();
-                final E oldElement = reader.read(oldNode);
+                final T oldElement = reader.read(oldNode);
 
-                final E newElement = newElements.remove(oldElement);
+                final T newElement = newElements.remove(oldElement);
                 final ObjectNode newNode = mapper.valueToTree(newElement);
                 updated = JacksonUtils.updateObject(oldNode, newNode, generator) || updated;
             }
 
             // Create new elements
-            for (E newElement : newElements.values()) {
+            for (T newElement : newElements.values()) {
                 final ObjectNode newNode = mapper.valueToTree(newElement);
                 updated = JacksonUtils.updateObject(null, newNode, generator) || updated;
             }
@@ -158,11 +158,11 @@ public class SetSerializer implements Serializer {
         return updated;
     }
 
-    private static <E> Map<E, E> mapElements(Iterable<? extends E> elements) {
+    private static <T> Map<T, T> mapElements(Iterable<? extends T> elements) {
         requireNonNull(elements);
 
-        final Map<E, E> map = new HashMap<>();
-        for (E element : elements) {
+        final Map<T, T> map = new HashMap<>();
+        for (T element : elements) {
             map.put(element, element);
         }
 

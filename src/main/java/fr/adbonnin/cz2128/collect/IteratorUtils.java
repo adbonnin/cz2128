@@ -19,15 +19,15 @@ public final class IteratorUtils {
         return count;
     }
 
-    public static <E> Iterator<E> filter(final Iterator<E> iterator, final Predicate<? super E> predicate) {
+    public static <T> Iterator<T> filter(final Iterator<T> iterator, final Predicate<? super T> predicate) {
         requireNonNull(iterator);
         requireNonNull(predicate);
-        return new AbstractIterator<E>() {
+        return new AbstractIterator<T>() {
 
             @Override
-            protected E computeNext() {
+            protected T computeNext() {
                 while (iterator.hasNext()) {
-                    final E element = iterator.next();
+                    final T element = iterator.next();
                     if (predicate.evaluate(element)) {
                         return element;
                     }
@@ -37,11 +37,11 @@ public final class IteratorUtils {
         };
     }
 
-    public static <E> E find(Iterator<? extends E> iterator, Predicate<? super E> predicate, E defaultValue) {
+    public static <T> T find(Iterator<? extends T> iterator, Predicate<? super T> predicate, T defaultValue) {
         return next(filter(iterator, predicate), defaultValue);
     }
 
-    public static <E> E next(Iterator<? extends E> iterator, E defaultValue) {
+    public static <T> T next(Iterator<? extends T> iterator, T defaultValue) {
         return iterator.hasNext() ? iterator.next() : defaultValue;
     }
 
