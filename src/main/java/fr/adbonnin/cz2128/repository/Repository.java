@@ -36,6 +36,10 @@ public class Repository<E> extends BaseRepository {
         return findOne(reader, predicate, defaultValue);
     }
 
+    public boolean save(E element) throws IOException {
+        return save(element, reader);
+    }
+
     public boolean save(Iterable<E> elements) throws IOException {
         return save(elements, reader);
     }

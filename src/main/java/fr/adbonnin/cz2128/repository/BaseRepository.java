@@ -13,8 +13,10 @@ import fr.adbonnin.cz2128.serializer.ValueReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 
 public class BaseRepository {
@@ -69,6 +71,10 @@ public class BaseRepository {
                 return serializer.findOne(createParser(input), reader, predicate, defaultValue);
             }
         });
+    }
+
+    public <T> boolean save(T element, final ValueReader<T> reader) throws IOException {
+        return save(singleton(element), reader);
     }
 
     public <T> boolean save(final Iterable<T> elements, final ValueReader<T> reader) throws IOException {
