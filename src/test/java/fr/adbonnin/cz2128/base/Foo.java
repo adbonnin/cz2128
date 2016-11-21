@@ -1,13 +1,13 @@
 package fr.adbonnin.cz2128.base;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.adbonnin.cz2128.repository.RepositoryTest;
 
-import java.util.Map;
 import java.util.Objects;
 
-public class Foo implements Map.Entry<String, String> {
+/**
+ * Note: Do not implements Map.Entry because Jackson will serialize it to {"myKey": "myValue"}.
+ */
+public class Foo {
 
     private final String key;
 

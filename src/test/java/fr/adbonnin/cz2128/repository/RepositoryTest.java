@@ -2,6 +2,7 @@ package fr.adbonnin.cz2128.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.base.Foo;
+import fr.adbonnin.cz2128.base.PredicateUtils;
 import fr.adbonnin.cz2128.io.stream.BytesStreamProcessor;
 import fr.adbonnin.cz2128.io.stream.StreamProcessor;
 import fr.adbonnin.cz2128.serializer.SetSerializer;
@@ -11,9 +12,7 @@ import org.testng.annotations.Test;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static fr.adbonnin.cz2128.base.PredicateUtils.alwaysTrue;
-import static java.util.Collections.singleton;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class RepositoryTest {
 
@@ -47,8 +46,32 @@ public class RepositoryTest {
         assertTrue(repository.save(foo2));
 
         assertEquals(repository.count(), 1);
-        assertEquals(repository.count(alwaysTrue()), 0);
+        assertEquals(repository.count(alwaysTrue()), 1);
         assertEquals(repository.findAll(alwaysTrue()).get(0), foo2);
         assertEquals(repository.findOne(alwaysTrue(), null), foo2);
+
+        // Add existing value
+        assertTrue(repository.save(foo2));
+
+        assertEquals(repository.count(), 1);
+        assertEquals(repository.count(alwaysTrue()), 1);
+        assertEquals(repository.findAll(alwaysTrue()).get(0), foo2);
+        assertEquals(repository.findOne(alwaysTrue(), null), foo2);
+
+        // Remove not found value
+        assertFalse(repository.delete(PredicateUtils.<Foo>alwaysFalse()));
+
+        assertEquals(repository.count(), 1);
+        assertEquals(repository.count(alwaysTrue()), 1);
+        assertEquals(repository.findAll(alwaysTrue()).get(0), foo2);
+        assertEquals(repository.findOne(alwaysTrue(), null), foo2);
+
+        // Remove exiting value
+        assertTrue(repository.delete(PredicateUtils.<Foo>alwaysTrue()));
+
+        assertEquals(repository.count(), 0);
+        assertEquals(repository.count(alwaysTrue()), 0);
+        assertTrue(repository.findAll(alwaysTrue()).isEmpty());
+        assertEquals(repository.findOne(alwaysTrue(), foo1), foo1);
     }
 }
