@@ -2,6 +2,7 @@ package fr.adbonnin.cz2128.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.base.Predicate;
+import fr.adbonnin.cz2128.base.PredicateUtils;
 import fr.adbonnin.cz2128.io.stream.StreamProcessor;
 import fr.adbonnin.cz2128.serializer.Serializer;
 import fr.adbonnin.cz2128.serializer.ValueReader;
@@ -34,6 +35,10 @@ public class Repository<E> extends BaseRepository {
 
     public E findOne(Predicate<? super E> predicate, E defaultValue) throws IOException {
         return findOne(reader, predicate, defaultValue);
+    }
+
+    public E first(E defaultValue) throws IOException {
+        return findOne(reader, PredicateUtils.<E>alwaysTrue(), defaultValue);
     }
 
     public boolean save(E element) throws IOException {

@@ -1,11 +1,13 @@
 package fr.adbonnin.cz2128.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -58,6 +60,75 @@ public final class JacksonUtils {
 
             return true;
         }
+    }
+
+    public static boolean readToField(JsonParser parser, String field) throws IOException {
+
+        JsonToken token = skipStructStart(parser);
+        if (token == null) {
+            return false;
+        }
+
+        while (true) {
+
+            if (token.id() != JsonTokenId.ID_FIELD_NAME) {
+                return false;
+            }
+            else if (field.equals(token.name())) {
+                return true;
+            }
+
+            parser.skipChildren();
+
+            token = parser.nextToken();
+            if (token == null) {
+                return false;
+            }
+        }
+    }
+
+    public static void writeToField(JsonParser parser, JsonGenerator generator, String field) throws IOException {
+
+        JsonToken token = skipStructStart(parser);
+        if (token == null) {
+            return;
+        }
+
+        while (true) {
+
+            if (token.id() != JsonTokenId.ID_FIELD_NAME) {
+                return;
+            }
+            else if (field.equals(token.name())) {
+                return;
+            }
+
+            generator.copyCurrentStructure(parser);
+        }
+    }
+
+    public static void copyCurrent(JsonParser parser, JsonGenerator generator) throws IOException {
+        while (true) {
+            final JsonToken token = parser.currentToken();
+            if (token == null || token.isStructEnd()) {
+                return;
+            }
+
+            generator.copyCurrentStructure(parser);
+        }
+    }
+
+    public static JsonToken skipStructStart(JsonParser parser) throws IOException {
+
+        JsonToken token = parser.currentToken();
+        if (token == null) {
+            return null;
+        }
+        else if (token.isStructStart()) {
+            parser.nextToken();
+        }
+
+        return token;
     }
 
     private JacksonUtils() { /* Cannot be instantiated */ }
