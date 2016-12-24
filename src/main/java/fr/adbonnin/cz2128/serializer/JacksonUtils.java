@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public final class JacksonUtils {
                 generator.writeTree(newNode);
             }
             else {
-                final ObjectNode newNodeCopy = newNode.deepCopy();
+                final Map<String, JsonNode> newNodeCopy = mapByFields(newNode);
                 generator.writeStartObject();
 
                 // Update old fields
@@ -48,9 +49,7 @@ public final class JacksonUtils {
                 }
 
                 // Create new fields
-                final Iterator<Map.Entry<String, JsonNode>> newFields = newNodeCopy.fields();
-                while (newFields.hasNext()) {
-                    final Map.Entry<String, JsonNode> newField = newFields.next();
+                for (Map.Entry<String, JsonNode> newField : newNodeCopy.entrySet()) {
                     generator.writeFieldName(newField.getKey());
                     generator.writeTree(newField.getValue());
                 }
@@ -62,6 +61,20 @@ public final class JacksonUtils {
         }
     }
 
+    public static Map<String, JsonNode> mapByFields(JsonNode node) {
+        requireNonNull(node);
+
+        final Map<String, JsonNode> map = new HashMap<>();
+
+        final Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+        while (fields.hasNext()) {
+            final Map.Entry<String, JsonNode> field = fields.next();
+            map.put(field.getKey(), field.getValue());
+        }
+
+        return map;
+    }
+
     public static boolean readToField(JsonParser parser, String field) throws IOException {
 
         JsonToken token = skipStructStart(parser);
@@ -70,7 +83,6 @@ public final class JacksonUtils {
         }
 
         while (true) {
-
             if (token.id() != JsonTokenId.ID_FIELD_NAME) {
                 return false;
             }
@@ -95,7 +107,6 @@ public final class JacksonUtils {
         }
 
         while (true) {
-
             if (token.id() != JsonTokenId.ID_FIELD_NAME) {
                 return;
             }
