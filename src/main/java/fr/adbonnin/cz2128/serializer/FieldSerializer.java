@@ -63,6 +63,7 @@ public class FieldSerializer implements Serializer {
     private void writeStartToField(JsonParser parser, JsonGenerator generator) throws IOException {
         generator.writeStartObject();
         writeToField(parser, generator, field);
+        generator.writeFieldName(field);
     }
 
     private void writeFromFieldToEnd(JsonParser parser, JsonGenerator generator) throws IOException {

@@ -30,7 +30,7 @@ public final class JacksonUtils {
                 generator.writeTree(newNode);
             }
             else {
-                final Map<String, JsonNode> newNodeCopy = mapByFields(newNode);
+                final Map<String, JsonNode> newNodeCopy = mapByFieldsToHashMap(newNode);
                 generator.writeStartObject();
 
                 // Update old fields
@@ -61,7 +61,7 @@ public final class JacksonUtils {
         }
     }
 
-    public static Map<String, JsonNode> mapByFields(JsonNode node) {
+    public static Map<String, JsonNode> mapByFieldsToHashMap(JsonNode node) {
         requireNonNull(node);
 
         final Map<String, JsonNode> map = new HashMap<>();
@@ -86,7 +86,7 @@ public final class JacksonUtils {
             if (token.id() != JsonTokenId.ID_FIELD_NAME) {
                 return false;
             }
-            else if (field.equals(token.name())) {
+            else if (field.equals(parser.getCurrentName())) {
                 return true;
             }
 
@@ -110,7 +110,7 @@ public final class JacksonUtils {
             if (token.id() != JsonTokenId.ID_FIELD_NAME) {
                 return;
             }
-            else if (field.equals(token.name())) {
+            else if (field.equals(parser.getCurrentName())) {
                 return;
             }
 
@@ -120,7 +120,7 @@ public final class JacksonUtils {
 
     public static void copyCurrent(JsonParser parser, JsonGenerator generator) throws IOException {
         while (true) {
-            final JsonToken token = parser.currentToken();
+            final JsonToken token = parser.hasCurrentToken() ? parser.currentToken() : parser.nextToken();
             if (token == null || token.isStructEnd()) {
                 return;
             }
@@ -130,16 +130,8 @@ public final class JacksonUtils {
     }
 
     public static JsonToken skipStructStart(JsonParser parser) throws IOException {
-
-        JsonToken token = parser.currentToken();
-        if (token == null) {
-            return null;
-        }
-        else if (token.isStructStart()) {
-            parser.nextToken();
-        }
-
-        return token;
+        final JsonToken token = parser.hasCurrentToken() ? parser.currentToken() : parser.nextToken();
+        return token != null && token.isStructStart() ? parser.nextToken() : token;
     }
 
     private JacksonUtils() { /* Cannot be instantiated */ }

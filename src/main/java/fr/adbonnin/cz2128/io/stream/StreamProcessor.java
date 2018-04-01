@@ -3,7 +3,6 @@ package fr.adbonnin.cz2128.io.stream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.Callable;
 
 public interface StreamProcessor {
 

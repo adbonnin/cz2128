@@ -11,11 +11,11 @@ import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.io.CloseableIterator;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonToken.*;
+import static fr.adbonnin.cz2128.collect.CollectionUtils.mapAllToHashMap;
 import static fr.adbonnin.cz2128.collect.CollectionUtils.newArrayList;
 import static fr.adbonnin.cz2128.io.IOUtils.closeQuietly;
 import static java.util.Objects.requireNonNull;
@@ -122,7 +122,7 @@ public class SetSerializer implements Serializer {
 
     @Override
     public <T> boolean save(Iterable<T> elements, JsonParser parser, ValueReader<T> reader, JsonGenerator generator) throws IOException {
-        final Map<T, T> newElements = mapElements(elements);
+        final Map<T, T> newElements = mapAllToHashMap(elements);
         boolean updated = false;
         CloseableIterator<ObjectNode> itr = null;
         try {
@@ -151,25 +151,13 @@ public class SetSerializer implements Serializer {
             throw e.getCause();
         }
         finally {
-            closeQuietly(generator);
             closeQuietly(itr);
         }
 
         return updated;
     }
 
-    private static <T> Map<T, T> mapElements(Iterable<? extends T> elements) {
-        requireNonNull(elements);
-
-        final Map<T, T> map = new HashMap<>();
-        for (T element : elements) {
-            map.put(element, element);
-        }
-
-        return map;
-    }
-
-    private CloseableIterator<Void> asSkippedElementIterator(JsonParser parser) throws IOException {
+    private CloseableIterator<Void> asSkippedElementIterator(JsonParser parser) {
         final JacksonArrayIterator itr = new JacksonArrayIterator(parser);
         return new CloseableIterator<Void>() {
 
@@ -201,7 +189,7 @@ public class SetSerializer implements Serializer {
         };
     }
 
-    private <T> CloseableIterator<T> asElementIterator(JsonParser parser, final ValueReader<T> reader) throws IOException {
+    private <T> CloseableIterator<T> asElementIterator(JsonParser parser, final ValueReader<T> reader) {
         final CloseableIterator<ObjectNode> itr = asObjectNodeIterator(parser);
         return new CloseableIterator<T>() {
 
@@ -232,7 +220,7 @@ public class SetSerializer implements Serializer {
         };
     }
 
-    private CloseableIterator<ObjectNode> asObjectNodeIterator(JsonParser parser) throws IOException {
+    private CloseableIterator<ObjectNode> asObjectNodeIterator(JsonParser parser) {
         final JacksonArrayIterator itr = new JacksonArrayIterator(parser);
         return new CloseableIterator<ObjectNode>() {
 
@@ -269,7 +257,7 @@ public class SetSerializer implements Serializer {
 
         private boolean first = true;
 
-        private JacksonArrayIterator(JsonParser parser) throws IOException {
+        private JacksonArrayIterator(JsonParser parser) {
             this.parser = requireNonNull(parser);
         }
 
@@ -310,21 +298,6 @@ public class SetSerializer implements Serializer {
         @Override
         public void close() throws IOException {
             parser.close();
-        }
-    }
-
-    private static class JacksonIOException extends RuntimeException {
-
-        private final IOException cause;
-
-        public JacksonIOException(IOException cause) {
-            super(cause);
-            this.cause = cause;
-        }
-
-        @Override
-        public IOException getCause() {
-            return cause;
         }
     }
 }

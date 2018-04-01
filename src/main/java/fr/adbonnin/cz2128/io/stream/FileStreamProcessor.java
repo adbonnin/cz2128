@@ -22,14 +22,14 @@ public class FileStreamProcessor extends SwapStreamProcessor {
     }
 
     @Override
-    protected OutputStream createOutputStream() throws IOException {
+    protected OutputStream createToBeSwappedOutputStream() throws IOException {
         return new BufferedOutputStream(new FileOutputStream(tempFile));
     }
 
     @Override
-    protected void swap(OutputStream output) throws IOException {
+    protected void swap(OutputStream toBeSwappedOutput) throws IOException {
         if (!tempFile.renameTo(file)) {
-            throw new IOException("files can't be swapped");
+            throw new IOException("files swap has failed");
         }
     }
 }

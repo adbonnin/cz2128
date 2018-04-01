@@ -29,21 +29,31 @@ public class JacksonUtilsTest {
     }
 
     @Test
-    public void testUpdateObjectWithNull() throws Exception {
+    public void testUpdateObjectWithNullNodes() throws Exception {
         updateObject(null, null, generator);
         assertTrue(out.toString().isEmpty());
+    }
 
-        final ObjectNode node = mapper.createObjectNode();
-        node.set("foo", new TextNode("foo"));
-        node.set("bar", new TextNode("bar"));
+    @Test
+    public void testUpdateObjectWithNullOldNode() throws Exception {
+        final ObjectNode newNode = mapper.createObjectNode();
+        newNode.set("foo1", new TextNode("foo1"));
+        newNode.set("bar1", new TextNode("bar1"));
 
-        updateObject(null, node, generator);
+        updateObject(null, newNode, generator);
         generator.close();
-        assertEquals(mapper.readTree(out.toByteArray()), node);
+        assertEquals(mapper.readTree(out.toByteArray()), newNode);
+    }
 
-        updateObject(node, null, generator);
+    @Test
+    public void testUpdateObjectWithNullNewNode() throws Exception {
+        final ObjectNode oldNode = mapper.createObjectNode();
+        oldNode.set("foo2", new TextNode("foo2"));
+        oldNode.set("bar2", new TextNode("bar2"));
+
+        updateObject(oldNode, null, generator);
         generator.close();
-        assertEquals(mapper.readTree(out.toByteArray()), node);
+        assertEquals(mapper.readTree(out.toByteArray()), oldNode);
     }
 
     @Test

@@ -1,8 +1,8 @@
 package fr.adbonnin.cz2128.repository;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.base.Predicate;
 import fr.adbonnin.cz2128.io.stream.StreamProcessor;
 import fr.adbonnin.cz2128.io.stream.StreamProcessor.ReadFunction;
@@ -23,13 +23,13 @@ public class BaseRepository {
 
     private final StreamProcessor processor;
 
-    private final ObjectMapper mapper;
+    private final JsonFactory jsonFactory;
 
     private final Serializer serializer;
 
-    public BaseRepository(StreamProcessor processor, ObjectMapper mapper, Serializer serializer) {
+    public BaseRepository(StreamProcessor processor, JsonFactory jsonFactory, Serializer serializer) {
         this.processor = requireNonNull(processor);
-        this.mapper = requireNonNull(mapper);
+        this.jsonFactory = requireNonNull(jsonFactory);
         this.serializer = requireNonNull(serializer);
     }
 
@@ -123,18 +123,19 @@ public class BaseRepository {
         }
     }
 
-    protected JsonParser createParser(InputStream input) throws IOException {
-        return mapper.getFactory().createParser(input);
-    }
-
-    protected JsonGenerator createGenerator(OutputStream output) throws IOException {
-        return mapper.getFactory().createGenerator(output);
-    }
-
     private final ReadFunction<Long> countFunction = new ReadFunction<Long>() {
         @Override
         public Long read(InputStream input) throws IOException {
-            return serializer.count(createParser(input));
+            final JsonParser parser = createParser(input);
+            return serializer.count(parser);
         }
     };
+
+    private JsonParser createParser(InputStream input) throws IOException {
+        return jsonFactory.createParser(input);
+    }
+
+    private JsonGenerator createGenerator(OutputStream output) throws IOException {
+        return jsonFactory.createGenerator(output);
+    }
 }

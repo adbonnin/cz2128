@@ -1,9 +1,6 @@
 package fr.adbonnin.cz2128.collect;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
@@ -15,12 +12,6 @@ public final class CollectionUtils {
         return list;
     }
 
-    public static <T> HashSet<T> newHashSet(Iterator<? extends T> iterator) {
-        final HashSet<T> set = new HashSet<>();
-        CollectionUtils.addAll(set, iterator);
-        return set;
-    }
-
     public static <T> boolean addAll(Collection<T> addTo, Iterator<? extends T> iterator) {
         requireNonNull(addTo);
 
@@ -30,6 +21,15 @@ public final class CollectionUtils {
         }
 
         return modified;
+    }
+
+    public static <T> Map<T, T> mapAllToHashMap(Iterable<? extends T> elements) {
+        final Map<T, T> map = new HashMap<>();
+        for (T element : elements) {
+            map.put(element, element);
+        }
+
+        return map;
     }
 
     private CollectionUtils() { /* Cannot be instantiated */ }

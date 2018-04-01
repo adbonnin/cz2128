@@ -1,7 +1,6 @@
 package fr.adbonnin.cz2128.io.stream;
 
 import java.io.*;
-import java.util.Arrays;
 
 import static fr.adbonnin.cz2128.base.ArrayUtils.EMPTY_BYTE_ARRAY;
 
@@ -17,8 +16,8 @@ public class BytesStreamProcessor extends SwapStreamProcessor {
         this(str.getBytes(), timeout);
     }
 
-    public BytesStreamProcessor(byte[] bytes, long timeout) {
-        super(timeout);
+    public BytesStreamProcessor(byte[] bytes, long lockTimeout) {
+        super(lockTimeout);
         this.bytes = bytes;
     }
 
@@ -27,18 +26,18 @@ public class BytesStreamProcessor extends SwapStreamProcessor {
     }
 
     @Override
-    protected InputStream createInputStream() throws IOException {
+    protected InputStream createInputStream() {
         return new ByteArrayInputStream(bytes);
     }
 
     @Override
-    protected OutputStream createOutputStream() throws IOException {
+    protected OutputStream createToBeSwappedOutputStream() {
         return new ByteArrayOutputStream();
     }
 
     @Override
-    protected void swap(OutputStream output) throws IOException {
-        bytes = ((ByteArrayOutputStream) output).toByteArray();
+    protected void swap(OutputStream toBeSwappedOutput) {
+        bytes = ((ByteArrayOutputStream) toBeSwappedOutput).toByteArray();
     }
 
     @Override

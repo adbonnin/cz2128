@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonFactory;
 import fr.adbonnin.cz2128.base.Predicate;
 import fr.adbonnin.cz2128.base.PredicateUtils;
 import fr.adbonnin.cz2128.io.stream.StreamProcessor;
@@ -16,8 +16,8 @@ public class Repository<E> extends BaseRepository {
 
     private final ValueReader<E> reader;
 
-    public Repository(StreamProcessor processor, ObjectMapper mapper, Serializer serializer, ValueReader<E> reader) {
-        super(processor, mapper, serializer);
+    public Repository(StreamProcessor processor, JsonFactory jsonFactory, Serializer serializer, ValueReader<E> reader) {
+        super(processor, jsonFactory, serializer);
         this.reader = requireNonNull(reader);
     }
 

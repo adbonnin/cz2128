@@ -9,7 +9,6 @@ import fr.adbonnin.cz2128.serializer.FieldSerializer;
 import fr.adbonnin.cz2128.serializer.Serializer;
 import fr.adbonnin.cz2128.serializer.SetSerializer;
 import fr.adbonnin.cz2128.serializer.ValueReader;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
@@ -21,7 +20,7 @@ public class RepositoryTest {
     public Repository<Foo> createRepository(ObjectMapper mapper, Serializer serializer) {
         final StreamProcessor processor = new BytesStreamProcessor(-1);
         final ValueReader<Foo> reader = ValueReader.readerFor(mapper, Foo.class);
-        return new Repository<>(processor, mapper, serializer, reader);
+        return new Repository<>(processor, mapper.getFactory(), serializer, reader);
     }
 
     @Test
