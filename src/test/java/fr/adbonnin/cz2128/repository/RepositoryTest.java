@@ -3,8 +3,7 @@ package fr.adbonnin.cz2128.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.base.Foo;
 import fr.adbonnin.cz2128.base.PredicateUtils;
-import fr.adbonnin.cz2128.io.stream.BytesStreamProcessor;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor;
+import fr.adbonnin.cz2128.io.stream.ByteArrayStreamSwapper;
 import fr.adbonnin.cz2128.serializer.FieldSerializer;
 import fr.adbonnin.cz2128.serializer.Serializer;
 import fr.adbonnin.cz2128.serializer.SetSerializer;
@@ -18,9 +17,9 @@ import static org.testng.Assert.*;
 public class RepositoryTest {
 
     public Repository<Foo> createRepository(ObjectMapper mapper, Serializer serializer) {
-        final StreamProcessor processor = new BytesStreamProcessor(-1);
+        final ByteArrayStreamSwapper processor = new ByteArrayStreamSwapper(-1);
         final ValueReader<Foo> reader = ValueReader.readerFor(mapper, Foo.class);
-        return new Repository<>(processor, mapper.getFactory(), serializer, reader);
+        return new Repository<>(processor, processor, mapper.getFactory(), serializer, reader);
     }
 
     @Test

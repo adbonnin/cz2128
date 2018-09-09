@@ -4,9 +4,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.base.Predicate;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor.ReadFunction;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor.WriteFunction;
+import fr.adbonnin.cz2128.io.stream.StreamReader;
+import fr.adbonnin.cz2128.io.stream.StreamReader.ReadFunction;
+import fr.adbonnin.cz2128.io.stream.StreamWriter;
+import fr.adbonnin.cz2128.io.stream.StreamWriter.WriteFunction;
 import fr.adbonnin.cz2128.serializer.Serializer;
 import fr.adbonnin.cz2128.serializer.ValueReader;
 
@@ -21,24 +22,27 @@ import static java.util.Objects.requireNonNull;
 
 public class BaseRepository {
 
-    private final StreamProcessor processor;
+    private final StreamReader streamReader;
+
+    private final StreamWriter streamWriter;
 
     private final JsonFactory jsonFactory;
 
     private final Serializer serializer;
 
-    public BaseRepository(StreamProcessor processor, JsonFactory jsonFactory, Serializer serializer) {
-        this.processor = requireNonNull(processor);
+    public BaseRepository(StreamReader streamReader, StreamWriter streamWriter, JsonFactory jsonFactory, Serializer serializer) {
+        this.streamReader = requireNonNull(streamReader);
+        this.streamWriter = requireNonNull(streamWriter);
         this.jsonFactory = requireNonNull(jsonFactory);
         this.serializer = requireNonNull(serializer);
     }
 
     public long count() throws IOException {
-        return processor.read(countFunction);
+        return streamReader.read(countFunction);
     }
 
     public <T> long count(final ValueReader<T> reader, final Predicate<? super T> predicate) throws IOException {
-        return processor.read(new ReadJsonFunction<Long>() {
+        return streamReader.read(new ReadJsonFunction<Long>() {
             @Override
             public Long readJson(JsonParser parser) throws IOException {
                 return serializer.count(parser, reader, predicate);
@@ -47,7 +51,7 @@ public class BaseRepository {
     }
 
     public <T> boolean delete(final ValueReader<T> reader, final Predicate<? super T> predicate) throws IOException {
-        return processor.write(new WriteJsonFunction<Boolean>() {
+        return streamWriter.write(new WriteJsonFunction<Boolean>() {
             @Override
             public Boolean writeJson(JsonParser parser, JsonGenerator generator) throws IOException {
                 return serializer.delete(parser, reader, generator, predicate);
@@ -56,7 +60,7 @@ public class BaseRepository {
     }
 
     public <T> List<T> findAll(final ValueReader<T> reader, final Predicate<? super T> predicate) throws IOException {
-        return processor.read(new ReadJsonFunction<List<T>>() {
+        return streamReader.read(new ReadJsonFunction<List<T>>() {
             @Override
             public List<T> readJson(JsonParser parser) throws IOException {
                 return serializer.findAll(parser, reader, predicate);
@@ -65,7 +69,7 @@ public class BaseRepository {
     }
 
     public <T> T findOne(final ValueReader<T> reader, final Predicate<? super T> predicate, final T defaultValue) throws IOException {
-        return processor.read(new ReadJsonFunction<T>() {
+        return streamReader.read(new ReadJsonFunction<T>() {
             @Override
             public T readJson(JsonParser parser) throws IOException {
                 return serializer.findOne(parser, reader, predicate, defaultValue);
@@ -78,7 +82,7 @@ public class BaseRepository {
     }
 
     public <T> boolean save(final Iterable<T> elements, final ValueReader<T> reader) throws IOException {
-        return processor.write(new WriteJsonFunction<Boolean>() {
+        return streamWriter.write(new WriteJsonFunction<Boolean>() {
             @Override
             public Boolean writeJson(JsonParser parser, JsonGenerator generator) throws IOException {
                 return serializer.save(elements, parser, reader, generator);

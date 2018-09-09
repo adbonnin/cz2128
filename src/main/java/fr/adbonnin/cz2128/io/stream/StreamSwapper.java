@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static fr.adbonnin.cz2128.io.IOUtils.closeQuietly;
 
-public abstract class SwapStreamProcessor implements StreamProcessor {
+public abstract class StreamSwapper implements StreamReader, StreamWriter {
 
     private final Lock readLock;
 
@@ -18,7 +18,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
 
     private final long lockTimeout;
 
-    public SwapStreamProcessor(long lockTimeout) {
+    public StreamSwapper(long lockTimeout) {
         final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
         this.readLock = readWriteLock.readLock();
         this.writeLock = readWriteLock.writeLock();
@@ -27,9 +27,9 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
 
     protected abstract InputStream createInputStream() throws IOException;
 
-    protected abstract OutputStream createToBeSwappedOutputStream() throws IOException;
+    protected abstract OutputStream createOutputStream() throws IOException;
 
-    protected abstract void swap(OutputStream tempOutput) throws IOException;
+    protected abstract void swap(OutputStream closedOutput) throws IOException;
 
     @Override
     public <T> T read(ReadFunction<? extends T> function) throws IOException {
@@ -50,7 +50,7 @@ public abstract class SwapStreamProcessor implements StreamProcessor {
         OutputStream output = null;
         try {
             input = tryAcquireWriteLockThenCreateInputStream();
-            output = createToBeSwappedOutputStream();
+            output = createOutputStream();
             final T result = function.write(input, output);
             swap = true;
             return result;

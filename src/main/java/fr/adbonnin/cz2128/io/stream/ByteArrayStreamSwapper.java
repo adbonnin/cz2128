@@ -4,19 +4,19 @@ import java.io.*;
 
 import static fr.adbonnin.cz2128.base.ArrayUtils.EMPTY_BYTE_ARRAY;
 
-public class BytesStreamProcessor extends SwapStreamProcessor {
+public class ByteArrayStreamSwapper extends StreamSwapper {
 
     private byte[] bytes;
 
-    public BytesStreamProcessor(long timeout) {
+    public ByteArrayStreamSwapper(long timeout) {
         this(EMPTY_BYTE_ARRAY, timeout);
     }
 
-    public BytesStreamProcessor(String str, long timeout) {
+    public ByteArrayStreamSwapper(String str, long timeout) {
         this(str.getBytes(), timeout);
     }
 
-    public BytesStreamProcessor(byte[] bytes, long lockTimeout) {
+    public ByteArrayStreamSwapper(byte[] bytes, long lockTimeout) {
         super(lockTimeout);
         this.bytes = bytes;
     }
@@ -31,13 +31,13 @@ public class BytesStreamProcessor extends SwapStreamProcessor {
     }
 
     @Override
-    protected OutputStream createToBeSwappedOutputStream() {
+    protected OutputStream createOutputStream() {
         return new ByteArrayOutputStream();
     }
 
     @Override
-    protected void swap(OutputStream toBeSwappedOutput) {
-        bytes = ((ByteArrayOutputStream) toBeSwappedOutput).toByteArray();
+    protected void swap(OutputStream closedOutput) {
+        bytes = ((ByteArrayOutputStream) closedOutput).toByteArray();
     }
 
     @Override

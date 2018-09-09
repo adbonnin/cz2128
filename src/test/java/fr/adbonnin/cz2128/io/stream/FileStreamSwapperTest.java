@@ -1,5 +1,5 @@
 package fr.adbonnin.cz2128.io.stream;
 
-public class FileStreamProcessorTest {
+public class FileStreamSwapperTest {
     // TODO
 }

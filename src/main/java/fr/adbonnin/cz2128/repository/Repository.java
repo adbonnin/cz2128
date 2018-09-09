@@ -3,7 +3,8 @@ package fr.adbonnin.cz2128.repository;
 import com.fasterxml.jackson.core.JsonFactory;
 import fr.adbonnin.cz2128.base.Predicate;
 import fr.adbonnin.cz2128.base.PredicateUtils;
-import fr.adbonnin.cz2128.io.stream.StreamProcessor;
+import fr.adbonnin.cz2128.io.stream.StreamReader;
+import fr.adbonnin.cz2128.io.stream.StreamWriter;
 import fr.adbonnin.cz2128.serializer.Serializer;
 import fr.adbonnin.cz2128.serializer.ValueReader;
 
@@ -16,8 +17,8 @@ public class Repository<E> extends BaseRepository {
 
     private final ValueReader<E> reader;
 
-    public Repository(StreamProcessor processor, JsonFactory jsonFactory, Serializer serializer, ValueReader<E> reader) {
-        super(processor, jsonFactory, serializer);
+    public Repository(StreamReader readerProcessor, StreamWriter writerProcessor, JsonFactory jsonFactory, Serializer serializer, ValueReader<E> reader) {
+        super(readerProcessor, writerProcessor, jsonFactory, serializer);
         this.reader = requireNonNull(reader);
     }
 
