@@ -131,7 +131,7 @@ class StringJsonSetRepositorySpec extends BaseJsonProviderSpec {
         def stream = repo.withStream() { Stream<Cat> s -> s }
 
         then:
-        stream.findFirst().isEmpty()
+        !stream.findFirst().isPresent()
 
         where:
         content = '[{id: 1}, {id: 2}, {id: 3}]'

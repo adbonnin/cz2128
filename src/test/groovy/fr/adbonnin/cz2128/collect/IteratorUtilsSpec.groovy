@@ -49,15 +49,15 @@ class IteratorUtilsSpec extends Specification {
         def found = IteratorUtils.find(iterator, predicate)
 
         then:
-        found.isEmpty() == expectdIsEmpty
+        found.isPresent() == expectdIsPresent
         found.orElse(defaultValue) == expectedValue
 
         where:
-        elements   || expectdIsEmpty | expectedValue
-        []         || true           | 'D'
-        ['A', 'B'] || false          | 'A'
-        ['B', 'C'] || false          | 'C'
-        ['B', 'B'] || true           | 'D'
+        elements   || expectdIsPresent | expectedValue
+        []         || false            | 'D'
+        ['A', 'B'] || true             | 'A'
+        ['B', 'C'] || true             | 'C'
+        ['B', 'B'] || false            | 'D'
 
         iterator = elements.iterator()
         predicate = { it != 'B' } as Predicate<String>

@@ -92,8 +92,8 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
      * further attempts to use the iterator will result in an {@link
      * IllegalStateException}.
      *
-     * <p>The implementation of this method may not invoke the {@code hasNext},
-     * {@code next}, or {@link #peek()} methods on this instance; if it does, an
+     * <p>The implementation of this method may not invoke the {@code hasNext} or
+     * {@code next} methods on this instance; if it does, an
      * {@code IllegalStateException} will result.
      *
      * @return the next element if there was one. If {@code endOfData} was called
@@ -152,19 +152,6 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
         T result = next;
         next = null;
         return result;
-    }
-
-    /**
-     * Returns the next element in the iteration without advancing the iteration.
-     *
-     * <p>Implementations of {@code AbstractIterator} that wish to expose this
-     * functionality should implement {@code PeekingIterator}.
-     */
-    public final T peek() {
-        if (!hasNext()) {
-            throw new NoSuchElementException();
-        }
-        return next;
     }
 
     /**
