@@ -24,8 +24,15 @@ class JsonUtilsSpec extends BaseJsonSpec {
         where:
         oldJson                     | newJson                     || expectedModified | expectedJson
         null                        | null                        || false            | ''
-        '{old:"old"}'               | '{}'                        || true             | '{old:"old"}'
+        '{}'                        | null                        || false            | '{}'
+
+        null                        | '{}'                        || true             | '{}'
+        '{}'                        | '{}'                        || false            | '{}'
+        '{old:"old"}'               | '{}'                        || false            | '{old:"old"}'
+
+        null                        | '{new:"new"}'               || true             | '{new:"new"}'
         '{}'                        | '{new:"new"}'               || true             | '{new:"new"}'
+
         '{old:"old",updated:"old"}' | '{new:"new",updated:"new"}' || true             | '{old:"old",new:"new",updated:"new"}'
 
         oldNode = readObjectNode(oldJson)

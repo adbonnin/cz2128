@@ -16,15 +16,19 @@ public class JsonUtils {
     public static boolean updateObject(ObjectNode oldNode, ObjectNode newNode, JsonGenerator generator) throws IOException {
         requireNonNull(generator);
 
-        if (newNode == null) {
-            if (oldNode != null) {
-                generator.writeTree(oldNode);
+        if (oldNode == null) {
+            if (newNode == null) {
+                return false;
             }
-            return false;
+            else {
+                generator.writeTree(newNode);
+                return true;
+            }
         }
         else {
-            if (oldNode == null) {
-                generator.writeTree(newNode);
+            if (newNode == null || newNode.size() == 0) {
+                generator.writeTree(oldNode);
+                return false;
             }
             else {
                 final Map<String, JsonNode> newNodeCopy = mapFieldsToLinkedHashMap(newNode);

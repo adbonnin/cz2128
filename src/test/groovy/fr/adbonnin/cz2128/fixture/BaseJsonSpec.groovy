@@ -15,7 +15,15 @@ abstract class BaseJsonSpec extends Specification {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
     static ObjectNode readObjectNode(String content) {
-        return content == null ? null : mapper.readTree(content) as ObjectNode
+        if (content == null) {
+            return null
+        }
+        else if (content.isEmpty()) {
+            return mapper.createObjectNode()
+        }
+        else {
+            return content == null ? null : mapper.readTree(content) as ObjectNode
+        }
     }
 
     static JsonParser createParser(String content) {
