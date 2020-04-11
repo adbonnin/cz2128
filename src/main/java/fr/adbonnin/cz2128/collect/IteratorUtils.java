@@ -1,12 +1,12 @@
 package fr.adbonnin.cz2128.collect;
 
-import fr.adbonnin.cz2128.base.Predicate;
-
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
-public final class IteratorUtils {
+public class IteratorUtils {
 
     public static long count(Iterator<?> iterator) {
 
@@ -19,7 +19,7 @@ public final class IteratorUtils {
         return count;
     }
 
-    public static <E> Iterator<E> filter(final Iterator<E> iterator, final Predicate<? super E> predicate) {
+    public static <E> Iterator<E> filter(Iterator<? extends E> iterator, Predicate<? super E> predicate) {
         requireNonNull(iterator);
         requireNonNull(predicate);
         return new AbstractIterator<E>() {
@@ -28,7 +28,7 @@ public final class IteratorUtils {
             protected E computeNext() {
                 while (iterator.hasNext()) {
                     final E element = iterator.next();
-                    if (predicate.evaluate(element)) {
+                    if (predicate.test(element)) {
                         return element;
                     }
                 }
@@ -37,12 +37,9 @@ public final class IteratorUtils {
         };
     }
 
-    public static <E> E find(Iterator<? extends E> iterator, Predicate<? super E> predicate, E defaultValue) {
-        return next(filter(iterator, predicate), defaultValue);
-    }
-
-    public static <E> E next(Iterator<? extends E> iterator, E defaultValue) {
-        return iterator.hasNext() ? iterator.next() : defaultValue;
+    public static <E> Optional<E> find(Iterator<? extends E> iterator, Predicate<? super E> predicate) {
+        final Iterator<? extends E> filtered = IteratorUtils.filter(iterator, predicate);
+        return filtered.hasNext() ? Optional.of(filtered.next()) : Optional.empty();
     }
 
     private IteratorUtils() { /* Cannot be instantiated */ }
