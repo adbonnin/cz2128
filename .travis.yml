@@ -1,0 +1,32 @@
+language: java
+
+jdk:
+- openjdk8
+
+cache:
+  directories:
+  - "$HOME/.m2"
+
+env:
+  global:
+  - secure: GpJwz+q2l65oo9xpzwyor9byf1lNKnukg0FrJwozTjQ+zbH9sPRT1xRLxaYLR5KePjdLiL+ZaCv8W5iho0Zf4RN2gEO5seTNIv45Km10gPkXYog3zTKO9HEq7T4O1wGl2SXjbY9fHsDmbPFqaYEitRFLW/86MlNnzrlUmsBgjHZOnNOhppJTTuECJwecS489fwEezhpeZMy0HguOGrEA/QRevWvhj56O1xc541lK+wJRbW6fn8tY9wjPMiGvcNSMRSSU+jz5QT0Kois9VDnJf7Dl+5B798Sxo4FjbH26E4DNeVmnCcuN9kymtpEduNH8u7TQ2l4MJ26neYIdwb/xy577JbqouR6/fsOY5fTYIW/3EVZafkfLgr20u0xvVJI157kCy1v6Kn1G2dsUjpdiZ4cUCCBBfrcp+Ij2ohGlorsy7heAeTLafoMmM/TUNpzjtBarxjb8EHoVmISsyxiD05ps7h3nxVA9ltdU270eudmxfHAaOJWEJmi+zjr3IAcLPiWrHYSCwhHYsOo6dEEczuwQGzFzwPn11rUpgGqtCr+ZlEQUF9dyoU3R8znG7zPSWDFW3sVsOXw0eIUL89trqCxZiZaABHOBIDey2w0g6WYIpk3LvRk+nJZVWdb7TIj/KgOlA/hOltH09i7obfzwwdv+LTlsdPF9C64gcAHZPgE=
+  - secure: HeMkO7J1Z5fcmeWbRLzaXLOXZslDTJnCrviaqZZ50y2N1SzX1P4qUtXXuA1vNsefRZhvSumhiP8m52ImZ5xfqX0PMY1r8mkWM5+H/R4Tz8UZDjjCMcytaElLkslwPT+mxGZPd+2fo3jTGP8hSPGatk4xmc8TTQ4eUWjDcJlKC0Y0JbNVtVIxM5FQu/tGx6b66eOjeO8K+G4dHPXkkDV/f5FsudZycPC1oCS8asq+p+/8i9P+rhnsvxun78t8NPc40BbEHUst6xc3gDVEhPFhXx9hvEU98SwGOvpW1nln4l5dUwY6eA2I4cz7HVUWFx5T1O9dOnSS6fsIZTQOkepT/2vDBr1/3SEmOjvB7w1aPSDBmXf6Vvy6lf4QoRrhtlI26xX9Fvbm79OffcZ7iEVqgH42BbPdDt/Q7sukpd58BFQ8sb7nvP4YveMl7QL3nwE0LzmKjoTQPniLbAj936h7o9pqV31QnAkwC0nc+R2LI93Bux9qxvMxLGdP2nVALbK4tEHvxrU4axKQVERW2MHpoh2qo/WFl5LoQ+JtZM71/IPIIdl9hx6mJOcm0JEerrI7yEWIjqCftzZVWh5ZHog9r1xs6sJFsB+UJ6+t7hqcDDDBZAFeJCxIW9PvnCyrIV02RnFVAIJMEOuZBr1XfSDqoMXUuYEYk0GIWQoS5v1e5Gs=
+  - secure: IsPc3wJX7fls/PsCAVbQNhDf0b0zcKW/r9CTupUQ2/MOjM91b/O/+tdAeqtXJ9FEvtXegqjMVOVJba69a2KiL+vDu+p05xEI6hFepFDkzjDJND9OeIAcvU75b/0GZhLuSiBaVuy7nRw/TntddRMAmzzDHqA7SC2WWcdM49j0XvMfIKPZVsmE1IdoYDDptWlXYW/ddXIFqF2oPMzSdbp+8QRbJpsAwSZVqX7Shc82k2iVYxNDrhjWSDi0+nGH2qlWy+Bbj6AT9Ggz40ZmCPaigE06yKbHYNtC0On7kHPP6PDbyCNWFi1kTy5TcmXmc4sLhgtWJgp5Kyd1f4skbnzBEQ48C2R9j0zlhS8rsuNg9s1nJPm/+UyyzueoMIU4O1+xApJG03zrYLhQeDLyd2a2ZJpsx2+ndmzTk9tkJDZQeJWqadQpNQ16KcLhJp8F6Nghuh4YO/mJSGLRUThMdFyIVAZXAsZwoSOKn7IATf29mn1oFOSBrS7ImlnA1hARAAwaXkfq1xMn3/L/lo2nfReYFSr97hVv4d4gqw6KUMJwIl3yTBGFSy/w3wz8X3mez8YgJAmFd3fcbq4eGBP92S2pTFlxM1Mtn66yfNCwzuJdDXkACh4jIK5VJHMXiWPGtx2Vv9yQ4mc8AMmE31Y27/Ar3e8TAM07jACzDKKVFboRCAQ=
+  - secure: bywsXYY0UvRmWZJX9Cb+KiEYM//9fS7zbAgDHfa0ZqkeM6AszB/6hmNEXBMFcT/MJ3T4ErhbcnoBqm+ZjcXDuYVUcAY8gXHlHBgADT2jAFItgwVjzvpooIpUSyfM6tWAvNRYEEsQgYCC7JdMp2xklOCf71Ay5UfQmpLhyLRIA0p8qhxn5kAj2Jquo9WhJuHnwsmnxIoHmBdkNx0IW/UfOrl5LWXizcV5A+3vdjyCfPIfJiUnyOVeJjFG/hsvGuizjAqsp+K/yDo79y27kgzG71R40jYi51uqd3gPM9JV3tJXeMZGewHmrKTa1BTCGzgRAvHC2+2N6NjLVhNyLUqYy/fQ8c4zcZ+TEsU6N9JtfV1Z0if1D2OoY+5HOjPm5zxdOGEXl5GvEWYWckUQMEfDu3co3Vj5RkwR2zuYRmCa/8ttDKlwIA036GavaCmYEbpHg/vmDluz7AViJFG7U5s83M3RbFndFbpsGJWa6xPjAVo8JifkD2aRbgVB7oOImir2PJ35oZXQM/vv267Y0OkRKKA3ZqVi0+7RmCPBCsgxCg2OUd/UYQlRiKiPS8w1QE/cnNTIhvD8kZuNbrtKzmAKIiaNJwvkya+3Hsv1niY/+mX7YAiSxtSvffXcR84uaP6mYcq8//yBCYuHegyvxySD6vmKTK+nOp7HKY6YUJ+RVqs=
+
+install: skip
+
+script: mvn clean install --batch-mode --settings .travis/mvn-settings.xml
+
+before_deploy:
+    - openssl aes-256-cbc -K $encrypted_81c98acad902_key -iv $encrypted_81c98acad902_iv -in .travis/codesigning.asc.enc -out codesigning.asc -d
+    - gpg --fast-import codesigning.asc
+    - if [ -n "$TRAVIS_TAG" ]; then mvn versions:set -DnewVersion=$TRAVIS_TAG -DgenerateBackupPoms=false; fi
+
+deploy:
+  provider: script
+  script: mvn deploy -P publish --batch-mode --settings .travis/mvn-settings.xml -DskipITs -DskipTests=true
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH = master || -n $TRAVIS_TAG
