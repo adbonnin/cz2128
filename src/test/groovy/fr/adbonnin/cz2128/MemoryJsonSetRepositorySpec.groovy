@@ -8,7 +8,7 @@ import spock.lang.Subject
 import java.util.function.Predicate
 import java.util.stream.Stream
 
-class StringJsonSetRepositorySpec extends BaseJsonProviderSpec {
+class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     @Subject
     def stringJsonProvider = new MemoryJsonProvider()
@@ -143,6 +143,7 @@ class StringJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         when:
         def result = repo.save(element)
+        repo.save(null)
 
         then:
         result
@@ -152,6 +153,7 @@ class StringJsonSetRepositorySpec extends BaseJsonProviderSpec {
         content                                     | expectedContent
         ''                                          | '[{id:0,name:"Spock"}]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]' | '[{id:0,name:"Spock",grade:"Captain"}]'
+        '[{id: 1, name: "Kirk", grade: "Captain"}]' | '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -162,15 +164,17 @@ class StringJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         when:
         def result = repo.saveAll(elements)
+        repo.saveAll([null])
 
         then:
         result == elements.size()
         jsonProviderContent == expectedContent
 
         where:
-        content                                     | expectedContent
-        ''                                          | '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]' | '[{id:0,name:"Spock",grade:"Captain"},{id:1,name:"Kirk"}]'
+        content                                       | expectedContent
+        ''                                            | '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | '[{id:0,name:"Spock",grade:"Captain"},{id:1,name:"Kirk"}]'
+        '[{id: 2, name: "Archer", grade: "Captain"}]' | '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }

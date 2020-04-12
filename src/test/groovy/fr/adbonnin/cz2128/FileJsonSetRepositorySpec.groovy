@@ -6,7 +6,7 @@ import spock.lang.Subject
 
 import java.nio.file.Files
 
-class FileJsonSetRepositorySpec extends StringJsonSetRepositorySpec {
+class FileJsonSetRepositorySpec extends MemoryJsonSetRepositorySpec {
 
     @Subject
     def fileJsonProvider = new FileJsonProvider(Files.createTempFile('test-', '.json'))

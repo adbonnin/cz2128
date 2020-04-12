@@ -120,6 +120,7 @@ public class JsonSetRepository<T> {
     public long saveAll(Iterable<? extends T> elements) {
         return provider.withGenerator(mapper, (parser, generator) -> {
             final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
+                    .filter(Objects::nonNull)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
             try (CloseableIterator<ObjectNode> itr = new ObjectNodeIterator(parser, mapper)) {
@@ -132,7 +133,7 @@ public class JsonSetRepository<T> {
                     final T oldElement = reader.readValue(oldNode);
 
                     final T newElement = newElements.remove(oldElement);
-                    final ObjectNode newNode = mapper.valueToTree(newElement);
+                    final ObjectNode newNode = newElement == null ? null : mapper.valueToTree(newElement);
                     if (JsonUtils.updateObject(oldNode, newNode, generator)) {
                         ++updated;
                     }
