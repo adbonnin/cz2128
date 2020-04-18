@@ -10,18 +10,18 @@ import java.io.IOException;
 
 import static java.util.Objects.requireNonNull;
 
-public class ValueIterator<E> implements CloseableIterator<E> {
+public class ValueArrayIterator<E> implements CloseableIterator<E> {
 
-    private final ObjectNodeIterator iterator;
+    private final JsonNodeArrayIterator iterator;
 
     private final ObjectReader reader;
 
-    public ValueIterator(JsonParser parser, ObjectReader reader, ObjectMapper mapper) {
+    public ValueArrayIterator(JsonParser parser, ObjectReader reader, ObjectMapper mapper) {
         this.reader = requireNonNull(reader);
-        this.iterator = new ObjectNodeIterator(parser, mapper);
+        this.iterator = new JsonNodeArrayIterator(parser, mapper);
     }
 
-    public ValueIterator(JsonParser parser, Class<E> type, ObjectMapper mapper) {
+    public ValueArrayIterator(JsonParser parser, Class<E> type, ObjectMapper mapper) {
         this(parser, mapper.readerFor(type), mapper);
     }
 

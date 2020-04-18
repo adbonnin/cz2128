@@ -1,14 +1,15 @@
 package fr.adbonnin.cz2128;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.adbonnin.cz2128.collect.CloseableIterator;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonUtils;
-import fr.adbonnin.cz2128.json.array.ObjectNodeIterator;
+import fr.adbonnin.cz2128.json.array.JsonNodeArrayIterator;
 import fr.adbonnin.cz2128.json.array.SkippedValueIterator;
-import fr.adbonnin.cz2128.json.array.ValueIterator;
+import fr.adbonnin.cz2128.json.array.ValueArrayIterator;
 
 import java.io.IOException;
 import java.util.*;
@@ -92,7 +93,7 @@ public class JsonSetRepository<T> {
 
     public <U> U withIterator(Function<Iterator<? extends T>, ? extends U> function) {
         return provider.withParser(mapper, parser -> {
-            try (CloseableIterator<? extends T> iterator = new ValueIterator<>(parser, reader, mapper)) {
+            try (CloseableIterator<? extends T> iterator = new ValueArrayIterator<>(parser, reader, mapper)) {
                 return function.apply(iterator);
             }
             catch (IOException e) {
@@ -123,18 +124,18 @@ public class JsonSetRepository<T> {
                     .filter(Objects::nonNull)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
-            try (CloseableIterator<ObjectNode> itr = new ObjectNodeIterator(parser, mapper)) {
+            try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
                 long updated = 0;
                 generator.writeStartArray();
 
                 // Update old elements
                 while (itr.hasNext()) {
-                    final ObjectNode oldNode = itr.next();
+                    final JsonNode oldNode = itr.next();
                     final T oldElement = reader.readValue(oldNode);
 
                     final T newElement = newElements.remove(oldElement);
                     final ObjectNode newNode = newElement == null ? null : mapper.valueToTree(newElement);
-                    if (JsonUtils.updateObject(oldNode, newNode, generator)) {
+                    if (JsonUtils.updateObject((ObjectNode) oldNode, newNode, generator)) {
                         ++updated;
                     }
                 }
@@ -170,12 +171,12 @@ public class JsonSetRepository<T> {
 
     public long deleteAll(Predicate<? super T> predicate) {
         return provider.withGenerator(mapper, (parser, generator) -> {
-            try (CloseableIterator<ObjectNode> itr = new ObjectNodeIterator(parser, mapper)) {
+            try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
                 long deleted = 0;
                 generator.writeStartArray();
 
                 while (itr.hasNext()) {
-                    final ObjectNode node = itr.next();
+                    final JsonNode node = itr.next();
                     final T element = reader.readValue(node);
 
                     if (predicate.test(element)) {
