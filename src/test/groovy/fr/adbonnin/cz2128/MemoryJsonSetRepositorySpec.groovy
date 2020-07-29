@@ -26,7 +26,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     def <T> JsonSetRepository<T> buildJsonSetRepository(Class<T> type, String content = '') {
         def provider = setupJsonProvider(content)
-        return new JsonSetRepository<>(type, provider, mapper)
+        return new JsonSetRepository<>(type, provider, DEFAULT_MAPPER)
     }
 
     void "should count elements"() {

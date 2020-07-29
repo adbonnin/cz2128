@@ -9,7 +9,7 @@ import spock.lang.Specification
 
 abstract class BaseJsonSpec extends Specification {
 
-    static mapper = JsonMapper.builder()
+    static DEFAULT_MAPPER = JsonMapper.builder()
             .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
@@ -20,14 +20,14 @@ abstract class BaseJsonSpec extends Specification {
             return null
         }
         else if (content.isEmpty()) {
-            return mapper.createObjectNode()
+            return DEFAULT_MAPPER.createObjectNode()
         }
         else {
-            return mapper.readTree(content) as ObjectNode
+            return DEFAULT_MAPPER.readTree(content) as ObjectNode
         }
     }
 
     static JsonParser createParser(String content) {
-        return content == null ? null : mapper.getFactory().createParser(content)
+        return content == null ? null : DEFAULT_MAPPER.getFactory().createParser(content)
     }
 }

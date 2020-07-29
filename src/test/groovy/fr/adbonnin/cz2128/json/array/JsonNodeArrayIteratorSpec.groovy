@@ -12,7 +12,7 @@ class JsonNodeArrayIteratorSpec extends BaseJsonSpec {
         def parser = createParser(content)
 
         when:
-        def iterator = new JsonNodeArrayIterator(parser, mapper)
+        def iterator = new JsonNodeArrayIterator(parser, DEFAULT_MAPPER)
 
         then:
         iterator.hasNext()

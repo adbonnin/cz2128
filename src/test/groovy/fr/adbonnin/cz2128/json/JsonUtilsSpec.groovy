@@ -8,7 +8,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
     void "should update object"() {
         given:
         def out = new ByteArrayOutputStream()
-        @Subject def generator = mapper.getFactory().createGenerator(out)
+        @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
         def modified = JsonUtils.updateObject(oldNode, newNode, generator)

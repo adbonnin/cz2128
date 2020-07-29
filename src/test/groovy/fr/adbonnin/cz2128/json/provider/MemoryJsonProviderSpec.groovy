@@ -29,7 +29,7 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
         when:
         def tokens = []
-        def parsed = provider.withParser(mapper, { parser ->
+        def parsed = provider.withParser(DEFAULT_MAPPER, { parser ->
             def token
             while ((token = parser.nextToken()) != null) {
                 tokens.add(token)
@@ -53,13 +53,13 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
         when:
         def tokens = []
-        def parsed = provider.withGenerator(mapper, { parser, generator ->
+        def parsed = provider.withGenerator(DEFAULT_MAPPER, { parser, generator ->
             def token
             while ((token = parser.nextToken()) != null) {
                 tokens.add(token)
             }
 
-            mapper.writeValue(generator, value)
+            DEFAULT_MAPPER.writeValue(generator, value)
             return result
         })
 
@@ -83,8 +83,8 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
         def provider = setupJsonProvider(content)
 
         when:
-        provider.withGenerator(mapper, { parser, generator ->
-            mapper.writeValue(generator, value)
+        provider.withGenerator(DEFAULT_MAPPER, { parser, generator ->
+            DEFAULT_MAPPER.writeValue(generator, value)
             throw new IllegalArgumentException(errorMessage)
         })
 

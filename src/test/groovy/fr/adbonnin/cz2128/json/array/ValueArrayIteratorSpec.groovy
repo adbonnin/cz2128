@@ -11,7 +11,7 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
         def parser = createParser(content)
 
         when:
-        def iterator = new ValueArrayIterator<>(parser, Cat, mapper)
+        def iterator = new ValueArrayIterator<>(parser, Cat, DEFAULT_MAPPER)
 
         then:
         iterator.hasNext()
@@ -41,7 +41,7 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
         def parser = createParser(content)
 
         when:
-        def iterator = new ValueArrayIterator<>(parser, Number, mapper)
+        def iterator = new ValueArrayIterator<>(parser, Number, DEFAULT_MAPPER)
 
         then:
         iterator.hasNext()
