@@ -2,9 +2,49 @@ package fr.adbonnin.cz2128.json
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import spock.lang.Subject
+import spock.lang.Unroll
 
 class JsonUtilsSpec extends BaseJsonSpec {
 
+    @Unroll
+    void "should update array"() {
+        given:
+        def out = new ByteArrayOutputStream()
+        @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
+
+        when:
+        def modified = JsonUtils.updateArray(oldNode, newNode, generator)
+        generator.close()
+
+        then:
+        modified == expectedModified
+        readArrayNode(out.toString()) == expectedNode
+
+        cleanup:
+        out.close()
+
+        where:
+        oldJson             | newJson   || expectedModified | expectedJson
+        null                | null      || false            | ''
+        '[]'                | null      || false            | '[]'
+        '["old"]'           | null      || false            | '["old"]'
+
+        null                | '[]'      || true             | '[]'
+        '[]'                | '[]'      || false            | '[]'
+        '["old"]'           | '[]'      || false            | '["old"]'
+
+        null                | '["new"]' || true             | '["new"]'
+        '[]'                | '["new"]' || true             | '["new"]'
+        '["old"]'           | '["new"]' || true             | '["new"]'
+
+        '["updated","old"]' | '["new"]' || true             | '["new","old"]'
+
+        oldNode = readArrayNode(oldJson)
+        newNode = readArrayNode(newJson)
+        expectedNode = readArrayNode(expectedJson)
+    }
+
+    @Unroll
     void "should update object"() {
         given:
         def out = new ByteArrayOutputStream()
@@ -25,6 +65,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         oldJson                     | newJson                     || expectedModified | expectedJson
         null                        | null                        || false            | ''
         '{}'                        | null                        || false            | '{}'
+        '{old:"old"}'               | null                        || false            | '{old:"old"}'
 
         null                        | '{}'                        || true             | '{}'
         '{}'                        | '{}'                        || false            | '{}'
@@ -32,6 +73,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
 
         null                        | '{new:"new"}'               || true             | '{new:"new"}'
         '{}'                        | '{new:"new"}'               || true             | '{new:"new"}'
+        '{old:"old"}'               | '{new:"new"}'               || true             | '{old:"old",new:"new"}'
 
         '{old:"old",updated:"old"}' | '{new:"new",updated:"new"}' || true             | '{old:"old",new:"new",updated:"new"}'
 

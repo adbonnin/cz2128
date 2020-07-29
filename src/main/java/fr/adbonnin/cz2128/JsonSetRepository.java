@@ -2,9 +2,11 @@ package fr.adbonnin.cz2128;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.adbonnin.cz2128.collect.CloseableIterator;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
@@ -41,6 +43,10 @@ public class JsonSetRepository<T> implements JsonProvider {
         this(mapper.readerFor(type), provider, mapper);
     }
 
+    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper) {
+        this(mapper.readerFor(type), provider, mapper);
+    }
+
     public ObjectReader getReader() {
         return reader;
     }
@@ -58,6 +64,10 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public <U> JsonSetRepository<U> of(Class<U> type) {
+        return new JsonSetRepository<>(type, provider, mapper);
+    }
+
+    public <U> JsonSetRepository<U> of(TypeReference<U> type) {
         return new JsonSetRepository<>(type, provider, mapper);
     }
 
@@ -138,7 +148,7 @@ public class JsonSetRepository<T> implements JsonProvider {
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
             try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
-                long updated = 0;
+                long updates = 0;
                 generator.writeStartArray();
 
                 // Update old elements
@@ -146,23 +156,43 @@ public class JsonSetRepository<T> implements JsonProvider {
                     final JsonNode oldNode = itr.next();
                     final T oldElement = reader.readValue(oldNode);
 
+                    if (!newElements.containsKey(oldElement)) {
+                        generator.writeTree(oldNode);
+                        continue;
+                    }
+
                     final T newElement = newElements.remove(oldElement);
-                    final ObjectNode newNode = newElement == null ? null : mapper.valueToTree(newElement);
-                    if (JsonUtils.updateObject((ObjectNode) oldNode, newNode, generator)) {
-                        ++updated;
+                    final JsonNode newNode = mapper.valueToTree(newElement);
+
+                    final boolean updated;
+                    if (newNode == null) {
+                        updated = false;
+                    }
+                    else if (oldNode.isObject() && newNode.isObject()) {
+                        updated = JsonUtils.updateObject((ObjectNode) oldNode, (ObjectNode)newNode, generator);
+                    }
+                    else if (oldNode.isArray() && newNode.isArray()) {
+                        updated = JsonUtils.updateArray((ArrayNode) oldNode, (ArrayNode) newNode, generator);
+                    }
+                    else {
+                        updated = !oldNode.equals(newNode);
+                        generator.writeTree(newNode);
+                    }
+
+                    if (updated) {
+                        ++updates;
                     }
                 }
 
                 // Create new elements
                 for (T newElement : newElements.values()) {
-                    final ObjectNode newNode = mapper.valueToTree(newElement);
-                    if (JsonUtils.updateObject(null, newNode, generator)) {
-                        ++updated;
-                    }
+                    final JsonNode newNode = mapper.valueToTree(newElement);
+                    generator.writeTree(newNode);
+                    ++updates;
                 }
 
                 generator.writeEndArray();
-                return updated;
+                return updates;
             }
             catch (IOException e) {
                 throw new JsonException(e);

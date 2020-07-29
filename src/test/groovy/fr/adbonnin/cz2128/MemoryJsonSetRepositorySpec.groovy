@@ -2,6 +2,7 @@ package fr.adbonnin.cz2128
 
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
+import fr.adbonnin.cz2128.fixture.SpaceCat
 import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Subject
 
@@ -158,7 +159,27 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         element = new Cat(id: 0, name: 'Spock')
     }
 
-    void "should save all elements"() {
+    void "should save all numbers"() {
+        given:
+        @Subject def repo = buildJsonSetRepository(Integer, content)
+
+        when:
+        def result = repo.saveAll(elements)
+        repo.saveAll([null])
+
+        then:
+        result == elements.size()
+        jsonProviderContent == expectedContent
+
+        where:
+        content   | expectedContent
+        ''        | '[4,5]'
+        '[1,2,3]' | '[1,2,3,4,5]'
+
+        elements = [4, 5]
+    }
+
+    void "should save all objects"() {
         given:
         @Subject def repo = buildJsonSetRepository(Cat, content)
 
@@ -177,6 +198,26 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         '[{id: 2, name: "Archer", grade: "Captain"}]' | '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
+    }
+
+    void "should save all arrays"() {
+        given:
+        @Subject def repo = buildJsonSetRepository(SpaceCat, content)
+
+        when:
+        def result = repo.saveAll(elements)
+        repo.saveAll([null])
+
+        then:
+        result == elements.size()
+        jsonProviderContent == expectedContent
+
+        where:
+        content                    | expectedContent
+        ''                         | '[[0,"Spock"],[1,"Kirk"]]'
+        '[[0, "Kirk", "Captain"]]' | '[[0,"Spock","Captain"],[1,"Kirk"]]'
+
+        elements = [new SpaceCat(id: 0, name: 'Spock'), new SpaceCat(id: 1, name: 'Kirk')]
     }
 
     void "should delete an element"() {
