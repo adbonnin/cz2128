@@ -1,5 +1,7 @@
 package fr.adbonnin.cz2128;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -13,6 +15,7 @@ import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -20,7 +23,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
-public class JsonSetRepository<T> {
+public class JsonSetRepository<T> implements JsonProvider {
 
     private final ObjectReader reader;
 
@@ -59,7 +62,7 @@ public class JsonSetRepository<T> {
     }
 
     public long count() {
-        return provider.withParser(mapper, parser -> {
+        return withParser(mapper, parser -> {
             try (CloseableIterator<Void> iterator = new SkippedValueIterator(parser)) {
                 return IteratorUtils.count(iterator);
             }
@@ -91,8 +94,18 @@ public class JsonSetRepository<T> {
         });
     }
 
-    public <U> U withIterator(Function<Iterator<? extends T>, ? extends U> function) {
-        return provider.withParser(mapper, parser -> {
+    @Override
+    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
+        return provider.withParser(mapper, function);
+    }
+
+    @Override
+    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+        return provider.withGenerator(mapper, function);
+    }
+
+    public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
+        return withParser(mapper, parser -> {
             try (CloseableIterator<? extends T> iterator = new ValueArrayIterator<>(parser, reader, mapper)) {
                 return function.apply(iterator);
             }
@@ -102,7 +115,7 @@ public class JsonSetRepository<T> {
         });
     }
 
-    public <U> U withStream(Function<Stream<? extends T>, ? extends U> function) {
+    public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
         return withIterator((iterator) -> {
             final Spliterator<? extends T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
             final Stream<? extends T> stream = StreamSupport.stream(spliterator, false);
@@ -119,7 +132,7 @@ public class JsonSetRepository<T> {
     }
 
     public long saveAll(Iterable<? extends T> elements) {
-        return provider.withGenerator(mapper, (parser, generator) -> {
+        return withGenerator(mapper, (parser, generator) -> {
             final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
                     .filter(Objects::nonNull)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
@@ -170,7 +183,7 @@ public class JsonSetRepository<T> {
     }
 
     public long deleteAll(Predicate<? super T> predicate) {
-        return provider.withGenerator(mapper, (parser, generator) -> {
+        return withGenerator(mapper, (parser, generator) -> {
             try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
                 long deleted = 0;
                 generator.writeStartArray();

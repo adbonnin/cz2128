@@ -33,7 +33,7 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
+    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
         try {
             if (readLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {
@@ -53,7 +53,7 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <T> T withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends T> function) {
+    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         try {
             if (writeLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {

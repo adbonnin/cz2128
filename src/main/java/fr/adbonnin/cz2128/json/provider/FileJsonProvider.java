@@ -71,7 +71,7 @@ public class FileJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
+    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
         try {
             if (!Files.exists(file)) {
                 final JsonParser parser = mapper.getFactory().createParser(EMPTY_BYTE_ARRAY);
@@ -89,8 +89,8 @@ public class FileJsonProvider implements JsonProvider {
         }
     }
 
-    public <T> T withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends T> function) {
-        final T result;
+    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+        final R result;
 
         try {
             try (OutputStream tempOutput = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);

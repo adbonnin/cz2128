@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public interface JsonProvider {
 
-    <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function);
+    <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function);
 
-    <T> T withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends T> function);
+    <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function);
 }

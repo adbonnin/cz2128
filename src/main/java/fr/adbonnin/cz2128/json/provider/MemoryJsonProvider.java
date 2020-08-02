@@ -34,7 +34,7 @@ public class MemoryJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
+    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
         try (JsonParser parser = mapper.getFactory().createParser(content)) {
             return function.apply(parser);
         }
@@ -44,8 +44,8 @@ public class MemoryJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends T> function) {
-        final T result;
+    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+        final R result;
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             try (JsonGenerator generator = mapper.getFactory().createGenerator(output)) {
