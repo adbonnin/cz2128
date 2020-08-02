@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128.json.array
+package fr.adbonnin.cz2128.json.iterator
 
 import com.fasterxml.jackson.databind.node.DoubleNode
 import com.fasterxml.jackson.databind.node.NullNode

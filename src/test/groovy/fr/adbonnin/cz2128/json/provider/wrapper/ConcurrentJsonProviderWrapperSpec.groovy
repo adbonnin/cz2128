@@ -1,9 +1,9 @@
-package fr.adbonnin.cz2128.json.service
+package fr.adbonnin.cz2128.json.provider.wrapper
 
 import fr.adbonnin.cz2128.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
-import fr.adbonnin.cz2128.json.provider.ConcurrentJsonProviderWrapper
+import fr.adbonnin.cz2128.json.provider.wrapper.ConcurrentJsonProviderWrapper
 import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Specification
 

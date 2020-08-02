@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.adbonnin.cz2128.collect.CloseableIterator;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonUtils;
-import fr.adbonnin.cz2128.json.array.JsonNodeArrayIterator;
-import fr.adbonnin.cz2128.json.array.SkippedValueIterator;
-import fr.adbonnin.cz2128.json.array.ValueArrayIterator;
+import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
+import fr.adbonnin.cz2128.json.iterator.SkippedValueIterator;
+import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
 import java.io.IOException;
 import java.util.*;

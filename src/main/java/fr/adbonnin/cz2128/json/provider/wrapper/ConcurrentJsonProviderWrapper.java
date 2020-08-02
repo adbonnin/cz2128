@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128.json.provider;
+package fr.adbonnin.cz2128.json.provider.wrapper;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;

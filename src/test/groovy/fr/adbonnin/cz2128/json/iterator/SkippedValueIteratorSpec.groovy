@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128.json.array
+package fr.adbonnin.cz2128.json.iterator
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 
