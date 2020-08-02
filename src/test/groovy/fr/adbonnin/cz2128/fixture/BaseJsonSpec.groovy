@@ -9,7 +9,7 @@ import spock.lang.Specification
 
 abstract class BaseJsonSpec extends Specification {
 
-    static DEFAULT_MAPPER = JsonMapper.builder()
+    public static DEFAULT_MAPPER = JsonMapper.builder()
             .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
