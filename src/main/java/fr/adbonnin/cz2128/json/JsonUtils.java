@@ -1,7 +1,9 @@
 package fr.adbonnin.cz2128.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -13,6 +15,12 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 public class JsonUtils {
+
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
+    public static JsonParser newEmptyParser(ObjectMapper mapper) throws IOException {
+        return mapper.getFactory().createParser(EMPTY_BYTE_ARRAY);
+    }
 
     public static boolean updateObject(ObjectNode oldNode, ObjectNode newNode, JsonGenerator generator) throws IOException {
         requireNonNull(generator);

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.adbonnin.cz2128.collect.CloseableIterator;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonUtils;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
@@ -72,14 +71,7 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public long count() {
-        return withParser(mapper, parser -> {
-            try (CloseableIterator<Void> iterator = new SkippedValueIterator(parser)) {
-                return IteratorUtils.count(iterator);
-            }
-            catch (IOException e) {
-                throw new JsonException(e);
-            }
-        });
+        return provider.withParser(mapper, parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
     }
 
     public long count(Predicate<? super T> predicate) {
@@ -114,15 +106,8 @@ public class JsonSetRepository<T> implements JsonProvider {
         return provider.withGenerator(mapper, function);
     }
 
-    public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
-        return withParser(mapper, parser -> {
-            try (CloseableIterator<? extends T> iterator = new ValueArrayIterator<>(parser, reader, mapper)) {
-                return function.apply(iterator);
-            }
-            catch (IOException e) {
-                throw new JsonException(e);
-            }
-        });
+    public <U> U withIterator(Function<Iterator<? extends T>, ? extends U> function) {
+        return provider.withParser(mapper, parser -> function.apply(new ValueArrayIterator<>(parser, reader, mapper)));
     }
 
     public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
@@ -147,11 +132,12 @@ public class JsonSetRepository<T> implements JsonProvider {
                     .filter(Objects::nonNull)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
-            try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
+            try {
                 long updates = 0;
                 generator.writeStartArray();
 
                 // Update old elements
+                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
                 while (itr.hasNext()) {
                     final JsonNode oldNode = itr.next();
                     final T oldElement = reader.readValue(oldNode);
@@ -214,10 +200,11 @@ public class JsonSetRepository<T> implements JsonProvider {
 
     public long deleteAll(Predicate<? super T> predicate) {
         return withGenerator(mapper, (parser, generator) -> {
-            try (CloseableIterator<JsonNode> itr = new JsonNodeArrayIterator(parser, mapper)) {
+            try {
                 long deleted = 0;
                 generator.writeStartArray();
 
+                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
                 while (itr.hasNext()) {
                     final JsonNode node = itr.next();
                     final T element = reader.readValue(node);

@@ -2,9 +2,6 @@ package fr.adbonnin.cz2128;
 
 public class JsonException extends RuntimeException {
 
-    public JsonException() {
-    }
-
     public JsonException(String message) {
         super(message);
     }

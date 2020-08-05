@@ -2,11 +2,11 @@ package fr.adbonnin.cz2128.json.iterator;
 
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.JsonException;
-import fr.adbonnin.cz2128.collect.CloseableIterator;
 
 import java.io.IOException;
+import java.util.Iterator;
 
-public class SkippedValueIterator implements CloseableIterator<Void> {
+public class SkippedValueIterator implements Iterator<Void> {
 
     private final ArrayIterator iterator;
 
@@ -33,10 +33,5 @@ public class SkippedValueIterator implements CloseableIterator<Void> {
     @Override
     public void remove() {
         iterator.remove();
-    }
-
-    @Override
-    public void close() throws IOException {
-        iterator.close();
     }
 }

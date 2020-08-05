@@ -1,5 +1,7 @@
 package fr.adbonnin.cz2128.fixture
 
+import com.fasterxml.jackson.core.type.TypeReference
+
 class Cat {
 
     Integer id
@@ -23,4 +25,6 @@ class Cat {
     int hashCode() {
         return id == null ? 0 : id.hashCode()
     }
+
+    static LIST_TYPE_REF = new TypeReference<List<Cat>>() {}
 }

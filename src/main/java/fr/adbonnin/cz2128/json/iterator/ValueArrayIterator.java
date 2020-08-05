@@ -4,13 +4,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.JsonException;
-import fr.adbonnin.cz2128.collect.CloseableIterator;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import static java.util.Objects.requireNonNull;
 
-public class ValueArrayIterator<E> implements CloseableIterator<E> {
+public class ValueArrayIterator<E> implements Iterator<E> {
 
     private final JsonNodeArrayIterator iterator;
 
@@ -43,10 +43,5 @@ public class ValueArrayIterator<E> implements CloseableIterator<E> {
     @Override
     public void remove() {
         iterator.remove();
-    }
-
-    @Override
-    public void close() {
-        iterator.close();
     }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.base.FileUtils;
+import fr.adbonnin.cz2128.json.JsonUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +22,6 @@ import java.util.function.Function;
 import static java.util.Objects.requireNonNull;
 
 public class FileJsonProvider implements JsonProvider {
-
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     public static final String DEFAULT_TEMPORARY_FILE_SUFFIX = ".tmp";
 
@@ -71,18 +70,20 @@ public class FileJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
-        try {
-            if (!Files.exists(file)) {
-                final JsonParser parser = mapper.getFactory().createParser(EMPTY_BYTE_ARRAY);
-                return function.apply(parser);
+    public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
+
+        if (!Files.exists(file)) {
+            try (JsonParser emptyParser = JsonUtils.newEmptyParser(mapper)) {
+                return function.apply(emptyParser);
             }
-            else {
-                try (InputStream input = Files.newInputStream(file, StandardOpenOption.READ);
-                     JsonParser parser = mapper.getFactory().createParser(input)) {
-                    return function.apply(parser);
-                }
+            catch (IOException e) {
+                throw new JsonException(e);
             }
+        }
+
+        try (InputStream input = Files.newInputStream(file, StandardOpenOption.READ);
+             JsonParser parser = mapper.getFactory().createParser(input)) {
+            return function.apply(parser);
         }
         catch (IOException e) {
             throw new JsonException(e);
