@@ -74,6 +74,10 @@ public class JsonSetRepository<T> implements JsonProvider {
         return provider.withParser(mapper, parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
     }
 
+    public boolean isEmpty() {
+        return count() == 0;
+    }
+
     public long count(Predicate<? super T> predicate) {
         return withIterator(iterator -> IteratorUtils.count(IteratorUtils.filter(iterator, predicate)));
     }

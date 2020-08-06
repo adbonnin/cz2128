@@ -36,12 +36,13 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         expect:
         repo.count() == expectedCount
+        repo.isEmpty() == expectedIsEmpty
 
         where:
-        content        || expectedCount
-        '[]'           || 0
-        '[{}]'         || 1
-        '[{}, {}, {}]' || 3
+        content        || expectedCount | expectedIsEmpty
+        '[]'           || 0             | true
+        '[{}]'         || 1             | false
+        '[{}, {}, {}]' || 3             | false
     }
 
     void "should count elements that test the predicate"() {
