@@ -27,6 +27,16 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
+    public String getContent() {
+        return jsonProvider.getContent();
+    }
+
+    @Override
+    public void setContent(String content) {
+        jsonProvider.setContent(content);
+    }
+
+    @Override
     public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
         return jsonProvider.withParser(mapper, parser -> {
 

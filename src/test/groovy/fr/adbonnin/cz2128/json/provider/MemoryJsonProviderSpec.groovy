@@ -3,24 +3,16 @@ package fr.adbonnin.cz2128.json.provider
 import fr.adbonnin.cz2128.JsonProvider
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
-import spock.lang.Subject
 
 import static com.fasterxml.jackson.core.JsonToken.*
 
 class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
-    @Subject
-    def stringJsonProvider = new MemoryJsonProvider()
-
     @Override
     JsonProvider setupJsonProvider(String content) {
+        def stringJsonProvider = new MemoryJsonProvider()
         stringJsonProvider.content = content
         return stringJsonProvider
-    }
-
-    @Override
-    String getJsonProviderContent() {
-        return stringJsonProvider.content
     }
 
     void "should parse elements"() {
@@ -66,7 +58,7 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
         then:
         parsed == result
         tokens == expectedTokens
-        jsonProviderContent == expectedContent
+        provider.content == expectedContent
 
         where:
         content = '{id: 1}'
@@ -91,7 +83,7 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
         then:
         def e = thrown(IllegalArgumentException)
         e.message == errorMessage
-        jsonProviderContent == content
+        provider.content == content
 
         where:
         content = '{}'

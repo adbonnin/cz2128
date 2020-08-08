@@ -6,10 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
-import fr.adbonnin.cz2128.json.JsonUtils;
+import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.SkippedValueIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
@@ -28,22 +26,25 @@ public class JsonSetRepository<T> implements JsonProvider {
 
     private final ObjectReader reader;
 
-    private final ObjectMapper mapper;
-
     private final JsonProvider provider;
 
-    public JsonSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
+    private final ObjectMapper mapper;
+
+    private final JsonUpdateStrategy updateStrategy;
+
+    public JsonSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
+        this(mapper.readerFor(type), provider, mapper, updateStrategy);
+    }
+
+    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
+        this(mapper.readerFor(type), provider, mapper, updateStrategy);
+    }
+
+    public JsonSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
         this.reader = requireNonNull(reader);
         this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
-    }
-
-    public JsonSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
-    }
-
-    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+        this.updateStrategy = requireNonNull(updateStrategy);
     }
 
     public ObjectReader getReader() {
@@ -58,20 +59,34 @@ public class JsonSetRepository<T> implements JsonProvider {
         return provider;
     }
 
+    public JsonUpdateStrategy getUpdateStrategy() {
+        return updateStrategy;
+    }
+
+    @Override
+    public String getContent() {
+        return provider.getContent();
+    }
+
+    @Override
+    public void setContent(String content) {
+        provider.setContent(content);
+    }
+
     public <U> JsonSetRepository<U> of(ObjectReader objectReader) {
-        return new JsonSetRepository<>(objectReader, provider, mapper);
+        return new JsonSetRepository<>(objectReader, provider, mapper, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(Class<U> type) {
-        return new JsonSetRepository<>(type, provider, mapper);
+        return new JsonSetRepository<>(type, provider, mapper, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(TypeReference<U> type) {
-        return new JsonSetRepository<>(type, provider, mapper);
+        return new JsonSetRepository<>(type, provider, mapper, updateStrategy);
     }
 
     public long count() {
-        return provider.withParser(mapper, parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
+        return withParser(mapper, parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
     }
 
     public boolean isEmpty() {
@@ -110,8 +125,8 @@ public class JsonSetRepository<T> implements JsonProvider {
         return provider.withGenerator(mapper, function);
     }
 
-    public <U> U withIterator(Function<Iterator<? extends T>, ? extends U> function) {
-        return provider.withParser(mapper, parser -> function.apply(new ValueArrayIterator<>(parser, reader, mapper)));
+    public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
+        return withParser(mapper, parser -> function.apply(new ValueArrayIterator<>(parser, reader, mapper)));
     }
 
     public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
@@ -154,21 +169,7 @@ public class JsonSetRepository<T> implements JsonProvider {
                     final T newElement = newElements.remove(oldElement);
                     final JsonNode newNode = mapper.valueToTree(newElement);
 
-                    final boolean updated;
-                    if (newNode == null) {
-                        updated = false;
-                    }
-                    else if (oldNode.isObject() && newNode.isObject()) {
-                        updated = JsonUtils.updateObject((ObjectNode) oldNode, (ObjectNode)newNode, generator);
-                    }
-                    else if (oldNode.isArray() && newNode.isArray()) {
-                        updated = JsonUtils.updateArray((ArrayNode) oldNode, (ArrayNode) newNode, generator);
-                    }
-                    else {
-                        updated = !oldNode.equals(newNode);
-                        generator.writeTree(newNode);
-                    }
-
+                    final boolean updated = updateStrategy.update(oldNode, newNode, generator);
                     if (updated) {
                         ++updates;
                     }

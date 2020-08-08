@@ -3,6 +3,8 @@ package fr.adbonnin.cz2128
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.SpaceCat
+import fr.adbonnin.cz2128.json.JsonUpdateStrategy
+import fr.adbonnin.cz2128.json.JsonUtils
 import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Subject
 
@@ -11,23 +13,16 @@ import java.util.stream.Stream
 
 class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
-    @Subject
-    def stringJsonProvider = new MemoryJsonProvider()
-
     @Override
     JsonProvider setupJsonProvider(String content) {
+        def stringJsonProvider = new MemoryJsonProvider()
         stringJsonProvider.content = content
         return stringJsonProvider
     }
 
-    @Override
-    String getJsonProviderContent() {
-        return stringJsonProvider.content
-    }
-
-    def <T> JsonSetRepository<T> buildJsonSetRepository(Class<T> type, String content = '') {
+    def <T> JsonSetRepository<T> buildJsonSetRepository(Class<T> type, String content, JsonUpdateStrategy updateStrategy = JsonUtils.replaceUpdate()) {
         def provider = setupJsonProvider(content)
-        return new JsonSetRepository<>(type, provider, DEFAULT_MAPPER)
+        return new JsonSetRepository<>(type, provider, DEFAULT_MAPPER, updateStrategy)
     }
 
     void "should count elements"() {
@@ -141,7 +136,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save an element"() {
         given:
-        @Subject def repo = buildJsonSetRepository(Cat, content)
+        @Subject def repo = buildJsonSetRepository(Cat, content, updateStrategy)
 
         when:
         def result = repo.save(element)
@@ -149,13 +144,17 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
-        content                                     | expectedContent
-        ''                                          | '[{id:0,name:"Spock"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]' | '[{id:0,name:"Spock",grade:"Captain"}]'
-        '[{id: 1, name: "Kirk", grade: "Captain"}]' | '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
+        content                                     | updateStrategy            || expectedContent
+        ''                                          | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"}]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"}]'
+        '[{id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
+
+        ''                                          | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"}]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:0,name:"Spock",grade:"Captain"}]'
+        '[{id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -170,7 +169,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == elements.size()
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
         content   | expectedContent
@@ -182,7 +181,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all objects"() {
         given:
-        @Subject def repo = buildJsonSetRepository(Cat, content)
+        @Subject def repo = buildJsonSetRepository(Cat, content, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -190,20 +189,24 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == elements.size()
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
-        content                                       | expectedContent
-        ''                                            | '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | '[{id:0,name:"Spock",grade:"Captain"},{id:1,name:"Kirk"}]'
-        '[{id: 2, name: "Archer", grade: "Captain"}]' | '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        content                                       | updateStrategy            || expectedContent
+        ''                                            | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        '[{id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+
+        ''                                            | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | JsonUtils.partialUpdate() || '[{id:0,name:"Spock",grade:"Captain"},{id:1,name:"Kirk"}]'
+        '[{id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
 
     void "should save all arrays"() {
         given:
-        @Subject def repo = buildJsonSetRepository(SpaceCat, content)
+        @Subject def repo = buildJsonSetRepository(SpaceCat, content, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -211,12 +214,15 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == elements.size()
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
-        content                    | expectedContent
-        ''                         | '[[0,"Spock"],[1,"Kirk"]]'
-        '[[0, "Kirk", "Captain"]]' | '[[0,"Spock","Captain"],[1,"Kirk"]]'
+        content                    | updateStrategy            || expectedContent
+        ''                         | JsonUtils.replaceUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
+        '[[0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
+
+        ''                         | JsonUtils.partialUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
+        '[[0, "Kirk", "Captain"]]' | JsonUtils.partialUpdate() || '[[0,"Spock","Captain"],[1,"Kirk"]]'
 
         elements = [new SpaceCat(id: 0, name: 'Spock'), new SpaceCat(id: 1, name: 'Kirk')]
     }
@@ -230,7 +236,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == expectedResult
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
         content     || expectedResult | expectedContent
@@ -250,7 +256,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == expectedResult
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
         content              || expectedResult | expectedContent
@@ -271,7 +277,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == expectedResult
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
         content                             || expectedResult | expectedContent
@@ -289,7 +295,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         then:
         result == expectedResult
-        jsonProviderContent == expectedContent
+        repo.content == expectedContent
 
         where:
         content                             || expectedResult | expectedContent

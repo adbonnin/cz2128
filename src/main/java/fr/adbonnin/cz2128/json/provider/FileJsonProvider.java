@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.JsonException;
+import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.base.FileUtils;
 import fr.adbonnin.cz2128.json.JsonUtils;
 
@@ -59,14 +59,26 @@ public class FileJsonProvider implements JsonProvider {
         return encoding.getJavaName();
     }
 
-    public String getContent() throws IOException {
-        final byte[] bytes = Files.readAllBytes(file);
-        return new String(bytes, getJavaEncoding());
+    @Override
+    public String getContent() {
+        try {
+            final byte[] bytes = Files.readAllBytes(file);
+            return new String(bytes, getJavaEncoding());
+        }
+        catch (IOException e) {
+            throw new JsonException(e);
+        }
     }
 
-    public void setContent(String content) throws IOException {
-        final byte[] bytes = content.getBytes(getJavaEncoding());
-        Files.write(file, bytes, StandardOpenOption.WRITE);
+    @Override
+    public void setContent(String content) {
+        try {
+            final byte[] bytes = content.getBytes(getJavaEncoding());
+            Files.write(file, bytes, StandardOpenOption.WRITE);
+        }
+        catch (IOException e) {
+            throw new JsonException(e);
+        }
     }
 
     @Override

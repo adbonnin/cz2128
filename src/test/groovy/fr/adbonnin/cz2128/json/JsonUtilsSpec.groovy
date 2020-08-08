@@ -13,7 +13,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.updateArray(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdate().update(oldNode, newNode, generator)
         generator.close()
 
         then:
@@ -51,7 +51,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.updateObject(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdate().update(oldNode, newNode, generator)
         generator.close()
 
         then:

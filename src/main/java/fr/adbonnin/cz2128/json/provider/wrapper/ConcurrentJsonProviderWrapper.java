@@ -33,6 +33,16 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
+    public String getContent() {
+        return jsonProvider.getContent();
+    }
+
+    @Override
+    public void setContent(String content) {
+        jsonProvider.setContent(content);
+    }
+
+    @Override
     public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
         try {
             if (readLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import fr.adbonnin.cz2128.json.JsonUtils
 import spock.lang.Specification
 
 abstract class BaseJsonSpec extends Specification {
@@ -21,6 +22,8 @@ abstract class BaseJsonSpec extends Specification {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .addModule(FLATTEN_MODULE)
             .build()
+
+    public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdate()
 
     static ArrayNode readArrayNode(String content) {
         if (content == null) {

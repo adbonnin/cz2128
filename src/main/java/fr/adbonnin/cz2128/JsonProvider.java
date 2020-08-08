@@ -10,6 +10,10 @@ import java.util.function.Function;
 
 public interface JsonProvider {
 
+    String getContent();
+
+    void setContent(String content);
+
     <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function);
 
     <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function);
