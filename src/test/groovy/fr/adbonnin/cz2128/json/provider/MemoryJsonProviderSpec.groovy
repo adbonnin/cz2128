@@ -10,18 +10,17 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
     @Override
     JsonProvider setupJsonProvider(String content) {
-        def stringJsonProvider = new MemoryJsonProvider()
-        stringJsonProvider.content = content
-        return stringJsonProvider
+        return new MemoryJsonProvider(content)
     }
 
     void "should parse elements"() {
         given:
+        def mapper = DEFAULT_MAPPER
         def provider = setupJsonProvider(content)
 
         when:
         def tokens = []
-        def parsed = provider.withParser(DEFAULT_MAPPER, { parser ->
+        def parsed = provider.withParser(mapper, { parser ->
             def token
             while ((token = parser.nextToken()) != null) {
                 tokens.add(token)
@@ -41,24 +40,26 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
     void "should generate elements"() {
         given:
+        def mapper = DEFAULT_MAPPER
         def provider = setupJsonProvider(content)
 
         when:
         def tokens = []
-        def parsed = provider.withGenerator(DEFAULT_MAPPER, { parser, generator ->
+        def parsed = provider.withGenerator(mapper, { parser, generator ->
+
             def token
             while ((token = parser.nextToken()) != null) {
                 tokens.add(token)
             }
 
-            DEFAULT_MAPPER.writeValue(generator, value)
+            mapper.writeValue(generator, value)
             return result
         })
 
         then:
         parsed == result
         tokens == expectedTokens
-        provider.content == expectedContent
+        isEquals(provider, expectedContent)
 
         where:
         content = '{id: 1}'
@@ -72,18 +73,19 @@ class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
     void "should not save content when exception is raised"() {
         given:
+        def mapper = DEFAULT_MAPPER
         def provider = setupJsonProvider(content)
 
         when:
-        provider.withGenerator(DEFAULT_MAPPER, { parser, generator ->
-            DEFAULT_MAPPER.writeValue(generator, value)
+        provider.withGenerator(mapper, { parser, generator ->
+            mapper.writeValue(generator, value)
             throw new IllegalArgumentException(errorMessage)
         })
 
         then:
         def e = thrown(IllegalArgumentException)
         e.message == errorMessage
-        provider.content == content
+        isEquals(provider, content)
 
         where:
         content = '{}'

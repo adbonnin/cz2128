@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.adbonnin.cz2128.JsonException;
+import fr.adbonnin.cz2128.JsonProvider;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Spliterators;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -35,6 +38,31 @@ public class JsonUtils {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(node.fields(), 0), false)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
+
+    public static JsonNode readJsonNode(JsonProvider provider, ObjectMapper mapper) {
+        return provider.withParser(mapper, JSON_NODE_PARSER);
+    }
+
+    public static void writeJsonNode(JsonNode node, JsonProvider provider, ObjectMapper mapper) {
+        provider.withGenerator(mapper, (parser, generator) -> {
+            try {
+                generator.writeTree(node);
+                return null;
+            }
+            catch (IOException e) {
+                throw new JsonException(e);
+            }
+        });
+    }
+
+    private static final Function<JsonParser, JsonNode> JSON_NODE_PARSER = parser -> {
+        try {
+            return parser.readValueAsTree();
+        }
+        catch (IOException e) {
+            throw new JsonException(e);
+        }
+    };
 
     private enum JSON_UPDATE_STRATEGIES implements JsonUpdateStrategy {
         PARTIAL_UPDATE {

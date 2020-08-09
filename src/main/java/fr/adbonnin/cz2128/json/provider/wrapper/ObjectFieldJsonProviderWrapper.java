@@ -17,28 +17,18 @@ import static java.util.Objects.requireNonNull;
 
 public class ObjectFieldJsonProviderWrapper implements JsonProvider {
 
-    private final JsonProvider jsonProvider;
+    private final JsonProvider provider;
 
     private final String name;
 
-    public ObjectFieldJsonProviderWrapper(String name, JsonProvider jsonProvider) {
-        this.jsonProvider = requireNonNull(jsonProvider);
+    public ObjectFieldJsonProviderWrapper(String name, JsonProvider provider) {
+        this.provider = requireNonNull(provider);
         this.name = requireNonNull(name);
     }
 
     @Override
-    public String getContent() {
-        return jsonProvider.getContent();
-    }
-
-    @Override
-    public void setContent(String content) {
-        jsonProvider.setContent(content);
-    }
-
-    @Override
     public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
-        return jsonProvider.withParser(mapper, parser -> {
+        return provider.withParser(mapper, parser -> {
 
             final ObjectIterator itr = new ObjectIterator(parser);
             while (itr.hasNext()) {
@@ -59,7 +49,7 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
 
     @Override
     public <T> T withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends T> function) {
-        return jsonProvider.withGenerator(mapper, (parser, generator) -> {
+        return provider.withGenerator(mapper, (parser, generator) -> {
             T result = null;
 
             try {

@@ -59,7 +59,6 @@ public class FileJsonProvider implements JsonProvider {
         return encoding.getJavaName();
     }
 
-    @Override
     public String getContent() {
         try {
             final byte[] bytes = Files.readAllBytes(file);
@@ -70,7 +69,6 @@ public class FileJsonProvider implements JsonProvider {
         }
     }
 
-    @Override
     public void setContent(String content) {
         try {
             final byte[] bytes = content.getBytes(getJavaEncoding());

@@ -63,16 +63,6 @@ public class JsonSetRepository<T> implements JsonProvider {
         return updateStrategy;
     }
 
-    @Override
-    public String getContent() {
-        return provider.getContent();
-    }
-
-    @Override
-    public void setContent(String content) {
-        provider.setContent(content);
-    }
-
     public <U> JsonSetRepository<U> of(ObjectReader objectReader) {
         return new JsonSetRepository<>(objectReader, provider, mapper, updateStrategy);
     }

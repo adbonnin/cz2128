@@ -1,6 +1,7 @@
 package fr.adbonnin.cz2128.json
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
+import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Subject
 import spock.lang.Unroll
 
@@ -93,5 +94,22 @@ class JsonUtilsSpec extends BaseJsonSpec {
 
         node = readObjectNode(json)
         expectedNodeMap = expectedJsonMap.collectEntries { [it.key, readObjectNode(it.value)] }
+    }
+
+    void "should write json node"() {
+        def json = '{name:"value"}'
+        def node = readObjectNode(json)
+
+        given:
+        def mapper = DEFAULT_MAPPER
+
+        and:
+        def provider = new MemoryJsonProvider()
+
+        when:
+        JsonUtils.writeJsonNode(node, provider, mapper)
+
+        then:
+        isEquals(provider, json)
     }
 }

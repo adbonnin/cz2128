@@ -19,12 +19,12 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
 
     private final ReentrantReadWriteLock.WriteLock writeLock;
 
-    private final JsonProvider jsonProvider;
+    private final JsonProvider provider;
 
     private final long lockTimeout;
 
-    public ConcurrentJsonProviderWrapper(JsonProvider jsonProvider, long lockTimeout) {
-        this.jsonProvider = requireNonNull(jsonProvider);
+    public ConcurrentJsonProviderWrapper(JsonProvider provider, long lockTimeout) {
+        this.provider = requireNonNull(provider);
         this.lockTimeout = lockTimeout;
 
         final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -33,21 +33,11 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public String getContent() {
-        return jsonProvider.getContent();
-    }
-
-    @Override
-    public void setContent(String content) {
-        jsonProvider.setContent(content);
-    }
-
-    @Override
     public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
         try {
             if (readLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {
-                    return jsonProvider.withParser(mapper, function);
+                    return provider.withParser(mapper, function);
                 }
                 finally {
                     readLock.unlock();
@@ -67,7 +57,7 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
         try {
             if (writeLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {
-                    return jsonProvider.withGenerator(mapper, function);
+                    return provider.withGenerator(mapper, function);
                 }
                 finally {
                     writeLock.unlock();

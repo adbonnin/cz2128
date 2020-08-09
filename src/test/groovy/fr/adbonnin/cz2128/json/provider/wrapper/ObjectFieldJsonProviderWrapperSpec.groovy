@@ -19,28 +19,30 @@ class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
         ]
 
         given:
-        def provider = new MemoryJsonProvider()
+        def mapper = DEFAULT_MAPPER
+        def updateStrategy = DEFAULT_UPDATE_STRATEGY
 
         and:
-        def enterpriseRepository = new JsonSetRepository(Cat, provider.at("enterprise"), DEFAULT_MAPPER, DEFAULT_UPDATE_STRATEGY)
-        def discoveryRepository = new JsonSetRepository(Cat, provider.at("discovery"), DEFAULT_MAPPER, DEFAULT_UPDATE_STRATEGY)
+        def provider = new MemoryJsonProvider()
+        def enterpriseRepository = new JsonSetRepository(Cat, provider.at("enterprise"), mapper, updateStrategy)
+        def discoveryRepository = new JsonSetRepository(Cat, provider.at("discovery"), mapper, updateStrategy)
 
         when:
         enterpriseRepository.saveAll(enterprise)
 
         then:
-        provider.content == '{enterprise:[{id:0,name:"Spock"},{id:1,name:"Kirk"}]}'
+        isEquals(provider, '{enterprise:[{id:0,name:"Spock"},{id:1,name:"Kirk"}]}')
 
         when:
         discoveryRepository.saveAll(discovery)
 
         then:
-        provider.content == '{enterprise:[{id:0,name:"Spock"},{id:1,name:"Kirk"}],discovery:[{id:2,name:"Archer"}]}'
+        isEquals(provider, '{enterprise:[{id:0,name:"Spock"},{id:1,name:"Kirk"}],discovery:[{id:2,name:"Archer"}]}')
 
         when:
         enterpriseRepository.save(new Cat(id: 1, name: "McCoy"))
 
         then:
-        provider.content == '{enterprise:[{id:0,name:"Spock"},{id:1,name:"McCoy"}],discovery:[{id:2,name:"Archer"}]}'
+        isEquals(provider, '{enterprise:[{id:0,name:"Spock"},{id:1,name:"McCoy"}],discovery:[{id:2,name:"Archer"}]}')
     }
 }

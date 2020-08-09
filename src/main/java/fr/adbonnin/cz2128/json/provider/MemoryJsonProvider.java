@@ -25,12 +25,10 @@ public class MemoryJsonProvider implements JsonProvider {
         this.content = requireNonNull(content);
     }
 
-    @Override
     public String getContent() {
         return content;
     }
 
-    @Override
     public void setContent(String content) {
         this.content = content;
     }

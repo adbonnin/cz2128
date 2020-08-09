@@ -9,15 +9,19 @@ class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
 
     void "should use the wrapped json provider"() {
         given:
+        def mapper = DEFAULT_MAPPER
+        def updateStrategy = DEFAULT_UPDATE_STRATEGY
+
+        and:
         def provider = new MemoryJsonProvider()
         def wrapper = new ConcurrentJsonProviderWrapper(provider, 2000)
-        def repository = new JsonSetRepository<Cat>(Cat, wrapper, DEFAULT_MAPPER, DEFAULT_UPDATE_STRATEGY)
+        def repository = new JsonSetRepository<Cat>(Cat, wrapper, mapper, updateStrategy)
 
         when:
-        repository.save(new Cat(id: id, name: 'Spock'))
+        repository.save(new Cat(id: id, name: name))
 
         then:
-        provider.content == "[{id:$id,name:\"$name\"}]"
+        isEquals(provider, """[{id: $id, name: "$name"}]""")
 
         when:
         def found = repository.findFirst { it.id == id }
