@@ -51,12 +51,12 @@ public class JsonSetRepository<T> implements JsonProvider {
         return reader;
     }
 
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
     public JsonProvider getProvider() {
         return provider;
+    }
+
+    public ObjectMapper getMapper() {
+        return mapper;
     }
 
     public JsonUpdateStrategy getUpdateStrategy() {
@@ -138,7 +138,6 @@ public class JsonSetRepository<T> implements JsonProvider {
     public long saveAll(Iterable<? extends T> elements) {
         return withGenerator(mapper, (parser, generator) -> {
             final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
-                    .filter(Objects::nonNull)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
             try {

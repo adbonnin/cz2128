@@ -178,14 +178,14 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                     | updateStrategy            || expectedContent
-        ''                                          | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"}]'
-        '[{id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
+        content                                           | updateStrategy            || expectedContent
+        ''                                                | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, null]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
 
-        ''                                          | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:0,name:"Spock",grade:"Captain"}]'
-        '[{id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:1,name:"Kirk",grade:"Captain"},{id:0,name:"Spock"}]'
+        ''                                                | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -208,9 +208,9 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content   | expectedContent
-        ''        | '[4,5]'
-        '[1,2,3]' | '[1,2,3,4,5]'
+        content           | expectedContent
+        ''                | '[4, 5, null]'
+        '[null, 1, 2, 3]' | '[null, 1, 2, 3, 4, 5]'
 
         elements = [4, 5]
     }
@@ -232,14 +232,14 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                       | updateStrategy            || expectedContent
-        ''                                            | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | JsonUtils.replaceUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
-        '[{id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        content                                             | updateStrategy            || expectedContent
+        ''                                                  | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
 
-        ''                                            | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'   | JsonUtils.partialUpdate() || '[{id:0,name:"Spock",grade:"Captain"},{id:1,name:"Kirk"}]'
-        '[{id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[{id:2,name:"Archer",grade:"Captain"},{id:0,name:"Spock"},{id:1,name:"Kirk"}]'
+        ''                                                  | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
+        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id:1, name: "Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -261,12 +261,12 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                    | updateStrategy            || expectedContent
-        ''                         | JsonUtils.replaceUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
-        '[[0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
+        content                          | updateStrategy            || expectedContent
+        ''                               | JsonUtils.replaceUpdate() || '[[0, "Spock"], [1, "Kirk"], null]'
+        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdate() || '[null, [0, "Spock"], [1, "Kirk"]]'
 
-        ''                         | JsonUtils.partialUpdate() || '[[0,"Spock"],[1,"Kirk"]]'
-        '[[0, "Kirk", "Captain"]]' | JsonUtils.partialUpdate() || '[[0,"Spock","Captain"],[1,"Kirk"]]'
+        ''                               | JsonUtils.partialUpdate() || '[[0, "Spock"], [1, "Kirk"], null]'
+        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.partialUpdate() || '[null, [0, "Spock", "Captain"], [1, "Kirk"]]'
 
         elements = [new SpaceCat(id: 0, name: 'Spock'), new SpaceCat(id: 1, name: 'Kirk')]
     }
@@ -288,10 +288,10 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content     || expectedResult | expectedContent
-        ''          || false          | '[]'
-        '[{id: 0}]' || true           | '[]'
-        '[{id: 1}]' || false          | '[{id:1}]'
+        content           || expectedResult | expectedContent
+        ''                || false          | '[]'
+        '[null, {id: 0}]' || true           | '[null]'
+        '[null, {id: 1}]' || false          | '[null, {id:1}]'
 
         element = new Cat(id: 0)
     }
@@ -313,13 +313,13 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content              || expectedResult | expectedContent
-        ''                   || 0              | '[]'
-        '[{id: 0}]'          || 1              | '[]'
-        '[{id: 0}, {id: 2}]' || 1              | '[{id:2}]'
-        '[{id: 0}, {id: 1}]' || 2              | '[]'
+        content                    || expectedResult | expectedContent
+        ''                         || 0              | '[]'
+        '[null, {id: 0}]'          || 2              | '[]'
+        '[null, {id: 0}, {id: 2}]' || 2              | '[{id: 2}]'
+        '[null, {id: 0}, {id: 1}]' || 3              | '[]'
 
-        elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
+        elements = [null, new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
 
     void "should delete all elements"() {
@@ -339,10 +339,10 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                             || expectedResult | expectedContent
-        ''                                  || 0              | '[]'
-        '[{name: "Kirk"}]'                  || 1              | '[]'
-        '[{name: "Kirk"}, {name: "Spock"}]' || 2              | '[]'
+        content                                   || expectedResult | expectedContent
+        ''                                        || 0              | '[]'
+        '[null, {name: "Kirk"}]'                  || 2              | '[]'
+        '[null, {name: "Kirk"}, {name: "Spock"}]' || 3              | '[]'
     }
 
     void "should delete a list from a predicate"() {
@@ -362,12 +362,12 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                             || expectedResult | expectedContent
-        ''                                  || 0              | '[]'
-        '[{name: "Kirk"}]'                  || 1              | '[]'
-        '[{name: "Kirk"}, {name: "Kirk"}]'  || 2              | '[]'
-        '[{name: "Kirk"}, {name: "Spock"}]' || 1              | '[{name:"Spock"}]'
+        content                                   || expectedResult | expectedContent
+        ''                                        || 0              | '[]'
+        '[null, {name: "Kirk"}]'                  || 1              | '[null]'
+        '[null, {name: "Kirk"}, {name: "Kirk"}]'  || 2              | '[null]'
+        '[null, {name: "Kirk"}, {name: "Spock"}]' || 1              | '[null, {name: "Spock"}]'
 
-        predicate = { Cat cat -> cat.name == 'Kirk' } as Predicate<Cat>
+        predicate = { Cat cat -> cat?.name == 'Kirk' } as Predicate<Cat>
     }
 }
