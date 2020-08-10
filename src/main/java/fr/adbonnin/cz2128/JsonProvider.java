@@ -3,6 +3,7 @@ package fr.adbonnin.cz2128;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.adbonnin.cz2128.json.provider.wrapper.ArrayIndexJsonProviderWrapper;
 import fr.adbonnin.cz2128.json.provider.wrapper.ObjectFieldJsonProviderWrapper;
 
 import java.util.function.BiFunction;
@@ -16,5 +17,9 @@ public interface JsonProvider {
 
     default JsonProvider at(String name) {
         return new ObjectFieldJsonProviderWrapper(name, this);
+    }
+
+    default JsonProvider at(int index) {
+        return new ArrayIndexJsonProviderWrapper(index, this);
     }
 }

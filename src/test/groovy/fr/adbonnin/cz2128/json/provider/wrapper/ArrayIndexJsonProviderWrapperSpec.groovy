@@ -5,9 +5,9 @@ import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 
-class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
+class ArrayIndexJsonProviderWrapperSpec extends BaseJsonSpec {
 
-    void "should read and write values in an object field"() {
+    void "should read and write values in an array index"() {
 
         def enterprise = [
             new Cat(id: 0, name: 'Spock'),
@@ -23,22 +23,22 @@ class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
         def updateStrategy = DEFAULT_UPDATE_STRATEGY
 
         and:
-        def provider = new MemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
-        def enterpriseRepository = new JsonSetRepository(Cat, provider.at("enterprise"), mapper, updateStrategy)
-        def discoveryRepository = new JsonSetRepository(Cat, provider.at("discovery"), mapper, updateStrategy)
+        def provider = new MemoryJsonProvider()
+        def enterpriseRepository = new JsonSetRepository(Cat, provider.at(1), mapper, updateStrategy)
+        def discoveryRepository = new JsonSetRepository(Cat, provider.at(2), mapper, updateStrategy)
 
         when:
         enterpriseRepository.saveAll(enterprise)
 
         then:
-        isEquals(provider, '{init: {enterprise: "skipChildren"}, enterprise: [{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]}')
+        isEquals(provider, '[null, [{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]]')
         isEquals(enterpriseRepository, '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]')
 
         when:
         discoveryRepository.saveAll(discovery)
 
         then:
-        isEquals(provider, '{init: {enterprise: "skipChildren"}, enterprise: [{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}], discovery:[{id: 2, name: "Archer"}]}')
+        isEquals(provider, '[null, [{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}], [{id: 2, name: "Archer"}]]')
         isEquals(enterpriseRepository, '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]')
         isEquals(discoveryRepository, '[{id: 2, name: "Archer"}]')
 
@@ -46,7 +46,7 @@ class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
         enterpriseRepository.save(new Cat(id: 1, name: "McCoy"))
 
         then:
-        isEquals(provider, '{init: {enterprise: "skipChildren"}, enterprise: [{id: 0, name: "Spock"}, {id: 1, name: "McCoy"}], discovery:[{id: 2, name: "Archer"}]}')
+        isEquals(provider, '[null, [{id: 0, name: "Spock"}, {id: 1, name: "McCoy"}], [{id: 2, name: "Archer"}]]')
         isEquals(enterpriseRepository, '[{id: 0, name: "Spock"}, {id: 1, name: "McCoy"}]')
         isEquals(discoveryRepository, '[{id: 2, name: "Archer"}]')
     }

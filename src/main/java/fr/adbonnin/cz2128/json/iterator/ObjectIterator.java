@@ -17,7 +17,8 @@ public class ObjectIterator extends ContainerIterator<Pair<String, JsonParser>> 
     @Override
     protected void checkStartToken(JsonToken token) {
         if (!START_OBJECT.equals(token)) {
-            throw new IllegalStateException("Parser must start with an object token");
+            throw new IllegalStateException("Parser must start with an object token; " +
+                "token: " + token);
         }
     }
 
@@ -30,7 +31,8 @@ public class ObjectIterator extends ContainerIterator<Pair<String, JsonParser>> 
     protected Pair<String, JsonParser> nextValue(JsonToken token) throws IOException {
 
         if (!FIELD_NAME.equals(token)) {
-            throw new IllegalArgumentException("Object must contains field name before values");
+            throw new IllegalArgumentException("Object must contains field name before values; " +
+                "token: " + token);
         }
 
         final JsonParser parser = getParser();

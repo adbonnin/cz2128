@@ -15,7 +15,8 @@ public class ArrayIterator extends ContainerIterator<JsonParser> {
     @Override
     protected void checkStartToken(JsonToken token) {
         if (!START_ARRAY.equals(token)) {
-            throw new IllegalStateException("Parser must start with an array token");
+            throw new IllegalStateException("Parser must start with an array token; " +
+                "token: " + token);
         }
     }
 

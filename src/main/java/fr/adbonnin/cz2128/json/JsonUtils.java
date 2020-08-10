@@ -69,19 +69,16 @@ public class JsonUtils {
             @Override
             public boolean update(JsonNode oldNode, JsonNode newNode, JsonGenerator generator) throws IOException {
 
-                if (oldNode == null) {
-                    if (newNode == null) {
-                        return false;
-                    }
-                    else {
-                        generator.writeTree(newNode);
-                        return true;
-                    }
+                if (oldNode == null && newNode == null) {
+                    return false;
                 }
-
-                if (newNode == null || newNode.isEmpty()) {
+                else if (newNode == null) {
                     generator.writeTree(oldNode);
                     return false;
+                }
+                else if (oldNode == null) {
+                    generator.writeTree(newNode);
+                    return true;
                 }
 
                 if (oldNode.isObject() && newNode.isObject()) {
@@ -97,6 +94,11 @@ public class JsonUtils {
             }
 
             private boolean updateObject(ObjectNode oldNode, ObjectNode newNode, JsonGenerator generator) throws IOException {
+
+                if (newNode.isEmpty()) {
+                    generator.writeTree(oldNode);
+                    return false;
+                }
 
                 final Map<String, JsonNode> newNodeCopy = mapFieldsToLinkedHashMap(newNode);
                 generator.writeStartObject();
@@ -128,7 +130,11 @@ public class JsonUtils {
 
             private boolean updateArray(ArrayNode oldNode, ArrayNode newNode, JsonGenerator generator) throws IOException {
 
-                if (oldNode.size() <= newNode.size()) {
+                if (newNode.isEmpty()) {
+                    generator.writeTree(oldNode);
+                    return false;
+                }
+                else if (oldNode.size() <= newNode.size()) {
                     generator.writeTree(newNode);
                     return true;
                 }
@@ -152,10 +158,11 @@ public class JsonUtils {
             @Override
             public boolean update(JsonNode oldNode, JsonNode newNode, JsonGenerator generator) throws IOException {
 
-                if (newNode == null) {
-                    if (oldNode != null) {
-                        generator.writeTree(oldNode);
-                    }
+                if (newNode == null && oldNode == null) {
+                    return false;
+                }
+                else if (newNode == null) {
+                    generator.writeTree(oldNode);
                     return false;
                 }
 

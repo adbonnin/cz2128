@@ -7,6 +7,7 @@ import fr.adbonnin.cz2128.collect.AbstractIterator;
 
 import java.io.IOException;
 
+import static com.fasterxml.jackson.core.JsonToken.VALUE_NULL;
 import static java.util.Objects.requireNonNull;
 
 public abstract class ContainerIterator<T> extends AbstractIterator<T> {
@@ -40,17 +41,14 @@ public abstract class ContainerIterator<T> extends AbstractIterator<T> {
                     ? parser.getCurrentToken()
                     : parser.nextToken();
 
-                if (token == null) {
+                if (token == null || VALUE_NULL.equals(token)) {
                     return endOfData();
                 }
-                else {
-                    checkStartToken(token);
-                    token = parser.nextToken();
-                }
+
+                checkStartToken(token);
             }
-            else {
-                token = parser.nextToken();
-            }
+
+            token = parser.nextToken();
 
             if (isEndToken(token)) {
                 return endOfData();
