@@ -1,10 +1,10 @@
-package fr.adbonnin.cz2128.json.provider.wrapper
+package fr.adbonnin.cz2128.json.provider
 
 import fr.adbonnin.cz2128.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
 
-class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
+class ObjectFieldJsonProviderSpec extends BaseJsonSpec {
 
     void "should read and write values in an object field"() {
 

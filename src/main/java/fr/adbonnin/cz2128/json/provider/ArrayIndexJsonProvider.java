@@ -1,43 +1,49 @@
-package fr.adbonnin.cz2128.json.provider.wrapper;
+package fr.adbonnin.cz2128.json.provider;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
-import fr.adbonnin.cz2128.base.Pair;
 import fr.adbonnin.cz2128.json.JsonUtils;
-import fr.adbonnin.cz2128.json.iterator.ObjectIterator;
+import fr.adbonnin.cz2128.json.iterator.ArrayIterator;
 
 import java.io.IOException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+public class ArrayIndexJsonProvider implements JsonProvider {
 
-public class ObjectFieldJsonProviderWrapper implements JsonProvider {
+    private final int index;
 
     private final JsonProvider provider;
 
-    private final String name;
-
-    public ObjectFieldJsonProviderWrapper(String name, JsonProvider provider) {
-        this.provider = requireNonNull(provider);
-        this.name = requireNonNull(name);
+    public ArrayIndexJsonProvider(int index, JsonProvider provider) {
+        this.index = index;
+        this.provider = provider;
     }
 
     @Override
     public <R> R withParser(Function<JsonParser, ? extends R> function) {
         return provider.withParser(parser -> {
             try {
-                final ObjectIterator itr = new ObjectIterator(parser);
+                final ArrayIterator itr = new ArrayIterator(parser);
+                int currentIndex = 0;
+
                 while (itr.hasNext()) {
-                    final Pair<String, JsonParser> next = itr.next();
-                    if (name.equals(next.getKey())) {
+                    final JsonParser next = itr.next();
+
+                    if (currentIndex == index) {
                         return function.apply(parser);
                     }
                     else {
-                        next.getValue().skipChildren();
+                        next.skipChildren();
                     }
+
+                    if (currentIndex > index) {
+                        break;
+                    }
+
+                    ++currentIndex;
                 }
 
                 try (JsonParser emptyParser = JsonUtils.newEmptyParser()) {
@@ -56,32 +62,38 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
             R result = null;
 
             try {
-                generator.writeStartObject();
+                generator.writeStartArray();
                 boolean found = false;
 
-                final ObjectIterator itr = new ObjectIterator(parser);
-                while (itr.hasNext()) {
-                    final String currentName = itr.next().getKey();
-                    generator.writeFieldName(currentName);
+                final ArrayIterator itr = new ArrayIterator(parser);
+                int currentIndex = 0;
 
-                    if (name.equals(currentName)) {
+                while (itr.hasNext()) {
+                    itr.next();
+
+                    if (index == currentIndex) {
                         found = true;
                         result = function.apply(parser, generator);
                     }
                     else {
                         generator.copyCurrentStructure(parser);
                     }
+
+                    ++currentIndex;
                 }
 
                 if (!found) {
-                    generator.writeFieldName(name);
+                    while (currentIndex < index) {
+                        generator.writeNull();
+                        ++currentIndex;
+                    }
 
                     try (JsonParser emptyParser = JsonUtils.newEmptyParser()) {
                         result = function.apply(emptyParser, generator);
                     }
                 }
 
-                generator.writeEndObject();
+                generator.writeEndArray();
             }
             catch (IOException e) {
                 throw new JsonException(e);

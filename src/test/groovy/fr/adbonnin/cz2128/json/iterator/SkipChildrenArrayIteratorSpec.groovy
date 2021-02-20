@@ -2,14 +2,14 @@ package fr.adbonnin.cz2128.json.iterator
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 
-class SkippedValueIteratorSpec extends BaseJsonSpec {
+class SkipChildrenArrayIteratorSpec extends BaseJsonSpec {
 
     void "should iterate over elements"() {
         given:
         def parser = createJsonParser(content)
 
         when:
-        def iterator = new SkippedValueIterator(parser)
+        def iterator = new SkipChildrenArrayIterator(parser)
 
         then:
         iterator.hasNext()

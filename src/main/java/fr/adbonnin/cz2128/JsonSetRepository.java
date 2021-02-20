@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
-import fr.adbonnin.cz2128.json.iterator.SkippedValueIterator;
+import fr.adbonnin.cz2128.json.iterator.SkipChildrenArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public long count() {
-        return withParser(parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
+        return withParser(parser -> IteratorUtils.count(new SkipChildrenArrayIterator(parser)));
     }
 
     public boolean isEmpty() {

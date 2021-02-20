@@ -6,11 +6,11 @@ import fr.adbonnin.cz2128.JsonException;
 import java.io.IOException;
 import java.util.Iterator;
 
-public class SkippedValueIterator implements Iterator<Void> {
+public class SkipChildrenArrayIterator implements Iterator<Void> {
 
     private final ArrayIterator iterator;
 
-    public SkippedValueIterator(JsonParser parser) {
+    public SkipChildrenArrayIterator(JsonParser parser) {
         this.iterator = new ArrayIterator(parser);
     }
 

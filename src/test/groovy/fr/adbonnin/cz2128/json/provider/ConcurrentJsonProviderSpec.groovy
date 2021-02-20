@@ -1,10 +1,11 @@
-package fr.adbonnin.cz2128.json.provider.wrapper
+package fr.adbonnin.cz2128.json.provider
 
 import fr.adbonnin.cz2128.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
+import fr.adbonnin.cz2128.json.provider.ConcurrentJsonProvider
 
-class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
+class ConcurrentJsonProviderSpec extends BaseJsonSpec {
 
     void "should use the wrapped json provider"() {
         given:
@@ -13,7 +14,7 @@ class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
 
         and:
         def provider = newMemoryJsonProvider()
-        def wrapper = new ConcurrentJsonProviderWrapper(provider, 2000)
+        def wrapper = new ConcurrentJsonProvider(provider, 2000)
         def repository = new JsonSetRepository<Cat>(Cat, mapper, wrapper, updateStrategy)
 
         when:

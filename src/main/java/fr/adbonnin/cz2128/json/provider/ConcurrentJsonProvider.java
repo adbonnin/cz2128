@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128.json.provider.wrapper;
+package fr.adbonnin.cz2128.json.provider;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class ConcurrentJsonProviderWrapper implements JsonProvider {
+public class ConcurrentJsonProvider implements JsonProvider {
 
     private final ReentrantReadWriteLock.ReadLock readLock;
 
@@ -22,7 +22,7 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
 
     private final long lockTimeout;
 
-    public ConcurrentJsonProviderWrapper(JsonProvider provider, long lockTimeout) {
+    public ConcurrentJsonProvider(JsonProvider provider, long lockTimeout) {
         this.provider = requireNonNull(provider);
         this.lockTimeout = lockTimeout;
 
