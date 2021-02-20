@@ -23,8 +23,8 @@ class ArrayIndexJsonProviderWrapperSpec extends BaseJsonSpec {
 
         and:
         def provider = newMemoryJsonProvider()
-        def enterpriseRepository = new JsonSetRepository(Cat, provider.at(1), mapper, updateStrategy)
-        def discoveryRepository = new JsonSetRepository(Cat, provider.at(2), mapper, updateStrategy)
+        def enterpriseRepository = new JsonSetRepository(Cat, mapper, provider.at(1), updateStrategy)
+        def discoveryRepository = new JsonSetRepository(Cat, mapper, provider.at(2), updateStrategy)
 
         when:
         enterpriseRepository.saveAll(enterprise)

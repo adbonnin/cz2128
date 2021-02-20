@@ -23,7 +23,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         expect:
         repo.count() == expectedCount
@@ -43,7 +43,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         expect:
         repo.count { Cat cat -> cat.name == searchName } == expectedCount
@@ -64,7 +64,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         expect:
         repo.findFirst { it.id == searchId }.orElse(null)?.id == expectedFoundId
@@ -84,7 +84,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         expect:
         repo.findAll(predicate).collect { it.id } == expectedIdsFound
@@ -106,7 +106,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def found = repo.withStream { Stream<Cat> s -> s.filter({ it.id == searchId }).findFirst() }
@@ -129,7 +129,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def iterator = repo.withIterator { Iterator<Cat> s -> s }
@@ -148,7 +148,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def stream = repo.withStream() { s -> s }
@@ -166,7 +166,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.save(element)
@@ -196,7 +196,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Integer, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Integer, mapper, provider, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -220,7 +220,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -249,7 +249,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(SpaceCat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(SpaceCat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -277,7 +277,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.delete(element)
@@ -302,7 +302,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.deleteAll(elements)
@@ -328,7 +328,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.deleteAll()
@@ -351,7 +351,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, provider, mapper, updateStrategy)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
         def result = repo.deleteAll(predicate)

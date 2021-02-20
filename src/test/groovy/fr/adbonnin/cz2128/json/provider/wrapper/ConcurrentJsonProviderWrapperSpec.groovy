@@ -14,7 +14,7 @@ class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
         and:
         def provider = newMemoryJsonProvider()
         def wrapper = new ConcurrentJsonProviderWrapper(provider, 2000)
-        def repository = new JsonSetRepository<Cat>(Cat, wrapper, mapper, updateStrategy)
+        def repository = new JsonSetRepository<Cat>(Cat, mapper, wrapper, updateStrategy)
 
         when:
         repository.save(new Cat(id: id, name: name))

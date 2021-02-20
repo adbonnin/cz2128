@@ -26,21 +26,21 @@ public class JsonSetRepository<T> implements JsonProvider {
 
     private final ObjectReader objectReader;
 
-    private final JsonProvider provider;
-
     private final ObjectMapper objectMapper;
+
+    private final JsonProvider provider;
 
     private final JsonUpdateStrategy updateStrategy;
 
-    public JsonSetRepository(Class<T> type, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
-        this(objectMapper.readerFor(type), provider, objectMapper, updateStrategy);
+    public JsonSetRepository(Class<T> type, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+        this(objectMapper.readerFor(type), objectMapper, provider, updateStrategy);
     }
 
-    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
-        this(objectMapper.readerFor(type), provider, objectMapper, updateStrategy);
+    public JsonSetRepository(TypeReference<T> type, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+        this(objectMapper.readerFor(type), objectMapper, provider, updateStrategy);
     }
 
-    public JsonSetRepository(ObjectReader objectReader, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
+    public JsonSetRepository(ObjectReader objectReader, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this.objectReader = requireNonNull(objectReader);
         this.objectMapper = requireNonNull(objectMapper);
         this.provider = requireNonNull(provider);
@@ -51,12 +51,12 @@ public class JsonSetRepository<T> implements JsonProvider {
         return objectReader;
     }
 
-    public JsonProvider getProvider() {
-        return provider;
-    }
-
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public JsonProvider getProvider() {
+        return provider;
     }
 
     public JsonUpdateStrategy getUpdateStrategy() {
@@ -64,15 +64,15 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public <U> JsonSetRepository<U> of(ObjectReader objectReader) {
-        return new JsonSetRepository<>(objectReader, provider, objectMapper, updateStrategy);
+        return new JsonSetRepository<>(objectReader, objectMapper, provider, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(Class<U> type) {
-        return new JsonSetRepository<>(type, provider, objectMapper, updateStrategy);
+        return new JsonSetRepository<>(type, objectMapper, provider, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(TypeReference<U> type) {
-        return new JsonSetRepository<>(type, provider, objectMapper, updateStrategy);
+        return new JsonSetRepository<>(type, objectMapper, provider, updateStrategy);
     }
 
     public long count() {

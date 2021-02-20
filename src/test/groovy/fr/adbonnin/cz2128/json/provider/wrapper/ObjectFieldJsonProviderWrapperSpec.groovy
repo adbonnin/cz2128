@@ -23,8 +23,8 @@ class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
 
         and:
         def provider = newMemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
-        def enterpriseRepository = new JsonSetRepository(Cat, provider.at("enterprise"), mapper, updateStrategy)
-        def discoveryRepository = new JsonSetRepository(Cat, provider.at("discovery"), mapper, updateStrategy)
+        def enterpriseRepository = new JsonSetRepository(Cat, mapper, provider.at("enterprise"), updateStrategy)
+        def discoveryRepository = new JsonSetRepository(Cat, mapper, provider.at("discovery"), updateStrategy)
 
         when:
         enterpriseRepository.saveAll(enterprise)
