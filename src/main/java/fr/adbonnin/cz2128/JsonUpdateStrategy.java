@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128.json;
+package fr.adbonnin.cz2128;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
