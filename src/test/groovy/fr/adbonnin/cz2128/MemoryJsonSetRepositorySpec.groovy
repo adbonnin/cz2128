@@ -2,6 +2,7 @@ package fr.adbonnin.cz2128
 
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
+import fr.adbonnin.cz2128.fixture.Pony
 import fr.adbonnin.cz2128.fixture.SpaceCat
 import fr.adbonnin.cz2128.json.JsonUtils
 import spock.lang.Subject
@@ -75,6 +76,22 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         1        || 1
 
         content = '[{id: 1}, {id: 2}, {id: 3}]'
+    }
+
+    void "should read all elements"() {
+        given:
+        def mapper = DEFAULT_MAPPER
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
+
+        and:
+        def provider = setupJsonProvider(content)
+        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+
+        expect:
+        repo.findAll().collect { it.id } == [1, 2, 3]
+
+        where:
+        content = '[{id: 1, name: "Kirk"}, {id: 2, name: "Spock"}, {id: 3, name: "Spock"}]'
     }
 
     void "should read all elements with a predicate"() {
@@ -177,7 +194,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                           | updateStrategy            || expectedContent
+        content                                           | updateStrategy                    || expectedContent
         ''                                                | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
         '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
@@ -231,7 +248,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                             | updateStrategy            || expectedContent
+        content                                             | updateStrategy                    || expectedContent
         ''                                                  | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
         '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
@@ -260,7 +277,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                          | updateStrategy            || expectedContent
+        content                          | updateStrategy                    || expectedContent
         ''                               | JsonUtils.replaceUpdateStrategy() || '[[0, "Spock"], [1, "Kirk"], null]'
         '[null, [0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdateStrategy() || '[null, [0, "Spock"], [1, "Kirk"]]'
 
@@ -368,5 +385,29 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         '[null, {name: "Kirk"}, {name: "Spock"}]' || 1              | '[null, {name: "Spock"}]'
 
         predicate = { Cat cat -> cat?.name == 'Kirk' } as Predicate<Cat>
+    }
+
+    void "should keep all fields with different type"() {
+        given:
+        def mapper = DEFAULT_MAPPER
+
+        and:
+        def provider = setupJsonProvider(content)
+        def catRepo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject ponyRepo = catRepo.of(Pony)
+
+        when:
+        ponyRepo.save(spockPony)
+
+        then:
+        isEquals(provider, expectedContent)
+
+        where:
+        updateStrategy                    || expectedContent
+        JsonUtils.replaceUpdateStrategy() || '[{name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
+        JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
+
+        content = '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
+        spockPony = new Pony(name: 'Spock', color: 'blue')
     }
 }

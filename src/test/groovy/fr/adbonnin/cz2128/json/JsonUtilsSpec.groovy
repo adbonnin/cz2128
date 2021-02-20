@@ -62,20 +62,20 @@ class JsonUtilsSpec extends BaseJsonSpec {
         out.close()
 
         where:
-        oldJson                     | newJson                     || expectedModified | expectedJson
-        null                        | null                        || false            | ''
-        '{}'                        | null                        || false            | '{}'
-        '{old:"old"}'               | null                        || false            | '{old:"old"}'
+        oldJson                        | newJson                        || expectedModified | expectedJson
+        null                           | null                           || false            | ''
+        '{}'                           | null                           || false            | '{}'
+        '{old: "old"}'                 | null                           || false            | '{old: "old"}'
 
-        null                        | '{}'                        || true             | '{}'
-        '{}'                        | '{}'                        || false            | '{}'
-        '{old:"old"}'               | '{}'                        || false            | '{old:"old"}'
+        null                           | '{}'                           || true             | '{}'
+        '{}'                           | '{}'                           || false            | '{}'
+        '{old: "old"}'                 | '{}'                           || false            | '{old: "old"}'
 
-        null                        | '{new:"new"}'               || true             | '{new:"new"}'
-        '{}'                        | '{new:"new"}'               || true             | '{new:"new"}'
-        '{old:"old"}'               | '{new:"new"}'               || true             | '{old:"old",new:"new"}'
+        null                           | '{new: "new"}'                 || true             | '{new: "new"}'
+        '{}'                           | '{new: "new"}'                 || true             | '{new: "new"}'
+        '{old: "old"}'                 | '{new: "new"}'                 || true             | '{old: "old", new: "new"}'
 
-        '{old:"old",updated:"old"}' | '{new:"new",updated:"new"}' || true             | '{old:"old",new:"new",updated:"new"}'
+        '{old: "old", updated: "old"}' | '{new: "new", updated: "new"}' || true             | '{old: "old", new: "new", updated: "new"}'
 
         oldNode = readObjectNode(oldJson)
         newNode = readObjectNode(newJson)
@@ -96,16 +96,26 @@ class JsonUtilsSpec extends BaseJsonSpec {
     }
 
     void "should write json node"() {
-        def json = '{name:"value"}'
         def node = readObjectNode(json)
 
         given:
         def provider = newMemoryJsonProvider()
+        def providerAtIndex = newMemoryJsonProvider()
+        def providerAtField = newMemoryJsonProvider()
 
         when:
         JsonUtils.writeNode(node, provider)
+        JsonUtils.writeNode(node, providerAtIndex.at(1))
+        JsonUtils.writeNode(node, providerAtField.at("test"))
 
         then:
         isEquals(provider, json)
+        isEquals(providerAtIndex, expectedJsonAtIndex)
+        isEquals(providerAtField, expectedJsonAtField)
+
+        where:
+        json              || expectedJsonAtIndex       | expectedJsonAtField
+        '{name: "value"}' || '[null, {name: "value"}]' | '{test: {name: "value"}}'
+        null              || '[null, null]'            | '{test: null}'
     }
 }

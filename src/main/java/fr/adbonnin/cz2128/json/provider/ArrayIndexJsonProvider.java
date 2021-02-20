@@ -18,6 +18,11 @@ public class ArrayIndexJsonProvider implements JsonProvider {
     private final JsonProvider provider;
 
     public ArrayIndexJsonProvider(int index, JsonProvider provider) {
+
+        if (index < 0) {
+            throw new IllegalArgumentException("Index must be positive; index: " + index);
+        }
+
         this.index = index;
         this.provider = provider;
     }

@@ -43,7 +43,7 @@ public class JsonUtils {
     }
 
     public static JsonNode readNode(JsonProvider provider) {
-        return provider.withParser(JSON_NODE_PARSER);
+        return provider.withParser(JSON_NODE_READER);
     }
 
     public static void writeNode(JsonNode node, JsonProvider provider) {
@@ -58,7 +58,7 @@ public class JsonUtils {
         });
     }
 
-    private static final Function<JsonParser, JsonNode> JSON_NODE_PARSER = parser -> {
+    private static final Function<JsonParser, JsonNode> JSON_NODE_READER = parser -> {
         try {
             return parser.readValueAsTree();
         }

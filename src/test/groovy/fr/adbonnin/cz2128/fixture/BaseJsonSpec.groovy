@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import fr.adbonnin.cz2128.JsonProvider
 import fr.adbonnin.cz2128.json.JsonUtils
@@ -71,7 +72,7 @@ abstract class BaseJsonSpec extends Specification {
 
     static void isEquals(JsonProvider actualProvider, String expectedStr) {
         def actual = actualProvider.readJsonNode()
-        def expected = DEFAULT_MAPPER.readTree(expectedStr)
+        def expected = expectedStr == null ? NullNode.instance : DEFAULT_MAPPER.readTree(expectedStr)
         assert actual == expected
     }
 }
