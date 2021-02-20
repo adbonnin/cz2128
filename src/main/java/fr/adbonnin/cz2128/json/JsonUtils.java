@@ -1,9 +1,9 @@
 package fr.adbonnin.cz2128.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.adbonnin.cz2128.JsonException;
@@ -20,18 +20,20 @@ import java.util.stream.StreamSupport;
 
 public class JsonUtils {
 
+    private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory();
+
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    public static JsonUpdateStrategy partialUpdate() {
+    public static JsonUpdateStrategy partialUpdateStrategy() {
         return JSON_UPDATE_STRATEGIES.PARTIAL_UPDATE;
     }
 
-    public static JsonUpdateStrategy replaceUpdate() {
+    public static JsonUpdateStrategy replaceUpdateStrategy() {
         return JSON_UPDATE_STRATEGIES.REPLACE_UPDATE;
     }
 
-    public static JsonParser newEmptyParser(ObjectMapper mapper) throws IOException {
-        return mapper.getFactory().createParser(EMPTY_BYTE_ARRAY);
+    public static JsonParser newEmptyParser() throws IOException {
+        return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(EMPTY_BYTE_ARRAY);
     }
 
     public static LinkedHashMap<String, JsonNode> mapFieldsToLinkedHashMap(JsonNode node) {
@@ -39,12 +41,12 @@ public class JsonUtils {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public static JsonNode readJsonNode(JsonProvider provider, ObjectMapper mapper) {
-        return provider.withParser(mapper, JSON_NODE_PARSER);
+    public static JsonNode readNode(JsonProvider provider) {
+        return provider.withParser(JSON_NODE_PARSER);
     }
 
-    public static void writeJsonNode(JsonNode node, JsonProvider provider, ObjectMapper mapper) {
-        provider.withGenerator(mapper, (parser, generator) -> {
+    public static void writeNode(JsonNode node, JsonProvider provider) {
+        provider.withGenerator((parser, generator) -> {
             try {
                 generator.writeTree(node);
                 return null;

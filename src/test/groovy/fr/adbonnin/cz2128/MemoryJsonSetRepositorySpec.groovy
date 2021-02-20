@@ -4,7 +4,6 @@ import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.SpaceCat
 import fr.adbonnin.cz2128.json.JsonUtils
-import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Subject
 
 import java.util.function.Predicate
@@ -14,13 +13,13 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
     JsonProvider setupJsonProvider(String content) {
-        return new MemoryJsonProvider(content)
+        return newMemoryJsonProvider(content)
     }
 
     void "should count elements"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -40,7 +39,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should count elements that test the predicate"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -61,7 +60,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should read the first element with a predicate"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -81,7 +80,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should read all elements with a predicate"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -103,7 +102,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should read with a stream"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -126,7 +125,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should have no more element when the iterator is used outside the with block"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -145,7 +144,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should have no more element when the stream is used outside the with block"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -179,13 +178,13 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         where:
         content                                           | updateStrategy            || expectedContent
-        ''                                                | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
+        ''                                                | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
 
-        ''                                                | JsonUtils.partialUpdate() || '[{id:0,name:"Spock"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
+        ''                                                | JsonUtils.partialUpdateStrategy() || '[{id:0,name:"Spock"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -193,7 +192,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should save all numbers"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -233,13 +232,13 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         where:
         content                                             | updateStrategy            || expectedContent
-        ''                                                  | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.replaceUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdate() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
+        ''                                                  | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
 
-        ''                                                  | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.partialUpdate() || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
-        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdate() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id:1, name: "Kirk"}]'
+        ''                                                  | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
+        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id:1, name: "Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -262,11 +261,11 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         where:
         content                          | updateStrategy            || expectedContent
-        ''                               | JsonUtils.replaceUpdate() || '[[0, "Spock"], [1, "Kirk"], null]'
-        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdate() || '[null, [0, "Spock"], [1, "Kirk"]]'
+        ''                               | JsonUtils.replaceUpdateStrategy() || '[[0, "Spock"], [1, "Kirk"], null]'
+        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdateStrategy() || '[null, [0, "Spock"], [1, "Kirk"]]'
 
-        ''                               | JsonUtils.partialUpdate() || '[[0, "Spock"], [1, "Kirk"], null]'
-        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.partialUpdate() || '[null, [0, "Spock", "Captain"], [1, "Kirk"]]'
+        ''                               | JsonUtils.partialUpdateStrategy() || '[[0, "Spock"], [1, "Kirk"], null]'
+        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.partialUpdateStrategy() || '[null, [0, "Spock", "Captain"], [1, "Kirk"]]'
 
         elements = [new SpaceCat(id: 0, name: 'Spock'), new SpaceCat(id: 1, name: 'Kirk')]
     }
@@ -274,7 +273,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete an element"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -299,7 +298,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete a list of elements"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -325,7 +324,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete all elements"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
@@ -348,7 +347,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete a list from a predicate"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdate()
+        def updateStrategy = JsonUtils.replaceUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)

@@ -1,8 +1,8 @@
 package fr.adbonnin.cz2128.json.provider;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
 
@@ -17,12 +17,15 @@ public class MemoryJsonProvider implements JsonProvider {
 
     volatile private String content;
 
-    public MemoryJsonProvider() {
-        this("");
+    private final JsonFactory jsonFactory;
+
+    public MemoryJsonProvider(JsonFactory jsonFactory) {
+        this("", jsonFactory);
     }
 
-    public MemoryJsonProvider(String content) {
+    public MemoryJsonProvider(String content, JsonFactory jsonFactory) {
         this.content = requireNonNull(content);
+        this.jsonFactory = requireNonNull(jsonFactory);
     }
 
     public String getContent() {
@@ -33,9 +36,13 @@ public class MemoryJsonProvider implements JsonProvider {
         this.content = content;
     }
 
+    public JsonFactory getJsonFactory() {
+        return jsonFactory;
+    }
+
     @Override
-    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
-        try (JsonParser parser = mapper.getFactory().createParser(content)) {
+    public <R> R withParser(Function<JsonParser, ? extends R> function) {
+        try (JsonParser parser = jsonFactory.createParser(content)) {
             return function.apply(parser);
         }
         catch (IOException e) {
@@ -44,12 +51,12 @@ public class MemoryJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         final R result;
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            try (JsonGenerator generator = mapper.getFactory().createGenerator(output)) {
-                result = withParser(mapper, parser -> function.apply(parser, generator));
+            try (JsonGenerator generator = jsonFactory.createGenerator(output)) {
+                result = withParser(parser -> function.apply(parser, generator));
             }
             finally {
                 output.close();

@@ -2,7 +2,6 @@ package fr.adbonnin.cz2128.json.provider.wrapper;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.base.Pair;
@@ -27,8 +26,8 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
-        return provider.withParser(mapper, parser -> {
+    public <R> R withParser(Function<JsonParser, ? extends R> function) {
+        return provider.withParser(parser -> {
             try {
                 final ObjectIterator itr = new ObjectIterator(parser);
                 while (itr.hasNext()) {
@@ -41,7 +40,7 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
                     }
                 }
 
-                try (JsonParser emptyParser = JsonUtils.newEmptyParser(mapper)) {
+                try (JsonParser emptyParser = JsonUtils.newEmptyParser()) {
                     return function.apply(emptyParser);
                 }
             }
@@ -52,8 +51,8 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
-        return provider.withGenerator(mapper, (parser, generator) -> {
+    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+        return provider.withGenerator((parser, generator) -> {
             R result = null;
 
             try {
@@ -77,7 +76,7 @@ public class ObjectFieldJsonProviderWrapper implements JsonProvider {
                 if (!found) {
                     generator.writeFieldName(name);
 
-                    try (JsonParser emptyParser = JsonUtils.newEmptyParser(mapper)) {
+                    try (JsonParser emptyParser = JsonUtils.newEmptyParser()) {
                         result = function.apply(emptyParser, generator);
                     }
                 }

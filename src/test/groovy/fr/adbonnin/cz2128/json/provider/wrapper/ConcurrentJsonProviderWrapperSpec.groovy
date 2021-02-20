@@ -3,7 +3,6 @@ package fr.adbonnin.cz2128.json.provider.wrapper
 import fr.adbonnin.cz2128.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
-import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 
 class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
 
@@ -13,7 +12,7 @@ class ConcurrentJsonProviderWrapperSpec extends BaseJsonSpec {
         def updateStrategy = DEFAULT_UPDATE_STRATEGY
 
         and:
-        def provider = new MemoryJsonProvider()
+        def provider = newMemoryJsonProvider()
         def wrapper = new ConcurrentJsonProviderWrapper(provider, 2000)
         def repository = new JsonSetRepository<Cat>(Cat, wrapper, mapper, updateStrategy)
 

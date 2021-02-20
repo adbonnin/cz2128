@@ -24,39 +24,39 @@ import static java.util.Objects.requireNonNull;
 
 public class JsonSetRepository<T> implements JsonProvider {
 
-    private final ObjectReader reader;
+    private final ObjectReader objectReader;
 
     private final JsonProvider provider;
 
-    private final ObjectMapper mapper;
+    private final ObjectMapper objectMapper;
 
     private final JsonUpdateStrategy updateStrategy;
 
-    public JsonSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), provider, mapper, updateStrategy);
+    public JsonSetRepository(Class<T> type, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
+        this(objectMapper.readerFor(type), provider, objectMapper, updateStrategy);
     }
 
-    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), provider, mapper, updateStrategy);
+    public JsonSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
+        this(objectMapper.readerFor(type), provider, objectMapper, updateStrategy);
     }
 
-    public JsonSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper, JsonUpdateStrategy updateStrategy) {
-        this.reader = requireNonNull(reader);
-        this.mapper = requireNonNull(mapper);
+    public JsonSetRepository(ObjectReader objectReader, JsonProvider provider, ObjectMapper objectMapper, JsonUpdateStrategy updateStrategy) {
+        this.objectReader = requireNonNull(objectReader);
+        this.objectMapper = requireNonNull(objectMapper);
         this.provider = requireNonNull(provider);
         this.updateStrategy = requireNonNull(updateStrategy);
     }
 
-    public ObjectReader getReader() {
-        return reader;
+    public ObjectReader getObjectReader() {
+        return objectReader;
     }
 
     public JsonProvider getProvider() {
         return provider;
     }
 
-    public ObjectMapper getMapper() {
-        return mapper;
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 
     public JsonUpdateStrategy getUpdateStrategy() {
@@ -64,19 +64,19 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public <U> JsonSetRepository<U> of(ObjectReader objectReader) {
-        return new JsonSetRepository<>(objectReader, provider, mapper, updateStrategy);
+        return new JsonSetRepository<>(objectReader, provider, objectMapper, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(Class<U> type) {
-        return new JsonSetRepository<>(type, provider, mapper, updateStrategy);
+        return new JsonSetRepository<>(type, provider, objectMapper, updateStrategy);
     }
 
     public <U> JsonSetRepository<U> of(TypeReference<U> type) {
-        return new JsonSetRepository<>(type, provider, mapper, updateStrategy);
+        return new JsonSetRepository<>(type, provider, objectMapper, updateStrategy);
     }
 
     public long count() {
-        return withParser(mapper, parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
+        return withParser(parser -> IteratorUtils.count(new SkippedValueIterator(parser)));
     }
 
     public boolean isEmpty() {
@@ -106,17 +106,17 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     @Override
-    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
-        return provider.withParser(mapper, function);
+    public <R> R withParser(Function<JsonParser, ? extends R> function) {
+        return provider.withParser(function);
     }
 
     @Override
-    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
-        return provider.withGenerator(mapper, function);
+    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+        return provider.withGenerator(function);
     }
 
     public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
-        return withParser(mapper, parser -> function.apply(new ValueArrayIterator<>(parser, reader, mapper)));
+        return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, objectReader, objectMapper)));
     }
 
     public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
@@ -136,7 +136,7 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public long saveAll(Iterable<? extends T> elements) {
-        return withGenerator(mapper, (parser, generator) -> {
+        return withGenerator((parser, generator) -> {
             final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
                     .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
@@ -145,10 +145,10 @@ public class JsonSetRepository<T> implements JsonProvider {
                 generator.writeStartArray();
 
                 // Update old elements
-                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
+                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, objectMapper);
                 while (itr.hasNext()) {
                     final JsonNode oldNode = itr.next();
-                    final T oldElement = reader.readValue(oldNode);
+                    final T oldElement = objectReader.readValue(oldNode);
 
                     if (!newElements.containsKey(oldElement)) {
                         generator.writeTree(oldNode);
@@ -156,7 +156,7 @@ public class JsonSetRepository<T> implements JsonProvider {
                     }
 
                     final T newElement = newElements.remove(oldElement);
-                    final JsonNode newNode = mapper.valueToTree(newElement);
+                    final JsonNode newNode = objectMapper.valueToTree(newElement);
 
                     final boolean updated = updateStrategy.update(oldNode, newNode, generator);
                     if (updated) {
@@ -166,7 +166,7 @@ public class JsonSetRepository<T> implements JsonProvider {
 
                 // Create new elements
                 for (T newElement : newElements.values()) {
-                    final JsonNode newNode = mapper.valueToTree(newElement);
+                    final JsonNode newNode = objectMapper.valueToTree(newElement);
                     generator.writeTree(newNode);
                     ++updates;
                 }
@@ -193,15 +193,15 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public long deleteAll(Predicate<? super T> predicate) {
-        return withGenerator(mapper, (parser, generator) -> {
+        return withGenerator((parser, generator) -> {
             try {
                 long deleted = 0;
                 generator.writeStartArray();
 
-                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
+                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, objectMapper);
                 while (itr.hasNext()) {
                     final JsonNode node = itr.next();
-                    final T element = reader.readValue(node);
+                    final T element = objectReader.readValue(node);
 
                     if (predicate.test(element)) {
                         ++deleted;

@@ -2,7 +2,8 @@ package fr.adbonnin.cz2128;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.adbonnin.cz2128.json.JsonUtils;
 import fr.adbonnin.cz2128.json.provider.wrapper.ArrayIndexJsonProviderWrapper;
 import fr.adbonnin.cz2128.json.provider.wrapper.ObjectFieldJsonProviderWrapper;
 
@@ -11,9 +12,17 @@ import java.util.function.Function;
 
 public interface JsonProvider {
 
-    <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function);
+    <R> R withParser(Function<JsonParser, ? extends R> function);
 
-    <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function);
+    <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function);
+
+    default JsonNode readJsonNode() {
+        return JsonUtils.readNode(this);
+    }
+
+    default void writeJsonNode(JsonNode node) {
+        JsonUtils.writeNode(node, this);
+    }
 
     default JsonProvider at(String name) {
         return new ObjectFieldJsonProviderWrapper(name, this);

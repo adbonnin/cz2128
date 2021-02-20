@@ -3,7 +3,6 @@ package fr.adbonnin.cz2128.json.provider.wrapper
 import fr.adbonnin.cz2128.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
-import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 
 class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
 
@@ -23,7 +22,7 @@ class ObjectFieldJsonProviderWrapperSpec extends BaseJsonSpec {
         def updateStrategy = DEFAULT_UPDATE_STRATEGY
 
         and:
-        def provider = new MemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
+        def provider = newMemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
         def enterpriseRepository = new JsonSetRepository(Cat, provider.at("enterprise"), mapper, updateStrategy)
         def discoveryRepository = new JsonSetRepository(Cat, provider.at("discovery"), mapper, updateStrategy)
 

@@ -9,7 +9,7 @@ class JsonNodeArrayIteratorSpec extends BaseJsonSpec {
 
     void "should iterate over nodes"() {
         given:
-        def parser = createParser(content)
+        def parser = createJsonParser(content)
 
         when:
         def iterator = new JsonNodeArrayIterator(parser, DEFAULT_MAPPER)

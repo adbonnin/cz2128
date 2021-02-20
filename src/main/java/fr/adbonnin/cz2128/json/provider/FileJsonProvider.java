@@ -1,9 +1,9 @@
 package fr.adbonnin.cz2128.json.provider;
 
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.base.FileUtils;
@@ -31,16 +31,19 @@ public class FileJsonProvider implements JsonProvider {
 
     private final Path tempFile;
 
-    private final JsonEncoding encoding;
+    private final JsonEncoding jsonEncoding;
 
-    public FileJsonProvider(Path file, Path tempFile, JsonEncoding encoding) {
-        this.file = requireNonNull(file);
-        this.tempFile = requireNonNull(tempFile);
-        this.encoding = requireNonNull(encoding);
+    private final JsonFactory jsonFactory;
+
+    public FileJsonProvider(Path file, JsonFactory jsonFactory) {
+        this(file, buildDefaultTempFile(file), DEFAULT_ENCODING, jsonFactory);
     }
 
-    public FileJsonProvider(Path file) {
-        this(file, buildDefaultTempFile(file), DEFAULT_ENCODING);
+    public FileJsonProvider(Path file, Path tempFile, JsonEncoding jsonEncoding, JsonFactory jsonFactory) {
+        this.file = requireNonNull(file);
+        this.tempFile = requireNonNull(tempFile);
+        this.jsonEncoding = requireNonNull(jsonEncoding);
+        this.jsonFactory = requireNonNull(jsonFactory);
     }
 
     public Path getFile() {
@@ -51,12 +54,16 @@ public class FileJsonProvider implements JsonProvider {
         return tempFile;
     }
 
-    public JsonEncoding getEncoding() {
-        return encoding;
+    public JsonEncoding getJsonEncoding() {
+        return jsonEncoding;
     }
 
     public String getJavaEncoding() {
-        return encoding.getJavaName();
+        return jsonEncoding.getJavaName();
+    }
+
+    public JsonFactory getJsonFactory() {
+        return jsonFactory;
     }
 
     public String getContent() {
@@ -80,10 +87,10 @@ public class FileJsonProvider implements JsonProvider {
     }
 
     @Override
-    public <T> T withParser(ObjectMapper mapper, Function<JsonParser, ? extends T> function) {
+    public <T> T withParser(Function<JsonParser, ? extends T> function) {
 
         if (!Files.exists(file)) {
-            try (JsonParser emptyParser = JsonUtils.newEmptyParser(mapper)) {
+            try (JsonParser emptyParser = JsonUtils.newEmptyParser()) {
                 return function.apply(emptyParser);
             }
             catch (IOException e) {
@@ -92,7 +99,7 @@ public class FileJsonProvider implements JsonProvider {
         }
 
         try (InputStream input = Files.newInputStream(file, StandardOpenOption.READ);
-             JsonParser parser = mapper.getFactory().createParser(input)) {
+             JsonParser parser = jsonFactory.createParser(input)) {
             return function.apply(parser);
         }
         catch (IOException e) {
@@ -100,13 +107,13 @@ public class FileJsonProvider implements JsonProvider {
         }
     }
 
-    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         final R result;
 
         try {
             try (OutputStream tempOutput = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                 JsonGenerator tempGenerator = mapper.getFactory().createGenerator(tempOutput, encoding)) {
-                result = withParser(mapper, parser -> function.apply(parser, tempGenerator));
+                 JsonGenerator tempGenerator = jsonFactory.createGenerator(tempOutput, jsonEncoding)) {
+                result = withParser(parser -> function.apply(parser, tempGenerator));
             }
 
             Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING);

@@ -9,7 +9,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import fr.adbonnin.cz2128.JsonProvider
 import fr.adbonnin.cz2128.json.JsonUtils
+import fr.adbonnin.cz2128.json.provider.FileJsonProvider
+import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Specification
+
+import java.nio.file.Files
 
 abstract class BaseJsonSpec extends Specification {
 
@@ -24,7 +28,7 @@ abstract class BaseJsonSpec extends Specification {
             .addModule(FLATTEN_MODULE)
             .build()
 
-    public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdate()
+    public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
 
     static ArrayNode readArrayNode(String content) {
         if (content == null) {
@@ -50,11 +54,24 @@ abstract class BaseJsonSpec extends Specification {
         }
     }
 
-    static JsonParser createParser(String content) {
+    static MemoryJsonProvider newMemoryJsonProvider(String content = "") {
+        return new MemoryJsonProvider(content, DEFAULT_MAPPER.factory)
+    }
+
+    static FileJsonProvider newFileJsonProvider(String content) {
+        def tempFile = Files.createTempFile('test-', '.json')
+        def jsonProvider = new FileJsonProvider(tempFile, DEFAULT_MAPPER.factory)
+        jsonProvider.content = content
+        return jsonProvider
+    }
+
+    static JsonParser createJsonParser(String content) {
         return content == null ? null : DEFAULT_MAPPER.getFactory().createParser(content)
     }
 
-    static boolean isEquals(JsonProvider provider, String str) {
-        return JsonUtils.readJsonNode(provider, DEFAULT_MAPPER) == DEFAULT_MAPPER.readTree(str)
+    static void isEquals(JsonProvider actualProvider, String expectedStr) {
+        def actual = actualProvider.readJsonNode()
+        def expected = DEFAULT_MAPPER.readTree(expectedStr)
+        assert actual == expected
     }
 }

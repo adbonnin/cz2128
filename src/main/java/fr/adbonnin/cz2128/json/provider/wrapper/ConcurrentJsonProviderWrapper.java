@@ -2,7 +2,6 @@ package fr.adbonnin.cz2128.json.provider.wrapper;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
 
@@ -33,11 +32,11 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <R> R withParser(ObjectMapper mapper, Function<JsonParser, ? extends R> function) {
+    public <R> R withParser(Function<JsonParser, ? extends R> function) {
         try {
             if (readLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {
-                    return provider.withParser(mapper, function);
+                    return provider.withParser(function);
                 }
                 finally {
                     readLock.unlock();
@@ -53,11 +52,11 @@ public class ConcurrentJsonProviderWrapper implements JsonProvider {
     }
 
     @Override
-    public <R> R withGenerator(ObjectMapper mapper, BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
+    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         try {
             if (writeLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
                 try {
-                    return provider.withGenerator(mapper, function);
+                    return provider.withGenerator(function);
                 }
                 finally {
                     writeLock.unlock();

@@ -6,7 +6,7 @@ class SkippedValueIteratorSpec extends BaseJsonSpec {
 
     void "should iterate over elements"() {
         given:
-        def parser = createParser(content)
+        def parser = createJsonParser(content)
 
         when:
         def iterator = new SkippedValueIterator(parser)

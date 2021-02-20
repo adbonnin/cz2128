@@ -8,7 +8,7 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
     void "should iterates over object elements"() {
         given:
         def content = '[null, {name: "Spock"}, {name: "Kirk"}]'
-        def parser = createParser(content)
+        def parser = createJsonParser(content)
 
         when:
         def iterator = new ValueArrayIterator<>(parser, Cat, DEFAULT_MAPPER)
@@ -38,7 +38,7 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
     void "should iterates over number elements"() {
         given:
         def content = '[null, 42]'
-        def parser = createParser(content)
+        def parser = createJsonParser(content)
 
         when:
         def iterator = new ValueArrayIterator<>(parser, Number, DEFAULT_MAPPER)

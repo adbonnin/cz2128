@@ -1,7 +1,6 @@
 package fr.adbonnin.cz2128.json
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
-import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Subject
 import spock.lang.Unroll
 
@@ -14,7 +13,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.partialUpdate().update(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdateStrategy().update(oldNode, newNode, generator)
         generator.close()
 
         then:
@@ -52,7 +51,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.partialUpdate().update(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdateStrategy().update(oldNode, newNode, generator)
         generator.close()
 
         then:
@@ -101,13 +100,10 @@ class JsonUtilsSpec extends BaseJsonSpec {
         def node = readObjectNode(json)
 
         given:
-        def mapper = DEFAULT_MAPPER
-
-        and:
-        def provider = new MemoryJsonProvider()
+        def provider = newMemoryJsonProvider()
 
         when:
-        JsonUtils.writeJsonNode(node, provider, mapper)
+        JsonUtils.writeNode(node, provider)
 
         then:
         isEquals(provider, json)
