@@ -9,9 +9,10 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
         given:
         def content = '[null, {name: "Spock"}, {name: "Kirk"}]'
         def parser = createJsonParser(content)
+        def reader = DEFAULT_MAPPER.readerFor(Cat)
 
         when:
-        def iterator = new ValueArrayIterator<>(parser, Cat, DEFAULT_MAPPER)
+        def iterator = new ValueArrayIterator<Cat>(parser, reader)
 
         then:
         iterator.hasNext()
@@ -39,9 +40,10 @@ class ValueArrayIteratorSpec extends BaseJsonSpec {
         given:
         def content = '[null, 42]'
         def parser = createJsonParser(content)
+        def reader = DEFAULT_MAPPER.readerFor(Number)
 
         when:
-        def iterator = new ValueArrayIterator<>(parser, Number, DEFAULT_MAPPER)
+        def iterator = new ValueArrayIterator<Number>(parser, reader)
 
         then:
         iterator.hasNext()

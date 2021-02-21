@@ -12,17 +12,13 @@ import static java.util.Objects.requireNonNull;
 
 public class ValueArrayIterator<E> implements Iterator<E> {
 
-    private final JsonNodeArrayIterator iterator;
+    private final ArrayIterator iterator;
 
     private final ObjectReader reader;
 
-    public ValueArrayIterator(JsonParser parser, ObjectReader reader, ObjectMapper mapper) {
+    public ValueArrayIterator(JsonParser parser, ObjectReader reader) {
         this.reader = requireNonNull(reader);
-        this.iterator = new JsonNodeArrayIterator(parser, mapper);
-    }
-
-    public ValueArrayIterator(JsonParser parser, Class<E> type, ObjectMapper mapper) {
-        this(parser, mapper.readerFor(type), mapper);
+        this.iterator = new ArrayIterator(parser);
     }
 
     @Override

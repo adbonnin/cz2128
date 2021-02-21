@@ -115,7 +115,7 @@ public class JsonSetRepository<T> implements JsonProvider {
     }
 
     public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
-        return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, objectReader, objectMapper)));
+        return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, objectReader)));
     }
 
     public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
