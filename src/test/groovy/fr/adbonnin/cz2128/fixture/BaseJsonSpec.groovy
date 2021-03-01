@@ -3,6 +3,7 @@ package fr.adbonnin.cz2128.fixture
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.json.JsonWriteFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -30,6 +31,18 @@ abstract class BaseJsonSpec extends Specification {
             .build()
 
     public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
+
+    static JsonNode readNode(String content) {
+        if (content == null) {
+            return null
+        }
+        else if (content.isEmpty()) {
+            return NullNode.instance
+        }
+        else {
+            return DEFAULT_MAPPER.readTree(content)
+        }
+    }
 
     static ArrayNode readArrayNode(String content) {
         if (content == null) {

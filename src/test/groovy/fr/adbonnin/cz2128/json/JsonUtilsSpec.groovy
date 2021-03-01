@@ -7,13 +7,47 @@ import spock.lang.Unroll
 class JsonUtilsSpec extends BaseJsonSpec {
 
     @Unroll
+    void "should update"() {
+        given:
+        def out = new ByteArrayOutputStream()
+        @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
+
+        when:
+        def modified = JsonUtils.partialUpdate(oldNode, newNode, generator)
+        generator.close()
+
+        then:
+        modified == expectedModified
+        readNode(out.toString()) == expectedNode
+
+        cleanup:
+        out.close()
+
+        where:
+        oldJson | newJson || expectedModified | expectedJson
+        null    | null    || false            | ''
+        '"old"' | null    || false            | '"old"'
+        '0'     | null    || false            | '0'
+        'false' | null    || false            | 'false'
+
+        null    | '"new"' || true             | '"new"'
+        '"old"' | '"new"' || true             | '"new"'
+        '0'     | '1'     || true             | '1'
+        'false' | 'true'  || true             | 'true'
+
+        oldNode = readNode(oldJson)
+        newNode = readNode(newJson)
+        expectedNode = readNode(expectedJson)
+    }
+
+    @Unroll
     void "should update array"() {
         given:
         def out = new ByteArrayOutputStream()
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.partialUpdateStrategy().update(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdateArray(oldNode, newNode, generator)
         generator.close()
 
         then:
@@ -51,7 +85,7 @@ class JsonUtilsSpec extends BaseJsonSpec {
         @Subject def generator = DEFAULT_MAPPER.getFactory().createGenerator(out)
 
         when:
-        def modified = JsonUtils.partialUpdateStrategy().update(oldNode, newNode, generator)
+        def modified = JsonUtils.partialUpdateObject(oldNode, newNode, generator)
         generator.close()
 
         then:
