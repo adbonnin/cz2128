@@ -74,12 +74,12 @@ public class JsonSetRepository<T> implements JsonProvider {
         return new JsonSetRepository<>(type, objectMapper, provider, updateStrategy);
     }
 
-    public long count() {
-        return withParser(parser -> IteratorUtils.count(new SkipChildrenArrayIterator(parser)));
-    }
-
     public boolean isEmpty() {
         return count() == 0;
+    }
+
+    public long count() {
+        return withParser(parser -> IteratorUtils.count(new SkipChildrenArrayIterator(parser)));
     }
 
     public long count(Predicate<? super T> predicate) {
@@ -96,12 +96,24 @@ public class JsonSetRepository<T> implements JsonProvider {
 
     public Set<T> findAll(Predicate<? super T> predicate) {
         return withIterator(iterator -> {
-            final Iterator<? extends T> itr = IteratorUtils.filter(iterator, predicate);
+            final Iterator<T> itr = IteratorUtils.filter(iterator, predicate);
 
             final Set<T> result = new LinkedHashSet<>();
             itr.forEachRemaining(result::add);
             return result;
         });
+    }
+
+    public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
+        return withIterator((iterator) -> {
+            final Spliterator<T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
+            final Stream<T> stream = StreamSupport.stream(spliterator, false);
+            return function.apply(stream);
+        });
+    }
+
+    public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
+        return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, objectReader)));
     }
 
     @Override
@@ -112,18 +124,6 @@ public class JsonSetRepository<T> implements JsonProvider {
     @Override
     public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         return provider.withGenerator(function);
-    }
-
-    public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
-        return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, objectReader)));
-    }
-
-    public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
-        return withIterator((iterator) -> {
-            final Spliterator<? extends T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
-            final Stream<? extends T> stream = StreamSupport.stream(spliterator, false);
-            return function.apply(stream);
-        });
     }
 
     public boolean save(T element) {
@@ -183,7 +183,7 @@ public class JsonSetRepository<T> implements JsonProvider {
         return deleteAll(element::equals) > 0;
     }
 
-    public long deleteAll(Collection<T> elements) {
+    public long deleteAll(Collection<? extends T> elements) {
         return deleteAll(elements::contains);
     }
 

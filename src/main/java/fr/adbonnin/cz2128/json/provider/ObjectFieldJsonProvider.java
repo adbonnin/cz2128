@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.JsonException;
 import fr.adbonnin.cz2128.JsonProvider;
-import fr.adbonnin.cz2128.base.Pair;
 import fr.adbonnin.cz2128.json.JsonUtils;
 import fr.adbonnin.cz2128.json.iterator.ObjectIterator;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -31,7 +31,7 @@ public class ObjectFieldJsonProvider implements JsonProvider {
             try {
                 final ObjectIterator itr = new ObjectIterator(parser);
                 while (itr.hasNext()) {
-                    final Pair<String, JsonParser> next = itr.next();
+                    final Map.Entry<String, JsonParser> next = itr.next();
                     if (name.equals(next.getKey())) {
                         return function.apply(parser);
                     }

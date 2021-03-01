@@ -1,5 +1,6 @@
 package fr.adbonnin.cz2128
 
+import com.fasterxml.jackson.core.type.TypeReference
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -217,7 +218,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         when:
         def result = repo.saveAll(elements)
-        repo.saveAll([null])
+        repo.saveAll([null] as Integer[])
 
         then:
         result == elements.size()
@@ -390,11 +391,12 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
     void "should keep all fields with different type"() {
         given:
         def mapper = DEFAULT_MAPPER
+        def updateStrategy = JsonUtils.partialUpdateStrategy()
 
         and:
         def provider = setupJsonProvider(content)
         def catRepo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
-        @Subject ponyRepo = catRepo.of(Pony)
+        @Subject ponyRepo = repoBuilder(catRepo)
 
         when:
         ponyRepo.save(spockPony)
@@ -403,11 +405,14 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        updateStrategy                    || expectedContent
-        JsonUtils.replaceUpdateStrategy() || '[{name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
-        JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
+        repoBuilder                                             | _
+        ({ value -> value.of(Pony) })                           | _
+        ({ value -> value.of(new TypeReference<Pony>() {}) })   | _
+        ({ value -> value.of(DEFAULT_MAPPER.readerFor(Pony)) }) | _
 
         content = '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
         spockPony = new Pony(name: 'Spock', color: 'blue')
+
+        expectedContent = '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
     }
 }

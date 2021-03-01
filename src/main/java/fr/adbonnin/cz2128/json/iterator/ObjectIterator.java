@@ -5,10 +5,11 @@ import com.fasterxml.jackson.core.JsonToken;
 import fr.adbonnin.cz2128.base.Pair;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonToken.*;
 
-public class ObjectIterator extends ContainerIterator<Pair<String, JsonParser>> {
+public class ObjectIterator extends ContainerIterator<Map.Entry<String, JsonParser>> {
 
     public ObjectIterator(JsonParser parser) {
         super(parser);
@@ -28,7 +29,7 @@ public class ObjectIterator extends ContainerIterator<Pair<String, JsonParser>> 
     }
 
     @Override
-    protected Pair<String, JsonParser> nextValue(JsonToken token) throws IOException {
+    protected Map.Entry<String, JsonParser> nextValue(JsonToken token) throws IOException {
 
         if (!FIELD_NAME.equals(token)) {
             throw new IllegalArgumentException("Object must contains field name before values; " +
