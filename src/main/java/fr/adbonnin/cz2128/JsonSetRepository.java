@@ -137,7 +137,7 @@ public class JsonSetRepository<T> implements JsonProvider {
     public long saveAll(Iterable<? extends T> elements) {
         return withGenerator((parser, generator) -> {
             final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
-                    .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
+                .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
             try {
                 long updates = 0;

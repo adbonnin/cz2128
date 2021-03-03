@@ -3,7 +3,7 @@ package fr.adbonnin.cz2128.json.iterator
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
 
-class ObjectIteratorSpec extends BaseJsonSpec {
+class ArrayIteratorSpec extends BaseJsonSpec {
 
     void "should iterate on object fields"() {
 
@@ -17,33 +17,34 @@ class ObjectIteratorSpec extends BaseJsonSpec {
         ]
 
         given:
-        def json = DEFAULT_MAPPER.writeValueAsString([enterprise: enterprise, discovery: discovery])
+        def json = DEFAULT_MAPPER.writeValueAsString([enterprise, discovery])
         def parser = DEFAULT_MAPPER.getFactory().createParser(json)
 
         and:
-        def itr = new ObjectIterator(parser)
+        def itr = new ArrayIterator(parser)
 
         expect:
         itr.hasNext()
 
-        when:
-        def enterprisePair = itr.next()
-        def parsedEnterprise = DEFAULT_MAPPER.readValue(parser, Cat.LIST_TYPE_REF)
+        with(DEFAULT_MAPPER.readValue(itr.next(), Cat.LIST_TYPE_REF)) {
+            size() == 2
 
-        then:
-        enterprisePair.key == 'enterprise'
-        parsedEnterprise == enterprise
+            it[0].id == 0
+            it[0].name == 'Spock'
+
+            it[1].id == 1
+            it[1].name == 'Kirk'
+        }
 
         and:
         itr.hasNext()
 
-        when:
-        def discoveryPair = itr.next()
-        def parsedDiscovery = DEFAULT_MAPPER.readValue(parser, Cat.LIST_TYPE_REF)
+        with(DEFAULT_MAPPER.readValue(itr.next(), Cat.LIST_TYPE_REF)) {
+            size() == 1
 
-        then:
-        discoveryPair.key == 'discovery'
-        parsedDiscovery == discovery
+            it[0].id == 2
+            it[0].name == 'Archer'
+        }
 
         and:
         !itr.hasNext()

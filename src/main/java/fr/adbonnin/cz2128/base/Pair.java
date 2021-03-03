@@ -2,6 +2,7 @@ package fr.adbonnin.cz2128.base;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class Pair<K, V> implements Map.Entry<K, V> {
 
@@ -29,6 +30,14 @@ public class Pair<K, V> implements Map.Entry<K, V> {
         throw new UnsupportedOperationException();
     }
 
+    public <R> Pair<R, V> mapKey(Function<? super K, ? extends R> function) {
+        return Pair.of(function.apply(key), value);
+    }
+
+    public <R> Pair<K, R> mapValue(Function<? super V, ? extends R> function) {
+        return Pair.of(key, function.apply(value));
+    }
+
     @Override
     public boolean equals(Object obj) {
 
@@ -36,13 +45,13 @@ public class Pair<K, V> implements Map.Entry<K, V> {
             return true;
         }
 
-        if (!(obj instanceof Pair)) {
+        if (!(obj instanceof Map.Entry)) {
             return false;
         }
 
-        final Pair that = (Pair) obj;
-        return Objects.equals(key, that.key) &&
-            Objects.equals(value, that.value);
+        final Map.Entry that = (Map.Entry) obj;
+        return Objects.equals(key, that.getKey()) &&
+            Objects.equals(value, that.getValue());
     }
 
     @Override

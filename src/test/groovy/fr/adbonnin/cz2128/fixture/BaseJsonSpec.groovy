@@ -20,15 +20,15 @@ import java.nio.file.Files
 abstract class BaseJsonSpec extends Specification {
 
     public static final FLATTEN_MODULE = new SimpleModule()
-            .addDeserializer(SpaceCat, new FlattenCatDeserializer())
-            .addSerializer(SpaceCat, new FlattenCatSerializer())
+        .addDeserializer(SpaceCat, new FlattenCatDeserializer())
+        .addSerializer(SpaceCat, new FlattenCatSerializer())
 
     public static final DEFAULT_MAPPER = JsonMapper.builder()
-            .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
-            .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .addModule(FLATTEN_MODULE)
-            .build()
+        .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+        .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .addModule(FLATTEN_MODULE)
+        .build()
 
     public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
 

@@ -1,6 +1,5 @@
 package fr.adbonnin.cz2128
 
-import com.fasterxml.jackson.core.type.TypeReference
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -38,7 +37,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         '[{}, {}, {}]' || 3             | false
     }
 
-    void "should count elements that test the predicate"() {
+    void "should count elements that test with a predicate"() {
         given:
         def mapper = DEFAULT_MAPPER
         def updateStrategy = JsonUtils.replaceUpdateStrategy()
@@ -127,7 +126,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
-        def found = repo.withStream { Stream<Cat> s -> s.filter({ it.id == searchId }).findFirst() }
+        def found = repo.withStream { Stream<Cat> s -> s.filter(predicate).findFirst() }
 
         then:
         found.orElse(null)?.id == expectedFoundId
@@ -138,6 +137,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         1        || 1
 
         content = '[{id: 1}, {id: 2}, {id: 3}]'
+        predicate = { it.id == searchId } as Predicate<Cat>
     }
 
     void "should have no more element when the iterator is used outside the with block"() {
@@ -150,7 +150,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
-        def iterator = repo.withIterator { Iterator<Cat> s -> s }
+        def iterator = repo.withIterator { it }
 
         then:
         !iterator.hasNext()
@@ -169,7 +169,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
 
         when:
-        def stream = repo.withStream() { s -> s }
+        def stream = repo.withStream() { it }
 
         then:
         !stream.findFirst().isPresent()
@@ -198,11 +198,11 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         content                                           | updateStrategy                    || expectedContent
         ''                                                | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0, name: "Spock"}]'
 
-        ''                                                | JsonUtils.partialUpdateStrategy() || '[{id:0,name:"Spock"}, null]'
+        ''                                                | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0,name: "Spock"}]'
+        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0, name: "Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -256,7 +256,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         ''                                                  | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
         '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
-        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id:1, name: "Kirk"}]'
+        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -333,8 +333,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         content                    || expectedResult | expectedContent
         ''                         || 0              | '[]'
         '[null, {id: 0}]'          || 2              | '[]'
-        '[null, {id: 0}, {id: 2}]' || 2              | '[{id: 2}]'
         '[null, {id: 0}, {id: 1}]' || 3              | '[]'
+        '[null, {id: 0}, {id: 2}]' || 2              | '[{id: 2}]'
 
         elements = [null, new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -407,7 +407,7 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
         where:
         repoBuilder                                             | _
         ({ value -> value.of(Pony) })                           | _
-        ({ value -> value.of(new TypeReference<Pony>() {}) })   | _
+        ({ value -> value.of(Pony.TYPE_REF) })                  | _
         ({ value -> value.of(DEFAULT_MAPPER.readerFor(Pony)) }) | _
 
         content = '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'

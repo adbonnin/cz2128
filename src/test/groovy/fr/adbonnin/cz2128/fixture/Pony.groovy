@@ -1,5 +1,7 @@
 package fr.adbonnin.cz2128.fixture
 
+import com.fasterxml.jackson.core.type.TypeReference
+
 class Pony {
 
     String name
@@ -23,4 +25,6 @@ class Pony {
     int hashCode() {
         return name == null ? 0 : name.hashCode()
     }
+
+    static TYPE_REF = new TypeReference<Pony>() {}
 }
