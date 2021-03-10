@@ -25,25 +25,27 @@ public class FileJsonProvider implements JsonProvider {
 
     public static final String DEFAULT_TEMPORARY_FILE_SUFFIX = ".tmp";
 
-    public static final JsonEncoding DEFAULT_ENCODING = JsonEncoding.UTF8;
-
     private final Path file;
 
     private final Path tempFile;
 
-    private final JsonEncoding jsonEncoding;
+    private final JsonEncoding encoding;
 
-    private final JsonFactory jsonFactory;
+    private final JsonFactory factory;
 
-    public FileJsonProvider(Path file, JsonFactory jsonFactory) {
-        this(file, buildDefaultTempFile(file), DEFAULT_ENCODING, jsonFactory);
+    public FileJsonProvider(Path file, JsonFactory factory) {
+        this(file, JsonUtils.DEFAULT_ENCODING, factory);
     }
 
-    public FileJsonProvider(Path file, Path tempFile, JsonEncoding jsonEncoding, JsonFactory jsonFactory) {
+    public FileJsonProvider(Path file, JsonEncoding encoding, JsonFactory factory) {
+        this(file, buildDefaultTempFile(file), encoding, factory);
+    }
+
+    public FileJsonProvider(Path file, Path tempFile, JsonEncoding encoding, JsonFactory factory) {
         this.file = requireNonNull(file);
         this.tempFile = requireNonNull(tempFile);
-        this.jsonEncoding = requireNonNull(jsonEncoding);
-        this.jsonFactory = requireNonNull(jsonFactory);
+        this.encoding = requireNonNull(encoding);
+        this.factory = requireNonNull(factory);
     }
 
     public Path getFile() {
@@ -54,16 +56,16 @@ public class FileJsonProvider implements JsonProvider {
         return tempFile;
     }
 
-    public JsonEncoding getJsonEncoding() {
-        return jsonEncoding;
+    public JsonEncoding getEncoding() {
+        return encoding;
     }
 
     public String getJavaEncoding() {
-        return jsonEncoding.getJavaName();
+        return encoding.getJavaName();
     }
 
-    public JsonFactory getJsonFactory() {
-        return jsonFactory;
+    public JsonFactory getFactory() {
+        return factory;
     }
 
     public String getContent() {
@@ -99,7 +101,7 @@ public class FileJsonProvider implements JsonProvider {
         }
 
         try (InputStream input = Files.newInputStream(file, StandardOpenOption.READ);
-             JsonParser parser = jsonFactory.createParser(input)) {
+             JsonParser parser = factory.createParser(input)) {
             return function.apply(parser);
         }
         catch (IOException e) {
@@ -112,7 +114,7 @@ public class FileJsonProvider implements JsonProvider {
 
         try {
             try (OutputStream tempOutput = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                 JsonGenerator tempGenerator = jsonFactory.createGenerator(tempOutput, jsonEncoding)) {
+                 JsonGenerator tempGenerator = factory.createGenerator(tempOutput, encoding)) {
                 result = withParser(parser -> function.apply(parser, tempGenerator));
             }
 

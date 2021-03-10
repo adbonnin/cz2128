@@ -1,13 +1,13 @@
 package fr.adbonnin.cz2128.json.provider
 
-import fr.adbonnin.cz2128.JsonProvider
+import fr.adbonnin.cz2128.CZ2128
 
 import java.nio.file.Paths
 
 class FileJsonProviderSpec extends MemoryJsonProviderSpec {
 
     @Override
-    JsonProvider setupJsonProvider(String content) {
+    CZ2128.JsonProviderBuilder setupJsonProvider(String content) {
         return newFileJsonProvider(content)
     }
 

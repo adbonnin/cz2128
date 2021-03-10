@@ -9,10 +9,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import fr.adbonnin.cz2128.CZ2128
 import fr.adbonnin.cz2128.JsonProvider
 import fr.adbonnin.cz2128.json.JsonUtils
-import fr.adbonnin.cz2128.json.provider.FileJsonProvider
-import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -29,6 +28,8 @@ abstract class BaseJsonSpec extends Specification {
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         .addModule(FLATTEN_MODULE)
         .build()
+
+    public static final CZ2128 DEFAULT_CZ2128 = new CZ2128(DEFAULT_MAPPER)
 
     public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
 
@@ -68,15 +69,14 @@ abstract class BaseJsonSpec extends Specification {
         }
     }
 
-    static MemoryJsonProvider newMemoryJsonProvider(String content = "") {
-        return new MemoryJsonProvider(content, DEFAULT_MAPPER.factory)
+    static CZ2128.JsonProviderBuilder newMemoryJsonProvider(String content = "") {
+        return DEFAULT_CZ2128.memoryProvider(content)
     }
 
-    static FileJsonProvider newFileJsonProvider(String content) {
+    static CZ2128.JsonProviderBuilder newFileJsonProvider(String content) {
         def tempFile = Files.createTempFile('test-', '.json')
-        def jsonProvider = new FileJsonProvider(tempFile, DEFAULT_MAPPER.factory)
-        jsonProvider.content = content
-        return jsonProvider
+        tempFile.toFile().write(content)
+        return DEFAULT_CZ2128.fileProvider(tempFile)
     }
 
     static JsonParser createJsonParser(String content) {

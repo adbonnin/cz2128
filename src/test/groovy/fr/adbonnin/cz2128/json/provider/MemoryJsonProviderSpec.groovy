@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.json.provider
 
-import fr.adbonnin.cz2128.JsonProvider
+import fr.adbonnin.cz2128.CZ2128
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 
@@ -9,7 +9,7 @@ import static com.fasterxml.jackson.core.JsonToken.*
 class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
 
     @Override
-    JsonProvider setupJsonProvider(String content) {
+    CZ2128.JsonProviderBuilder setupJsonProvider(String content) {
         return newMemoryJsonProvider(content)
     }
 

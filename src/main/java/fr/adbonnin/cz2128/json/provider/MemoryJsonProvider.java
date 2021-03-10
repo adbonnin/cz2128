@@ -17,15 +17,15 @@ public class MemoryJsonProvider implements JsonProvider {
 
     volatile private String content;
 
-    private final JsonFactory jsonFactory;
+    private final JsonFactory factory;
 
-    public MemoryJsonProvider(JsonFactory jsonFactory) {
-        this("", jsonFactory);
+    public MemoryJsonProvider(JsonFactory factory) {
+        this("", factory);
     }
 
-    public MemoryJsonProvider(String content, JsonFactory jsonFactory) {
+    public MemoryJsonProvider(String content, JsonFactory factory) {
         this.content = requireNonNull(content);
-        this.jsonFactory = requireNonNull(jsonFactory);
+        this.factory = requireNonNull(factory);
     }
 
     public String getContent() {
@@ -36,13 +36,13 @@ public class MemoryJsonProvider implements JsonProvider {
         this.content = content;
     }
 
-    public JsonFactory getJsonFactory() {
-        return jsonFactory;
+    public JsonFactory getFactory() {
+        return factory;
     }
 
     @Override
     public <R> R withParser(Function<JsonParser, ? extends R> function) {
-        try (JsonParser parser = jsonFactory.createParser(content)) {
+        try (JsonParser parser = factory.createParser(content)) {
             return function.apply(parser);
         }
         catch (IOException e) {
@@ -55,7 +55,7 @@ public class MemoryJsonProvider implements JsonProvider {
         final R result;
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
-            try (JsonGenerator generator = jsonFactory.createGenerator(output)) {
+            try (JsonGenerator generator = factory.createGenerator(output)) {
                 result = withParser(parser -> function.apply(parser, generator));
             }
             finally {

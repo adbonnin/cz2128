@@ -24,35 +24,35 @@ import static java.util.Objects.requireNonNull;
 
 public class JsonMapRepository<T> implements JsonProvider {
 
-    private final ObjectReader objectReader;
+    private final ObjectReader reader;
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper mapper;
 
     private final JsonProvider provider;
 
     private final JsonUpdateStrategy updateStrategy;
 
-    public JsonMapRepository(Class<T> type, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(objectMapper.readerFor(type), objectMapper, provider, updateStrategy);
+    public JsonMapRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+        this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonMapRepository(TypeReference<T> type, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(objectMapper.readerFor(type), objectMapper, provider, updateStrategy);
+    public JsonMapRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+        this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonMapRepository(ObjectReader objectReader, ObjectMapper objectMapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this.objectReader = requireNonNull(objectReader);
-        this.objectMapper = requireNonNull(objectMapper);
+    public JsonMapRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+        this.reader = requireNonNull(reader);
+        this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
         this.updateStrategy = requireNonNull(updateStrategy);
     }
 
-    public ObjectReader getObjectReader() {
-        return objectReader;
+    public ObjectReader getReader() {
+        return reader;
     }
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
+    public ObjectMapper getMapper() {
+        return mapper;
     }
 
     public JsonProvider getProvider() {
@@ -63,16 +63,16 @@ public class JsonMapRepository<T> implements JsonProvider {
         return updateStrategy;
     }
 
-    public <U> JsonMapRepository<U> of(ObjectReader objectReader) {
-        return new JsonMapRepository<>(objectReader, objectMapper, provider, updateStrategy);
+    public <U> JsonMapRepository<U> of(ObjectReader reader) {
+        return new JsonMapRepository<>(reader, mapper, provider, updateStrategy);
     }
 
     public <U> JsonMapRepository<U> of(Class<U> type) {
-        return new JsonMapRepository<>(type, objectMapper, provider, updateStrategy);
+        return new JsonMapRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public <U> JsonMapRepository<U> of(TypeReference<U> type) {
-        return new JsonMapRepository<>(type, objectMapper, provider, updateStrategy);
+        return new JsonMapRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public boolean isEmpty() {
@@ -114,7 +114,7 @@ public class JsonMapRepository<T> implements JsonProvider {
     }
 
     public <R> R withIterator(Function<Iterator<? extends Map.Entry<String, ? extends T>>, ? extends R> function) {
-        return withParser(parser -> function.apply(new ValueObjectIterator<>(parser, objectReader)));
+        return withParser(parser -> function.apply(new ValueObjectIterator<>(parser, reader)));
     }
 
     @Override
@@ -140,7 +140,7 @@ public class JsonMapRepository<T> implements JsonProvider {
                 generator.writeStartObject();
 
                 // Update old elements
-                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, objectMapper);
+                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, mapper);
                 while (itr.hasNext()) {
                     final Map.Entry<String, JsonNode> oldValue = itr.next();
                     final String key = oldValue.getKey();
@@ -154,7 +154,7 @@ public class JsonMapRepository<T> implements JsonProvider {
                     }
 
                     final T newElement = newElements.remove(key);
-                    final JsonNode newNode = objectMapper.valueToTree(newElement);
+                    final JsonNode newNode = mapper.valueToTree(newElement);
 
                     final boolean updated = updateStrategy.update(oldNode, newNode, generator);
                     if (updated) {
@@ -164,7 +164,7 @@ public class JsonMapRepository<T> implements JsonProvider {
 
                 // Create new elements
                 for (Map.Entry<String, T> newElement : newElements.entrySet()) {
-                    final JsonNode newNode = objectMapper.valueToTree(newElement.getValue());
+                    final JsonNode newNode = mapper.valueToTree(newElement.getValue());
                     generator.writeFieldName(newElement.getKey());
                     generator.writeTree(newNode);
                     ++updates;
@@ -197,12 +197,12 @@ public class JsonMapRepository<T> implements JsonProvider {
                 long deleted = 0;
                 generator.writeStartObject();
 
-                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, objectMapper);
+                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, mapper);
                 while (itr.hasNext()) {
                     final Map.Entry<String, JsonNode> value = itr.next();
                     final String key = value.getKey();
                     final JsonNode node = value.getValue();
-                    final T element = objectReader.readValue(node);
+                    final T element = reader.readValue(node);
 
                     if (predicate.test(Pair.of(key, element))) {
                         ++deleted;

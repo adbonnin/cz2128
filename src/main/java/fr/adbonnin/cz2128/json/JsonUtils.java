@@ -1,5 +1,6 @@
 package fr.adbonnin.cz2128.json;
 
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,6 +12,7 @@ import fr.adbonnin.cz2128.JsonProvider;
 import fr.adbonnin.cz2128.JsonUpdateStrategy;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,9 +23,9 @@ import java.util.stream.StreamSupport;
 
 public class JsonUtils {
 
-    private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory();
+    public static final JsonEncoding DEFAULT_ENCODING = JsonEncoding.UTF8;
 
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory();
 
     public static JsonUpdateStrategy partialUpdateStrategy() {
         return JSON_UPDATE_STRATEGIES.PARTIAL_UPDATE;
@@ -34,7 +36,7 @@ public class JsonUtils {
     }
 
     public static JsonParser newEmptyParser() throws IOException {
-        return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(EMPTY_BYTE_ARRAY);
+        return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(NULL_INPUT_STREAM);
     }
 
     public static LinkedHashMap<String, JsonNode> mapFieldsToLinkedHashMap(JsonNode node) {
@@ -164,6 +166,19 @@ public class JsonUtils {
         }
         catch (IOException e) {
             throw new JsonException(e);
+        }
+    };
+
+    private static final InputStream NULL_INPUT_STREAM = new InputStream() {
+
+        @Override
+        public int read() {
+            return -1;
+        }
+
+        @Override
+        public int available() {
+            return 0;
         }
     };
 

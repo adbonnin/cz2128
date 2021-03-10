@@ -13,18 +13,14 @@ import java.util.stream.Stream
 class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
-    JsonProvider setupJsonProvider(String content) {
+    CZ2128.JsonProviderBuilder setupJsonProvider(String content) {
         return newMemoryJsonProvider(content)
     }
 
     void "should count elements"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         expect:
         repo.count() == expectedCount
@@ -39,12 +35,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should count elements that test with a predicate"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         expect:
         repo.count { Cat cat -> cat.name == searchName } == expectedCount
@@ -60,12 +52,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read the first element with a predicate"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         expect:
         repo.findFirst { it.id == searchId }.orElse(null)?.id == expectedFoundId
@@ -80,12 +68,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         expect:
         repo.findAll().collect { it.id } == [1, 2, 3]
@@ -96,12 +80,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements with a predicate"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         expect:
         repo.findAll(predicate).collect { it.id } == expectedIdsFound
@@ -118,12 +98,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read with a stream"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def found = repo.withStream { Stream<Cat> s -> s.filter(predicate).findFirst() }
@@ -142,12 +118,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the iterator is used outside the with block"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def iterator = repo.withIterator { it }
@@ -161,12 +133,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the stream is used outside the with block"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def stream = repo.withStream() { it }
@@ -180,11 +148,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save an element"() {
         given:
-        def mapper = DEFAULT_MAPPER
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, updateStrategy)
 
         when:
         def result = repo.save(element)
@@ -209,12 +174,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all numbers"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Integer, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Integer, JsonUtils.replaceUpdateStrategy())
 
         when:
         def result = repo.saveAll(elements)
@@ -234,11 +195,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all objects"() {
         given:
-        def mapper = DEFAULT_MAPPER
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -263,11 +221,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all arrays"() {
         given:
-        def mapper = DEFAULT_MAPPER
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(SpaceCat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(SpaceCat, updateStrategy)
 
         when:
         def result = repo.saveAll(elements)
@@ -290,12 +245,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete an element"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def result = repo.delete(element)
@@ -315,12 +266,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list of elements"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def result = repo.deleteAll(elements)
@@ -341,12 +288,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete all elements"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def result = repo.deleteAll()
@@ -364,12 +307,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list from a predicate"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.replaceUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        @Subject def repo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
 
         when:
         def result = repo.deleteAll(predicate)
@@ -390,12 +329,8 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should keep all fields with different type"() {
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = JsonUtils.partialUpdateStrategy()
-
-        and:
         def provider = setupJsonProvider(content)
-        def catRepo = new JsonSetRepository<>(Cat, mapper, provider, updateStrategy)
+        def catRepo = provider.setRepository(Cat, JsonUtils.partialUpdateStrategy())
         @Subject ponyRepo = repoBuilder(catRepo)
 
         when:

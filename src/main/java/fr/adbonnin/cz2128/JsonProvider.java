@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.adbonnin.cz2128.json.JsonUtils;
 import fr.adbonnin.cz2128.json.provider.ArrayIndexJsonProvider;
+import fr.adbonnin.cz2128.json.provider.ConcurrentJsonProvider;
 import fr.adbonnin.cz2128.json.provider.ObjectFieldJsonProvider;
 
 import java.util.function.BiFunction;
@@ -30,5 +31,9 @@ public interface JsonProvider {
 
     default JsonProvider at(int index) {
         return new ArrayIndexJsonProvider(index, this);
+    }
+
+    default JsonProvider concurrent(long lockTimeout) {
+        return new ConcurrentJsonProvider(this, lockTimeout);
     }
 }
