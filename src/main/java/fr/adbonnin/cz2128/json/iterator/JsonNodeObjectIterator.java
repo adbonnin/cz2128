@@ -3,7 +3,7 @@ package fr.adbonnin.cz2128.json.iterator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.adbonnin.cz2128.JsonException;
+import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.base.Pair;
 
 import java.io.IOException;

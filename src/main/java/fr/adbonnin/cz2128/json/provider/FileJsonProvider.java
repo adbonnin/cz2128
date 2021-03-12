@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import fr.adbonnin.cz2128.JsonException;
-import fr.adbonnin.cz2128.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonException;
+import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.base.FileUtils;
 import fr.adbonnin.cz2128.json.JsonUtils;
 

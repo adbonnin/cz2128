@@ -2,8 +2,8 @@ package fr.adbonnin.cz2128.json.provider;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import fr.adbonnin.cz2128.JsonException;
-import fr.adbonnin.cz2128.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonException;
+import fr.adbonnin.cz2128.json.JsonProvider;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

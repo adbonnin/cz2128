@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128;
+package fr.adbonnin.cz2128.json;
 
 public class JsonException extends RuntimeException {
 

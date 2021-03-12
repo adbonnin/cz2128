@@ -7,8 +7,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import fr.adbonnin.cz2128.json.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.json.provider.FileJsonProvider;
 import fr.adbonnin.cz2128.json.provider.MemoryJsonProvider;
+import fr.adbonnin.cz2128.json.repository.JsonMapRepository;
+import fr.adbonnin.cz2128.json.repository.JsonSetRepository;
 
 import java.nio.file.Path;
 import java.util.function.BiFunction;

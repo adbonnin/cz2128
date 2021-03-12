@@ -1,7 +1,7 @@
 package fr.adbonnin.cz2128.json.iterator;
 
 import com.fasterxml.jackson.core.JsonParser;
-import fr.adbonnin.cz2128.JsonException;
+import fr.adbonnin.cz2128.json.JsonException;
 
 import java.io.IOException;
 import java.util.Iterator;

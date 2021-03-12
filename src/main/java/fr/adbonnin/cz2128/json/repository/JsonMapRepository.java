@@ -1,4 +1,4 @@
-package fr.adbonnin.cz2128;
+package fr.adbonnin.cz2128.json.repository;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -6,6 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import fr.adbonnin.cz2128.json.JsonException;
+import fr.adbonnin.cz2128.json.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.base.Pair;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeObjectIterator;

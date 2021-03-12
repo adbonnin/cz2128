@@ -1,5 +1,6 @@
-package fr.adbonnin.cz2128
+package fr.adbonnin.cz2128.json.repository
 
+import fr.adbonnin.cz2128.CZ2128
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony

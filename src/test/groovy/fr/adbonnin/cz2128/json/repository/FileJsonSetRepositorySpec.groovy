@@ -1,4 +1,6 @@
-package fr.adbonnin.cz2128
+package fr.adbonnin.cz2128.json.repository
+
+import fr.adbonnin.cz2128.CZ2128
 
 class FileJsonSetRepositorySpec extends MemoryJsonSetRepositorySpec {
 

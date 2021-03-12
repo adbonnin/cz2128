@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import fr.adbonnin.cz2128.CZ2128
-import fr.adbonnin.cz2128.JsonProvider
+import fr.adbonnin.cz2128.json.JsonProvider
 import fr.adbonnin.cz2128.json.JsonUtils
 import spock.lang.Specification
 
