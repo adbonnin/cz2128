@@ -1,8 +1,8 @@
 package fr.adbonnin.cz2128.json.provider
 
-import fr.adbonnin.cz2128.json.repository.JsonSetRepository
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
+import fr.adbonnin.cz2128.json.repository.JsonSetRepository
 
 class ObjectFieldJsonProviderSpec extends BaseJsonSpec {
 

@@ -6,10 +6,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
-import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
@@ -168,8 +168,7 @@ public class JsonSetRepository<T> implements JsonProvider {
 
                 // Create new elements
                 for (T newElement : newElements.values()) {
-                    final JsonNode newNode = mapper.valueToTree(newElement);
-                    generator.writeTree(newNode);
+                    mapper.writeValue(generator, newElement);
                     ++updates;
                 }
 

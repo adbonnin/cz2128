@@ -238,16 +238,17 @@ class MemoryJsonMapRepositorySpec extends BaseJsonProviderSpec {
 
         when:
         def result = repo.saveAll(elements)
-        repo.saveAll([z: null])
+        def nullResult = repo.save('z', null)
 
         then:
         result == elements.size()
+        nullResult == expectedNullResult
         isEquals(provider, expectedContent)
 
         where:
-        content                       | expectedContent
-        ''                            | '{d: 4, e: 5, z: null}'
-        '{z: null, a: 1, b: 2, c: 3}' | '{z: null, a: 1, b: 2, c: 3, d: 4, e: 5}'
+        content                       | expectedContent                           | expectedNullResult
+        ''                            | '{d: 4, e: 5, z: null}'                   | true
+        '{z: null, a: 1, b: 2, c: 3}' | '{z: null, a: 1, b: 2, c: 3, d: 4, e: 5}' | false
 
         elements = [d: 4, e: 5]
     }

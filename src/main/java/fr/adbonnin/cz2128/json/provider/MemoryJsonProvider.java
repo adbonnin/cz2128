@@ -6,8 +6,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -53,20 +53,20 @@ public class MemoryJsonProvider implements JsonProvider {
     @Override
     public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         final R result;
-        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final StringWriter writer = new StringWriter();
         try {
-            try (JsonGenerator generator = factory.createGenerator(output)) {
+            try (JsonGenerator generator = factory.createGenerator(writer)) {
                 result = withParser(parser -> function.apply(parser, generator));
             }
             finally {
-                output.close();
+                writer.close();
             }
         }
         catch (IOException e) {
             throw new JsonException(e);
         }
 
-        content = output.toString();
+        content = writer.toString();
         return result;
     }
 }

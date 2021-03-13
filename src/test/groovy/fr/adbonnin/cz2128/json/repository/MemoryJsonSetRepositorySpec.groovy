@@ -180,18 +180,19 @@ class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
 
         when:
         def result = repo.saveAll(elements)
-        repo.saveAll([null] as Integer[])
+        def nullResult = repo.save(null)
 
         then:
         result == elements.size()
+        nullResult == expectedNullResult
         isEquals(provider, expectedContent)
 
         where:
-        content           | expectedContent
-        ''                | '[4, 5, null]'
-        '[null, 1, 2, 3]' | '[null, 1, 2, 3, 4, 5]'
+        content           || expectedContent         | expectedNullResult
+        ''                || '[4, 5, null]'          | true
+        '[null, 1, 2, 3]' || '[null, 1, 2, 3, 4, 5]' | false
 
-        elements = [4, 5]
+        elements = [4, 5] as Integer[]
     }
 
     void "should save all objects"() {
