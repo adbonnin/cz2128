@@ -21,7 +21,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class FileJsonProvider implements JsonProvider {
+public class FileProvider implements JsonProvider {
 
     public static final String DEFAULT_TEMPORARY_FILE_SUFFIX = ".tmp";
 
@@ -33,15 +33,15 @@ public class FileJsonProvider implements JsonProvider {
 
     private final JsonFactory factory;
 
-    public FileJsonProvider(Path file, JsonFactory factory) {
+    public FileProvider(Path file, JsonFactory factory) {
         this(file, JsonUtils.DEFAULT_ENCODING, factory);
     }
 
-    public FileJsonProvider(Path file, JsonEncoding encoding, JsonFactory factory) {
+    public FileProvider(Path file, JsonEncoding encoding, JsonFactory factory) {
         this(file, buildDefaultTempFile(file), encoding, factory);
     }
 
-    public FileJsonProvider(Path file, Path tempFile, JsonEncoding encoding, JsonFactory factory) {
+    public FileProvider(Path file, Path tempFile, JsonEncoding encoding, JsonFactory factory) {
         this.file = requireNonNull(file);
         this.tempFile = requireNonNull(tempFile);
         this.encoding = requireNonNull(encoding);

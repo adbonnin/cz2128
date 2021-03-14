@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonRepository;
 import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenArrayIterator;
@@ -24,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
-public class JsonSetRepository<T> implements JsonProvider {
+public class SetRepository<T> implements JsonRepository {
 
     private final ObjectReader reader;
 
@@ -34,15 +35,15 @@ public class JsonSetRepository<T> implements JsonProvider {
 
     private final JsonUpdateStrategy updateStrategy;
 
-    public JsonSetRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public SetRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonSetRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public SetRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonSetRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public SetRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this.reader = requireNonNull(reader);
         this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
@@ -65,16 +66,16 @@ public class JsonSetRepository<T> implements JsonProvider {
         return updateStrategy;
     }
 
-    public <U> JsonSetRepository<U> of(ObjectReader reader) {
-        return new JsonSetRepository<>(reader, mapper, provider, updateStrategy);
+    public <U> SetRepository<U> of(ObjectReader reader) {
+        return new SetRepository<>(reader, mapper, provider, updateStrategy);
     }
 
-    public <U> JsonSetRepository<U> of(Class<U> type) {
-        return new JsonSetRepository<>(type, mapper, provider, updateStrategy);
+    public <U> SetRepository<U> of(Class<U> type) {
+        return new SetRepository<>(type, mapper, provider, updateStrategy);
     }
 
-    public <U> JsonSetRepository<U> of(TypeReference<U> type) {
-        return new JsonSetRepository<>(type, mapper, provider, updateStrategy);
+    public <U> SetRepository<U> of(TypeReference<U> type) {
+        return new SetRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public boolean isEmpty() {

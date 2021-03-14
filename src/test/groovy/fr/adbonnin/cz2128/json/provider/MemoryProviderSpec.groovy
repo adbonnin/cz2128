@@ -1,15 +1,15 @@
 package fr.adbonnin.cz2128.json.provider
 
-import fr.adbonnin.cz2128.CZ2128
+import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 
 import static com.fasterxml.jackson.core.JsonToken.*
 
-class MemoryJsonProviderSpec extends BaseJsonProviderSpec {
+class MemoryProviderSpec extends BaseJsonProviderSpec {
 
     @Override
-    CZ2128.JsonProviderBuilder setupJsonProvider(String content) {
+    Json.Provider setupJsonProvider(String content) {
         return newMemoryJsonProvider(content)
     }
 

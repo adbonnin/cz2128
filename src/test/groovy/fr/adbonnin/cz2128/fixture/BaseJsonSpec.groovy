@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import fr.adbonnin.cz2128.CZ2128
+import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.json.JsonProvider
 import fr.adbonnin.cz2128.json.JsonUtils
 import spock.lang.Specification
@@ -29,7 +29,7 @@ abstract class BaseJsonSpec extends Specification {
         .addModule(FLATTEN_MODULE)
         .build()
 
-    public static final CZ2128 DEFAULT_CZ2128 = new CZ2128(DEFAULT_MAPPER)
+    public static final Json DEFAULT_CZ2128 = new Json(DEFAULT_MAPPER)
 
     public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
 
@@ -69,11 +69,11 @@ abstract class BaseJsonSpec extends Specification {
         }
     }
 
-    static CZ2128.JsonProviderBuilder newMemoryJsonProvider(String content = "") {
+    static Json.Provider newMemoryJsonProvider(String content = "") {
         return DEFAULT_CZ2128.memoryProvider(content)
     }
 
-    static CZ2128.JsonProviderBuilder newFileJsonProvider(String content) {
+    static Json.Provider newFileJsonProvider(String content) {
         def tempFile = Files.createTempFile('test-', '.json')
         tempFile.toFile().write(content)
         return DEFAULT_CZ2128.fileProvider(tempFile)

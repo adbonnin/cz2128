@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
-import fr.adbonnin.cz2128.CZ2128
+import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -11,10 +11,10 @@ import spock.lang.Subject
 import java.util.function.Predicate
 import java.util.stream.Stream
 
-class MemoryJsonSetRepositorySpec extends BaseJsonProviderSpec {
+class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
-    CZ2128.JsonProviderBuilder setupJsonProvider(String content) {
+    Json.Provider setupJsonProvider(String content) {
         return newMemoryJsonProvider(content)
     }
 

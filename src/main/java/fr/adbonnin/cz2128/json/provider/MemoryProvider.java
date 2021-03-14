@@ -13,17 +13,17 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class MemoryJsonProvider implements JsonProvider {
+public class MemoryProvider implements JsonProvider {
 
     volatile private String content;
 
     private final JsonFactory factory;
 
-    public MemoryJsonProvider(JsonFactory factory) {
+    public MemoryProvider(JsonFactory factory) {
         this("", factory);
     }
 
-    public MemoryJsonProvider(String content, JsonFactory factory) {
+    public MemoryProvider(String content, JsonFactory factory) {
         this.content = requireNonNull(content);
         this.factory = requireNonNull(factory);
     }

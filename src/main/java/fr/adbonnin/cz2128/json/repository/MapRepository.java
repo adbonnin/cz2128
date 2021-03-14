@@ -10,6 +10,7 @@ import fr.adbonnin.cz2128.base.Pair;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
+import fr.adbonnin.cz2128.json.JsonRepository;
 import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeObjectIterator;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenObjectIterator;
@@ -25,7 +26,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
-public class JsonMapRepository<T> implements JsonProvider {
+public class MapRepository<T> implements JsonRepository {
 
     private final ObjectReader reader;
 
@@ -35,15 +36,15 @@ public class JsonMapRepository<T> implements JsonProvider {
 
     private final JsonUpdateStrategy updateStrategy;
 
-    public JsonMapRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public MapRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonMapRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public MapRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this(mapper.readerFor(type), mapper, provider, updateStrategy);
     }
 
-    public JsonMapRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public MapRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
         this.reader = requireNonNull(reader);
         this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
@@ -66,16 +67,19 @@ public class JsonMapRepository<T> implements JsonProvider {
         return updateStrategy;
     }
 
-    public <U> JsonMapRepository<U> of(ObjectReader reader) {
-        return new JsonMapRepository<>(reader, mapper, provider, updateStrategy);
+    @Override
+    public <U> MapRepository<U> of(ObjectReader reader) {
+        return new MapRepository<>(reader, mapper, provider, updateStrategy);
     }
 
-    public <U> JsonMapRepository<U> of(Class<U> type) {
-        return new JsonMapRepository<>(type, mapper, provider, updateStrategy);
+    @Override
+    public <U> MapRepository<U> of(Class<U> type) {
+        return new MapRepository<>(type, mapper, provider, updateStrategy);
     }
 
-    public <U> JsonMapRepository<U> of(TypeReference<U> type) {
-        return new JsonMapRepository<>(type, mapper, provider, updateStrategy);
+    @Override
+    public <U> MapRepository<U> of(TypeReference<U> type) {
+        return new MapRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public boolean isEmpty() {

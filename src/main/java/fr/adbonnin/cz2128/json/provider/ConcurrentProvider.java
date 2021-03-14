@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class ConcurrentJsonProvider implements JsonProvider {
+public class ConcurrentProvider implements JsonProvider {
 
     private final ReentrantReadWriteLock.ReadLock readLock;
 
@@ -22,7 +22,7 @@ public class ConcurrentJsonProvider implements JsonProvider {
 
     private final long lockTimeout;
 
-    public ConcurrentJsonProvider(JsonProvider provider, long lockTimeout) {
+    public ConcurrentProvider(JsonProvider provider, long lockTimeout) {
         this.provider = requireNonNull(provider);
         this.lockTimeout = lockTimeout;
 

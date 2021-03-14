@@ -3,9 +3,9 @@ package fr.adbonnin.cz2128.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.adbonnin.cz2128.json.provider.ArrayIndexJsonProvider;
-import fr.adbonnin.cz2128.json.provider.ConcurrentJsonProvider;
-import fr.adbonnin.cz2128.json.provider.ObjectFieldJsonProvider;
+import fr.adbonnin.cz2128.json.provider.ArrayIndexProvider;
+import fr.adbonnin.cz2128.json.provider.ConcurrentProvider;
+import fr.adbonnin.cz2128.json.provider.ObjectFieldProvider;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -25,14 +25,14 @@ public interface JsonProvider {
     }
 
     default JsonProvider at(String name) {
-        return new ObjectFieldJsonProvider(name, this);
+        return new ObjectFieldProvider(name, this);
     }
 
     default JsonProvider at(int index) {
-        return new ArrayIndexJsonProvider(index, this);
+        return new ArrayIndexProvider(index, this);
     }
 
     default JsonProvider concurrent(long lockTimeout) {
-        return new ConcurrentJsonProvider(this, lockTimeout);
+        return new ConcurrentProvider(this, lockTimeout);
     }
 }

@@ -1,8 +1,8 @@
 package fr.adbonnin.cz2128.fixture
 
-import fr.adbonnin.cz2128.CZ2128
+import fr.adbonnin.cz2128.json.Json
 
 abstract class BaseJsonProviderSpec extends BaseJsonSpec {
 
-    abstract CZ2128.JsonProviderBuilder setupJsonProvider(String content)
+    abstract Json.Provider setupJsonProvider(String content)
 }
