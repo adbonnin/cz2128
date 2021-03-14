@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 public interface JsonRepository extends JsonProvider {
 
-    <U> JsonRepository of(ObjectReader reader);
-
     <U> JsonRepository of(Class<U> type);
 
     <U> JsonRepository of(TypeReference<U> type);
+
+    <U> JsonRepository of(ObjectReader reader);
 }

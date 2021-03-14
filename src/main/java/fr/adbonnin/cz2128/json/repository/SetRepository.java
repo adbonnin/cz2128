@@ -2,16 +2,11 @@ package fr.adbonnin.cz2128.json.repository;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.JsonRepository;
-import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
-import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
@@ -25,57 +20,27 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
-public class SetRepository<T> implements JsonRepository {
+public abstract class SetRepository<T> implements JsonRepository {
 
     private final ObjectReader reader;
 
-    private final ObjectMapper mapper;
-
     private final JsonProvider provider;
 
-    private final JsonUpdateStrategy updateStrategy;
+    protected abstract long saveAll(Iterable<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
 
-    public SetRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), mapper, provider, updateStrategy);
-    }
+    protected abstract long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
 
-    public SetRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), mapper, provider, updateStrategy);
-    }
-
-    public SetRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public SetRepository(ObjectReader reader, JsonProvider provider) {
         this.reader = requireNonNull(reader);
-        this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
-        this.updateStrategy = requireNonNull(updateStrategy);
     }
 
     public ObjectReader getReader() {
         return reader;
     }
 
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
     public JsonProvider getProvider() {
         return provider;
-    }
-
-    public JsonUpdateStrategy getUpdateStrategy() {
-        return updateStrategy;
-    }
-
-    public <U> SetRepository<U> of(ObjectReader reader) {
-        return new SetRepository<>(reader, mapper, provider, updateStrategy);
-    }
-
-    public <U> SetRepository<U> of(Class<U> type) {
-        return new SetRepository<>(type, mapper, provider, updateStrategy);
-    }
-
-    public <U> SetRepository<U> of(TypeReference<U> type) {
-        return new SetRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public boolean isEmpty() {
@@ -140,41 +105,8 @@ public class SetRepository<T> implements JsonRepository {
 
     public long saveAll(Iterable<? extends T> elements) {
         return withGenerator((parser, generator) -> {
-            final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
-                .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
-
             try {
-                long updates = 0;
-                generator.writeStartArray();
-
-                // Update old elements
-                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
-                while (itr.hasNext()) {
-                    final JsonNode oldNode = itr.next();
-                    final T oldElement = reader.readValue(oldNode);
-
-                    if (!newElements.containsKey(oldElement)) {
-                        generator.writeTree(oldNode);
-                        continue;
-                    }
-
-                    final T newElement = newElements.remove(oldElement);
-                    final JsonNode newNode = mapper.valueToTree(newElement);
-
-                    final boolean updated = updateStrategy.update(oldNode, newNode, generator);
-                    if (updated) {
-                        ++updates;
-                    }
-                }
-
-                // Create new elements
-                for (T newElement : newElements.values()) {
-                    mapper.writeValue(generator, newElement);
-                    ++updates;
-                }
-
-                generator.writeEndArray();
-                return updates;
+                return saveAll(elements, parser, generator);
             }
             catch (IOException e) {
                 throw new JsonException(e);
@@ -197,24 +129,7 @@ public class SetRepository<T> implements JsonRepository {
     public long deleteAll(Predicate<? super T> predicate) {
         return withGenerator((parser, generator) -> {
             try {
-                long deleted = 0;
-                generator.writeStartArray();
-
-                final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
-                while (itr.hasNext()) {
-                    final JsonNode node = itr.next();
-                    final T element = reader.readValue(node);
-
-                    if (predicate.test(element)) {
-                        ++deleted;
-                    }
-                    else {
-                        generator.writeTree(node);
-                    }
-                }
-
-                generator.writeEndArray();
-                return deleted;
+                return deleteAll(predicate, parser, generator);
             }
             catch (IOException e) {
                 throw new JsonException(e);

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.json.JsonProvider
-import fr.adbonnin.cz2128.json.JsonUtils
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -30,8 +29,6 @@ abstract class BaseJsonSpec extends Specification {
         .build()
 
     public static final Json DEFAULT_CZ2128 = new Json(DEFAULT_MAPPER)
-
-    public static final DEFAULT_UPDATE_STRATEGY = JsonUtils.replaceUpdateStrategy()
 
     static JsonNode readNode(String content) {
         if (content == null) {

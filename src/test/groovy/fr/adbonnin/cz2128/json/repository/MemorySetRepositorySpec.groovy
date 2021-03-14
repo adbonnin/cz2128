@@ -1,11 +1,10 @@
 package fr.adbonnin.cz2128.json.repository
 
-import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
 import fr.adbonnin.cz2128.fixture.SpaceCat
-import fr.adbonnin.cz2128.json.JsonUtils
+import fr.adbonnin.cz2128.json.Json
 import spock.lang.Subject
 
 import java.util.function.Predicate
@@ -21,7 +20,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should count elements"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
         repo.count() == expectedCount
@@ -37,7 +36,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should count elements that test with a predicate"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
         repo.count { Cat cat -> cat.name == searchName } == expectedCount
@@ -54,7 +53,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should read the first element with a predicate"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
         repo.findFirst { it.id == searchId }.orElse(null)?.id == expectedFoundId
@@ -70,7 +69,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should read all elements"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
         repo.findAll().collect { it.id } == [1, 2, 3]
@@ -82,7 +81,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should read all elements with a predicate"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
         repo.findAll(predicate).collect { it.id } == expectedIdsFound
@@ -100,7 +99,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should read with a stream"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         when:
         def found = repo.withStream { Stream<Cat> s -> s.filter(predicate).findFirst() }
@@ -120,7 +119,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should have no more element when the iterator is used outside the with block"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         when:
         def iterator = repo.withIterator { it }
@@ -135,7 +134,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should have no more element when the stream is used outside the with block"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = provider.node().setRepository(Cat)
 
         when:
         def stream = repo.withStream() { it }
@@ -150,7 +149,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should save an element"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, updateStrategy)
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.save(element)
@@ -161,14 +160,14 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                           | updateStrategy                    || expectedContent
-        ''                                                | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0, name: "Spock"}]'
+        repository | content                                         || expectedContent
+        value      | ''                                              || '[{id: 0, name: "Spock"}, null]'
+        value      | '[{id: 0, name: "Kirk", grade: "Captain"}]'     || '[{id: 0, name: "Spock"}, null]'
+        value      | '[null, {id: 1, name: "Kirk", other: "value"}]' || '[null, {id: 1, name: "Kirk"}, {id: 0, name: "Spock"}]'
 
-        ''                                                | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'       | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
-        '[null, {id: 1, name: "Kirk", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 1, name: "Kirk", grade: "Captain"}, {id: 0, name: "Spock"}]'
+        node       | ''                                              || '[{id: 0, name: "Spock"}, null]'
+        node       | '[{id: 0, name: "Kirk", grade: "Captain"}]'     || '[{id: 0, name: "Spock", grade: "Captain"}, null]'
+        node       | '[null, {id: 1, name: "Kirk", other: "value"}]' || '[null, {id: 1, name: "Kirk", other: "value"}, {id: 0, name: "Spock"}]'
 
         element = new Cat(id: 0, name: 'Spock')
     }
@@ -176,7 +175,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should save all numbers"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Integer, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = repository.apply(provider).setRepository(Integer)
 
         when:
         def result = repo.saveAll(elements)
@@ -188,9 +187,12 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content           || expectedContent         | expectedNullResult
-        ''                || '[4, 5, null]'          | true
-        '[null, 1, 2, 3]' || '[null, 1, 2, 3, 4, 5]' | false
+        repository | content           || expectedContent         | expectedNullResult
+        value      | ''                || '[4, 5, null]'          | true
+        value      | '[null, 1, 2, 3]' || '[null, 1, 2, 3, 4, 5]' | true
+
+        node       | ''                || '[4, 5, null]'          | true
+        node       | '[null, 1, 2, 3]' || '[null, 1, 2, 3, 4, 5]' | false
 
         elements = [4, 5] as Integer[]
     }
@@ -198,7 +200,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should save all objects"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, updateStrategy)
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.saveAll(elements)
@@ -209,14 +211,14 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                             | updateStrategy                    || expectedContent
-        ''                                                  | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.replaceUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.replaceUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
+        repository | content                                           || expectedContent
+        value      | ''                                                || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        value      | '[{id: 0, name: "Kirk", grade: "Captain"}]'       || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        value      | '[null, {id: 2, name: "Archer", other: "value"}]' || '[null, {id: 2, name: "Archer"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
 
-        ''                                                  | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
-        '[{id: 0, name: "Kirk", grade: "Captain"}]'         | JsonUtils.partialUpdateStrategy() || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
-        '[null, {id: 2, name: "Archer", grade: "Captain"}]' | JsonUtils.partialUpdateStrategy() || '[null, {id: 2, name: "Archer", grade: "Captain"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
+        node       | ''                                                || '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}, null]'
+        node       | '[{id: 0, name: "Kirk", grade: "Captain"}]'       || '[{id: 0, name: "Spock",  grade: "Captain"}, {id: 1, name: "Kirk"}, null]'
+        node       | '[null, {id: 2, name: "Archer", other: "value"}]' || '[null, {id: 2, name: "Archer", other: "value"}, {id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
 
         elements = [new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -224,7 +226,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should save all arrays"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(SpaceCat, updateStrategy)
+        @Subject def repo = repository.apply(provider).setRepository(SpaceCat)
 
         when:
         def result = repo.saveAll(elements)
@@ -235,12 +237,12 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                          | updateStrategy                    || expectedContent
-        ''                               | JsonUtils.replaceUpdateStrategy() || '[[0, "Spock"], [1, "Kirk"], null]'
-        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.replaceUpdateStrategy() || '[null, [0, "Spock"], [1, "Kirk"]]'
+        repository | content                          || expectedContent
+        value      | ''                               || '[[0, "Spock"], [1, "Kirk"], null]'
+        value      | '[null, [0, "Kirk", "Captain"]]' || '[null, [0, "Spock"], [1, "Kirk"]]'
 
-        ''                               | JsonUtils.partialUpdateStrategy() || '[[0, "Spock"], [1, "Kirk"], null]'
-        '[null, [0, "Kirk", "Captain"]]' | JsonUtils.partialUpdateStrategy() || '[null, [0, "Spock", "Captain"], [1, "Kirk"]]'
+        node       | ''                               || '[[0, "Spock"], [1, "Kirk"], null]'
+        node       | '[null, [0, "Kirk", "Captain"]]' || '[null, [0, "Spock", "Captain"], [1, "Kirk"]]'
 
         elements = [new SpaceCat(id: 0, name: 'Spock'), new SpaceCat(id: 1, name: 'Kirk')]
     }
@@ -248,7 +250,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete an element"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.delete(element)
@@ -258,10 +260,14 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content           || expectedResult | expectedContent
-        ''                || false          | '[]'
-        '[null, {id: 0}]' || true           | '[null]'
-        '[null, {id: 1}]' || false          | '[null, {id:1}]'
+        repository | content                                         || expectedResult | expectedContent
+        value      | ''                                              || false          | '[]'
+        value      | '[null, {id: 0}]'                               || true           | '[null]'
+        value      | '[null, {id: 1, name: "Kirk", other: "value"}]' || false          | '[null, {id: 1, name: "Kirk"}]'
+
+        node       | ''                                              || false          | '[]'
+        node       | '[null, {id: 0}]'                               || true           | '[null]'
+        node       | '[null, {id: 1, name: "Kirk", other: "value"}]' || false          | '[null, {id: 1, name: "Kirk", other: "value"}]'
 
         element = new Cat(id: 0)
     }
@@ -269,7 +275,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete a list of elements"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.deleteAll(elements)
@@ -279,11 +285,16 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                    || expectedResult | expectedContent
-        ''                         || 0              | '[]'
-        '[null, {id: 0}]'          || 2              | '[]'
-        '[null, {id: 0}, {id: 1}]' || 3              | '[]'
-        '[null, {id: 0}, {id: 2}]' || 2              | '[{id: 2}]'
+        repository | content                                                  || expectedResult | expectedContent
+        value      | ''                                                       || 0              | '[]'
+        value      | '[null, {id: 0}]'                                        || 2              | '[]'
+        value      | '[null, {id: 0}, {id: 1}]'                               || 3              | '[]'
+        value      | '[null, {id: 0}, {id: 2, name: "Kirk", other: "value"}]' || 2              | '[{id: 2, name: "Kirk"}]'
+
+        node       | ''                                                       || 0              | '[]'
+        node       | '[null, {id: 0}]'                                        || 2              | '[]'
+        node       | '[null, {id: 0}, {id: 1}]'                               || 3              | '[]'
+        node       | '[null, {id: 0}, {id: 2, name: "Kirk", other: "value"}]' || 2              | '[{id: 2, name: "Kirk", other: "value"}]'
 
         elements = [null, new Cat(id: 0, name: 'Spock'), new Cat(id: 1, name: 'Kirk')]
     }
@@ -291,7 +302,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
     void "should delete all elements"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.deleteAll()
@@ -301,16 +312,20 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                   || expectedResult | expectedContent
-        ''                                        || 0              | '[]'
-        '[null, {name: "Kirk"}]'                  || 2              | '[]'
-        '[null, {name: "Kirk"}, {name: "Spock"}]' || 3              | '[]'
+        repository | content                                   || expectedResult | expectedContent
+        value      | ''                                        || 0              | '[]'
+        value      | '[null, {name: "Kirk"}]'                  || 2              | '[]'
+        value      | '[null, {name: "Kirk"}, {name: "Spock"}]' || 3              | '[]'
+
+        node       | ''                                        || 0              | '[]'
+        node       | '[null, {name: "Kirk"}]'                  || 2              | '[]'
+        node       | '[null, {name: "Kirk"}, {name: "Spock"}]' || 3              | '[]'
     }
 
     void "should delete a list from a predicate"() {
         given:
         def provider = setupJsonProvider(content)
-        @Subject def repo = provider.setRepository(Cat, JsonUtils.replaceUpdateStrategy())
+        @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
         def result = repo.deleteAll(predicate)
@@ -320,19 +335,24 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        content                                   || expectedResult | expectedContent
-        ''                                        || 0              | '[]'
-        '[null, {name: "Kirk"}]'                  || 1              | '[null]'
-        '[null, {name: "Kirk"}, {name: "Kirk"}]'  || 2              | '[null]'
-        '[null, {name: "Kirk"}, {name: "Spock"}]' || 1              | '[null, {name: "Spock"}]'
+        repository | content                                                   || expectedResult | expectedContent
+        value      | ''                                                        || 0              | '[]'
+        value      | '[null, {name: "Kirk"}]'                                  || 1              | '[null]'
+        value      | '[null, {name: "Kirk"}, {name: "Kirk"}]'                  || 2              | '[null]'
+        value      | '[null, {name: "Kirk"}, {name: "Spock"}]'                 || 1              | '[null, {id: null, name: "Spock"}]'
+
+        node       | ''                                                        || 0              | '[]'
+        node       | '[null, {name: "Kirk"}]'                                  || 1              | '[null]'
+        node       | '[null, {name: "Kirk"}, {name: "Kirk"}]'                  || 2              | '[null]'
+        node       | '[null, {name: "Kirk"}, {name: "Spock", other: "value"}]' || 1              | '[null, {name: "Spock", other: "value"}]'
 
         predicate = { Cat cat -> cat?.name == 'Kirk' } as Predicate<Cat>
     }
 
-    void "should keep all fields with different type"() {
+    void "should save with a different type"() {
         given:
         def provider = setupJsonProvider(content)
-        def catRepo = provider.setRepository(Cat, JsonUtils.partialUpdateStrategy())
+        def catRepo = repository.apply(provider).setRepository(Cat)
         @Subject ponyRepo = repoBuilder(catRepo)
 
         when:
@@ -342,14 +362,16 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         isEquals(provider, expectedContent)
 
         where:
-        repoBuilder                                             | _
-        ({ value -> value.of(Pony) })                           | _
-        ({ value -> value.of(Pony.TYPE_REF) })                  | _
-        ({ value -> value.of(DEFAULT_MAPPER.readerFor(Pony)) }) | _
+        repository | repoBuilder                                             || expectedContent
+        value      | ({ value -> value.of(Pony) })                           || '[{name: "Spock", color: "blue"}, {name: "Kirk", color: null}]'
+        value      | ({ value -> value.of(Pony.TYPE_REF) })                  || '[{name: "Spock", color: "blue"}, {name: "Kirk", color: null}]'
+        value      | ({ value -> value.of(DEFAULT_MAPPER.readerFor(Pony)) }) || '[{name: "Spock", color: "blue"}, {name: "Kirk", color: null}]'
+
+        node       | ({ value -> value.of(Pony) })                           || '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
+        node       | ({ value -> value.of(Pony.TYPE_REF) })                  || '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
+        node       | ({ value -> value.of(DEFAULT_MAPPER.readerFor(Pony)) }) || '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
 
         content = '[{id: 0, name: "Spock"}, {id: 1, name: "Kirk"}]'
         spockPony = new Pony(name: 'Spock', color: 'blue')
-
-        expectedContent = '[{id: 0, name: "Spock", color: "blue"}, {id: 1, name: "Kirk"}]'
     }
 }

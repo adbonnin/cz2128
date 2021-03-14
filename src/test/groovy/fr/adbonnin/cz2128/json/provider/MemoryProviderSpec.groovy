@@ -1,8 +1,8 @@
 package fr.adbonnin.cz2128.json.provider
 
-import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
+import fr.adbonnin.cz2128.json.Json
 
 import static com.fasterxml.jackson.core.JsonToken.*
 
@@ -51,7 +51,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
                 tokens.add(token)
             }
 
-            mapper.writeValue(generator, value)
+            mapper.writeValue(generator, cat)
             return result
         })
 
@@ -64,7 +64,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
         content = '{id: 1}'
         expectedTokens = [START_OBJECT, FIELD_NAME, VALUE_NUMBER_INT, END_OBJECT]
 
-        value = new Cat(id: 1, name: 'Spock')
+        cat = new Cat(id: 1, name: 'Spock')
         expectedContent = '{id:1, name:"Spock"}'
 
         result = 42
@@ -77,7 +77,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
 
         when:
         provider.withGenerator({ parser, generator ->
-            mapper.writeValue(generator, value)
+            mapper.writeValue(generator, cat)
             throw new IllegalArgumentException(errorMessage)
         })
 
@@ -89,7 +89,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
         where:
         content = '{}'
         errorMessage = "Error"
-        value = new Cat(id: 1, name: 'Spock')
+        cat = new Cat(id: 1, name: 'Spock')
     }
 
     void "should read and write json node"() {

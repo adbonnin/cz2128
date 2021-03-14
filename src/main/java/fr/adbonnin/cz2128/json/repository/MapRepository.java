@@ -2,17 +2,11 @@ package fr.adbonnin.cz2128.json.repository;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import fr.adbonnin.cz2128.base.Pair;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.JsonRepository;
-import fr.adbonnin.cz2128.json.JsonUpdateStrategy;
-import fr.adbonnin.cz2128.json.iterator.JsonNodeObjectIterator;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenObjectIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueObjectIterator;
 
@@ -26,60 +20,27 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 
-public class MapRepository<T> implements JsonRepository {
+public abstract class MapRepository<T> implements JsonRepository {
 
     private final ObjectReader reader;
 
-    private final ObjectMapper mapper;
-
     private final JsonProvider provider;
 
-    private final JsonUpdateStrategy updateStrategy;
+    protected abstract long saveAll(Map<String, ? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
 
-    public MapRepository(Class<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), mapper, provider, updateStrategy);
-    }
+    protected abstract long deleteAll(Predicate<? super Map.Entry<String, ? extends T>> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
 
-    public MapRepository(TypeReference<T> type, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
-        this(mapper.readerFor(type), mapper, provider, updateStrategy);
-    }
-
-    public MapRepository(ObjectReader reader, ObjectMapper mapper, JsonProvider provider, JsonUpdateStrategy updateStrategy) {
+    public MapRepository(ObjectReader reader, JsonProvider provider) {
         this.reader = requireNonNull(reader);
-        this.mapper = requireNonNull(mapper);
         this.provider = requireNonNull(provider);
-        this.updateStrategy = requireNonNull(updateStrategy);
     }
 
     public ObjectReader getReader() {
         return reader;
     }
 
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
     public JsonProvider getProvider() {
         return provider;
-    }
-
-    public JsonUpdateStrategy getUpdateStrategy() {
-        return updateStrategy;
-    }
-
-    @Override
-    public <U> MapRepository<U> of(ObjectReader reader) {
-        return new MapRepository<>(reader, mapper, provider, updateStrategy);
-    }
-
-    @Override
-    public <U> MapRepository<U> of(Class<U> type) {
-        return new MapRepository<>(type, mapper, provider, updateStrategy);
-    }
-
-    @Override
-    public <U> MapRepository<U> of(TypeReference<U> type) {
-        return new MapRepository<>(type, mapper, provider, updateStrategy);
     }
 
     public boolean isEmpty() {
@@ -140,44 +101,8 @@ public class MapRepository<T> implements JsonRepository {
 
     public long saveAll(Map<String, ? extends T> elements) {
         return withGenerator((parser, generator) -> {
-            final Map<String, T> newElements = new LinkedHashMap<>(elements);
-
             try {
-                long updates = 0;
-                generator.writeStartObject();
-
-                // Update old elements
-                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, mapper);
-                while (itr.hasNext()) {
-                    final Map.Entry<String, JsonNode> oldValue = itr.next();
-                    final String key = oldValue.getKey();
-                    final JsonNode oldNode = oldValue.getValue();
-
-                    generator.writeFieldName(key);
-
-                    if (!newElements.containsKey(key)) {
-                        generator.writeTree(oldValue.getValue());
-                        continue;
-                    }
-
-                    final T newElement = newElements.remove(key);
-                    final JsonNode newNode = mapper.valueToTree(newElement);
-
-                    final boolean updated = updateStrategy.update(oldNode, newNode, generator);
-                    if (updated) {
-                        ++updates;
-                    }
-                }
-
-                // Create new elements
-                for (Map.Entry<String, T> newElement : newElements.entrySet()) {
-                    generator.writeFieldName(newElement.getKey());
-                    mapper.writeValue(generator, newElement.getValue());
-                    ++updates;
-                }
-
-                generator.writeEndObject();
-                return updates;
+                return saveAll(elements, parser, generator);
             }
             catch (IOException e) {
                 throw new JsonException(e);
@@ -200,27 +125,7 @@ public class MapRepository<T> implements JsonRepository {
     public long deleteAll(Predicate<? super Map.Entry<String, ? extends T>> predicate) {
         return withGenerator((parser, generator) -> {
             try {
-                long deleted = 0;
-                generator.writeStartObject();
-
-                final JsonNodeObjectIterator itr = new JsonNodeObjectIterator(parser, mapper);
-                while (itr.hasNext()) {
-                    final Map.Entry<String, JsonNode> value = itr.next();
-                    final String key = value.getKey();
-                    final JsonNode node = value.getValue();
-                    final T element = reader.readValue(node);
-
-                    if (predicate.test(Pair.of(key, element))) {
-                        ++deleted;
-                    }
-                    else {
-                        generator.writeFieldName(key);
-                        generator.writeTree(node);
-                    }
-                }
-
-                generator.writeEndObject();
-                return deleted;
+                return deleteAll(predicate, parser, generator);
             }
             catch (IOException e) {
                 throw new JsonException(e);

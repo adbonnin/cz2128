@@ -9,8 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.json.provider.FileProvider;
 import fr.adbonnin.cz2128.json.provider.MemoryProvider;
-import fr.adbonnin.cz2128.json.repository.MapRepository;
-import fr.adbonnin.cz2128.json.repository.SetRepository;
+import fr.adbonnin.cz2128.json.repository.*;
 
 import java.nio.file.Path;
 import java.util.function.BiFunction;
@@ -101,28 +100,105 @@ public class Json {
             return new Provider(provider.concurrent(lockTimeout));
         }
 
-        public <T> SetRepository<T> setRepository(Class<T> type, JsonUpdateStrategy updateStrategy) {
-            return new SetRepository<>(type, mapper, provider, updateStrategy);
+        public NodeRepository node() {
+            return new NodeRepository(provider);
         }
 
-        public <T> SetRepository<T> setRepository(TypeReference<T> type, JsonUpdateStrategy updateStrategy) {
-            return new SetRepository<>(type, mapper, provider, updateStrategy);
+        public ValueRepository value() {
+            return new ValueRepository(provider);
+        }
+    }
+
+    public abstract class Repository extends Provider {
+
+        public Repository(JsonProvider provider) {
+            super(provider);
         }
 
-        public <T> SetRepository<T> setRepository(ObjectReader reader, JsonUpdateStrategy updateStrategy) {
-            return new SetRepository<>(reader, mapper, provider, updateStrategy);
+        public abstract <U> SetRepository<U> setRepository(Class<U> type);
+
+        public abstract <U> SetRepository<U> setRepository(TypeReference<U> type);
+
+        public abstract <U> SetRepository<U> setRepository(ObjectReader reader);
+
+        public abstract <U> MapRepository<U> mapRepository(Class<U> type);
+
+        public abstract <U> MapRepository<U> mapRepository(TypeReference<U> type);
+
+        public abstract <U> MapRepository<U> mapRepository(ObjectReader reader);
+    }
+
+    public class NodeRepository extends Repository {
+
+        private final JsonProvider provider;
+
+        public NodeRepository(JsonProvider provider) {
+            super(provider);
+            this.provider = provider;
         }
 
-        public <T> MapRepository<T> mapRepository(Class<T> type, JsonUpdateStrategy updateStrategy) {
-            return new MapRepository<>(type, mapper, provider, updateStrategy);
+        public <U> NodeSetRepository<U> setRepository(Class<U> type) {
+            return new NodeSetRepository<>(type, provider, mapper);
         }
 
-        public <T> MapRepository<T> mapRepository(TypeReference<T> type, JsonUpdateStrategy updateStrategy) {
-            return new MapRepository<>(type, mapper, provider, updateStrategy);
+        public <U> NodeSetRepository<U> setRepository(TypeReference<U> type) {
+            return new NodeSetRepository<>(type, provider, mapper);
         }
 
-        public <T> MapRepository<T> mapRepository(ObjectReader reader, JsonUpdateStrategy updateStrategy) {
-            return new MapRepository<>(reader, mapper, provider, updateStrategy);
+        public <U> NodeSetRepository<U> setRepository(ObjectReader reader) {
+            return new NodeSetRepository<>(reader, provider, mapper);
+        }
+
+        public <U> NodeMapRepository<U> mapRepository(Class<U> type) {
+            return new NodeMapRepository<>(type, provider, mapper);
+        }
+
+        public <U> NodeMapRepository<U> mapRepository(TypeReference<U> type) {
+            return new NodeMapRepository<>(type, provider, mapper);
+        }
+
+        public <U> NodeMapRepository<U> mapRepository(ObjectReader reader) {
+            return new NodeMapRepository<>(reader, provider, mapper);
+        }
+    }
+
+    public class ValueRepository extends Repository {
+
+        private final JsonProvider provider;
+
+        public ValueRepository(JsonProvider provider) {
+            super(provider);
+            this.provider = provider;
+        }
+
+        @Override
+        public <U> ValueSetRepository<U> setRepository(Class<U> type) {
+            return new ValueSetRepository<>(type, provider, mapper);
+        }
+
+        @Override
+        public <U> ValueSetRepository<U> setRepository(TypeReference<U> type) {
+            return new ValueSetRepository<>(type, provider, mapper);
+        }
+
+        @Override
+        public <U> ValueSetRepository<U> setRepository(ObjectReader reader) {
+            return new ValueSetRepository<>(reader, provider, mapper);
+        }
+
+        @Override
+        public <U> ValueMapRepository<U> mapRepository(Class<U> type) {
+            return new ValueMapRepository<>(type, provider, mapper);
+        }
+
+        @Override
+        public <U> ValueMapRepository<U> mapRepository(TypeReference<U> type) {
+            return new ValueMapRepository<>(type, provider, mapper);
+        }
+
+        @Override
+        public <U> ValueMapRepository<U> mapRepository(ObjectReader reader) {
+            return new ValueMapRepository<>(reader, provider, mapper);
         }
     }
 }

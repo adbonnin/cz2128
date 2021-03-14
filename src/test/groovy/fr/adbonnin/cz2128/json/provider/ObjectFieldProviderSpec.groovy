@@ -2,7 +2,7 @@ package fr.adbonnin.cz2128.json.provider
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
-import fr.adbonnin.cz2128.json.repository.SetRepository
+import spock.lang.Subject
 
 class ObjectFieldProviderSpec extends BaseJsonSpec {
 
@@ -18,13 +18,9 @@ class ObjectFieldProviderSpec extends BaseJsonSpec {
         ]
 
         given:
-        def mapper = DEFAULT_MAPPER
-        def updateStrategy = DEFAULT_UPDATE_STRATEGY
-
-        and:
         def provider = newMemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
-        def enterpriseRepository = new SetRepository(Cat, mapper, provider.at("enterprise"), updateStrategy)
-        def discoveryRepository = new SetRepository(Cat, mapper, provider.at("discovery"), updateStrategy)
+        @Subject def enterpriseRepository = provider.at("enterprise").node().setRepository(Cat)
+        @Subject def discoveryRepository = provider.at("discovery").node().setRepository(Cat)
 
         when:
         enterpriseRepository.saveAll(enterprise)

@@ -24,14 +24,6 @@ public class JsonUtils {
 
     private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory();
 
-    public static JsonUpdateStrategy partialUpdateStrategy() {
-        return JSON_UPDATE_STRATEGIES.PARTIAL_UPDATE;
-    }
-
-    public static JsonUpdateStrategy replaceUpdateStrategy() {
-        return JSON_UPDATE_STRATEGIES.REPLACE_UPDATE;
-    }
-
     public static JsonParser newEmptyParser() throws IOException {
         return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(NULL_INPUT_STREAM);
     }
@@ -178,31 +170,6 @@ public class JsonUtils {
             return 0;
         }
     };
-
-    private enum JSON_UPDATE_STRATEGIES implements JsonUpdateStrategy {
-        PARTIAL_UPDATE {
-            @Override
-            public boolean update(JsonNode oldNode, JsonNode newNode, JsonGenerator generator) throws IOException {
-                return JsonUtils.partialUpdate(oldNode, newNode, generator);
-            }
-        },
-        REPLACE_UPDATE {
-            @Override
-            public boolean update(JsonNode oldNode, JsonNode newNode, JsonGenerator generator) throws IOException {
-
-                if (newNode == null && oldNode == null) {
-                    return false;
-                }
-                else if (newNode == null) {
-                    generator.writeTree(oldNode);
-                    return false;
-                }
-
-                generator.writeTree(newNode);
-                return !newNode.equals(oldNode);
-            }
-        }
-    }
 
     private JsonUtils() { /* Cannot be instantiated */ }
 }
