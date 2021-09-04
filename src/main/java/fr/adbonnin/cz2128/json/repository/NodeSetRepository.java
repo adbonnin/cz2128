@@ -20,10 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 public class NodeSetRepository<T> extends SetRepository<T> {
 
-    private final ObjectReader reader;
-
-    private final JsonProvider provider;
-
     private final ObjectMapper mapper;
 
     public NodeSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
@@ -36,8 +32,6 @@ public class NodeSetRepository<T> extends SetRepository<T> {
 
     public NodeSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
         super(reader, provider);
-        this.reader = requireNonNull(reader);
-        this.provider = requireNonNull(provider);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -47,17 +41,17 @@ public class NodeSetRepository<T> extends SetRepository<T> {
 
     @Override
     public <U> NodeSetRepository<U> of(Class<U> type) {
-        return new NodeSetRepository<>(type, provider, mapper);
+        return new NodeSetRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> NodeSetRepository<U> of(TypeReference<U> type) {
-        return new NodeSetRepository<>(type, provider, mapper);
+        return new NodeSetRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> NodeSetRepository<U> of(ObjectReader reader) {
-        return new NodeSetRepository<>(reader, provider, mapper);
+        return new NodeSetRepository<>(reader, getProvider(), mapper);
     }
 
     @Override
@@ -72,7 +66,7 @@ public class NodeSetRepository<T> extends SetRepository<T> {
         final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
         while (itr.hasNext()) {
             final JsonNode oldNode = itr.next();
-            final T oldElement = reader.readValue(oldNode);
+            final T oldElement = getReader().readValue(oldNode);
 
             if (!newElements.containsKey(oldElement)) {
                 generator.writeTree(oldNode);
@@ -106,7 +100,7 @@ public class NodeSetRepository<T> extends SetRepository<T> {
         final JsonNodeArrayIterator itr = new JsonNodeArrayIterator(parser, mapper);
         while (itr.hasNext()) {
             final JsonNode node = itr.next();
-            final T element = reader.readValue(node);
+            final T element = getReader().readValue(node);
 
             if (predicate.test(element)) {
                 ++deleted;

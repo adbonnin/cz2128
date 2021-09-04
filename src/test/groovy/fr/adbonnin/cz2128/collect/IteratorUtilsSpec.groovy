@@ -6,6 +6,23 @@ import java.util.function.Predicate
 
 class IteratorUtilsSpec extends Specification {
 
+    void "should add all elements"() {
+        given:
+        def list = []
+
+        when:
+        def wasModified = IteratorUtils.addAll(list, elements.iterator())
+
+        then:
+        wasModified == expectWasModified
+        list == elements
+
+        where:
+        elements || expectWasModified
+        []       || false
+        [1, 2]   || true
+    }
+
     void "should count elements"() {
         expect:
         IteratorUtils.count(iterator) == expectedCount
@@ -62,5 +79,54 @@ class IteratorUtilsSpec extends Specification {
         iterator = elements.iterator()
         predicate = { it != 'B' } as Predicate<String>
         defaultValue = 'D'
+    }
+
+    void "should transform empty entry iterator to empty value iterator"() {
+        def emptyMap = [:]
+
+        given:
+        def entryIterator = emptyMap.entrySet().iterator()
+
+        when:
+        def valueIterator = IteratorUtils.valueIterator(entryIterator)
+
+        then:
+        !valueIterator.hasNext()
+
+        when:
+        entryIterator.next()
+
+        then:
+        thrown(NoSuchElementException)
+    }
+
+    void "should transform entry iterator to value iterator"() {
+        def map = [
+            a: 1,
+            b: 2
+        ]
+
+        given:
+        def entryIterator = map.iterator()
+
+        when:
+        def valueIterator = IteratorUtils.valueIterator(entryIterator)
+
+        then:
+        valueIterator.hasNext()
+        valueIterator.next() == 1
+
+        and:
+        valueIterator.hasNext()
+        valueIterator.next() == 2
+
+        and:
+        !valueIterator.hasNext()
+
+        when:
+        valueIterator.next()
+
+        then:
+        thrown(NoSuchElementException)
     }
 }

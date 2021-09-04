@@ -1,5 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
+import fr.adbonnin.cz2128.collect.ListUtils
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -8,6 +9,7 @@ import fr.adbonnin.cz2128.json.Json
 import spock.lang.Subject
 
 import java.util.function.Predicate
+import java.util.stream.Collectors
 import java.util.stream.Stream
 
 class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
@@ -153,13 +155,13 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         predicate = { it.value.name == searchName } as Predicate<Map.Entry<String, Cat>>
     }
 
-    void "should read with a stream"() {
+    void "should read with an entry stream"() {
         given:
         def provider = setupJsonProvider(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
-        def found = repo.withStream { Stream<Map.Entry<String, Cat>> s -> s.filter(predicate).findFirst() }
+        def found = repo.withEntryStream { Stream<Map.Entry<String, Cat>> s -> s.filter(predicate).findFirst() } as Optional<Map.Entry<String, Cat>>
 
         then:
         found.orElse(null)?.value?.id == expectedFoundId
@@ -173,13 +175,43 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         predicate = { it.value.id == searchId } as Predicate<Map.Entry<String, Cat>>
     }
 
+    void "should read with a stream"() {
+        given:
+        def provider = setupJsonProvider(content)
+        @Subject def repo = provider.node().mapRepository(Cat)
+
+        when:
+        def result = repo.withStream { Stream<Cat> stream -> stream.collect(Collectors.toList()) }
+
+        then:
+        result == [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
+
+        where:
+        content = '{a: {id: 1}, b: {id: 2}, c: {id: 3}}'
+    }
+
+    void "should read with an iterator"() {
+        given:
+        def provider = setupJsonProvider(content)
+        @Subject def repo = provider.node().mapRepository(Cat)
+
+        when:
+        def result =  repo.withIterator { ListUtils.newArrayList(it)}
+
+        then:
+        result == [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
+
+        where:
+        content = '{a: {id: 1}, b: {id: 2}, c: {id: 3}}'
+    }
+
     void "should have no more element when the iterator is used outside the with block"() {
         given:
         def provider = setupJsonProvider(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
-        def iterator = repo.withIterator { it }
+        def iterator = repo.withEntryIterator { it }
 
         then:
         !iterator.hasNext()
@@ -194,7 +226,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
-        def stream = repo.withStream() { it }
+        def stream = repo.withEntryStream() { it }
 
         then:
         !stream.findFirst().isPresent()

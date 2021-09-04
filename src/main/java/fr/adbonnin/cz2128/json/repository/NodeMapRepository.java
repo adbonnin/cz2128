@@ -20,10 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 public class NodeMapRepository<T> extends MapRepository<T> {
 
-    private final ObjectReader reader;
-
-    private final JsonProvider provider;
-
     private final ObjectMapper mapper;
 
     public NodeMapRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
@@ -36,8 +32,6 @@ public class NodeMapRepository<T> extends MapRepository<T> {
 
     public NodeMapRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
         super(reader, provider);
-        this.reader = requireNonNull(reader);
-        this.provider = requireNonNull(provider);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -47,17 +41,17 @@ public class NodeMapRepository<T> extends MapRepository<T> {
 
     @Override
     public <U> NodeMapRepository<U> of(Class<U> type) {
-        return new NodeMapRepository<>(type, provider, mapper);
+        return new NodeMapRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> NodeMapRepository<U> of(TypeReference<U> type) {
-        return new NodeMapRepository<>(type, provider, mapper);
+        return new NodeMapRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> NodeMapRepository<U> of(ObjectReader reader) {
-        return new NodeMapRepository<>(reader, provider, mapper);
+        return new NodeMapRepository<>(reader, getProvider(), mapper);
     }
 
     @Override
@@ -111,7 +105,7 @@ public class NodeMapRepository<T> extends MapRepository<T> {
             final Map.Entry<String, JsonNode> etr = itr.next();
             final String key = etr.getKey();
             final JsonNode node = etr.getValue();
-            final T element = reader.readValue(node);
+            final T element = getReader().readValue(node);
 
             if (predicate.test(Pair.of(key, element))) {
                 ++deleted;

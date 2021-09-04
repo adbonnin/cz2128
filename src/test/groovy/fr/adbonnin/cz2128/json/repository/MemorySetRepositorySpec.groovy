@@ -1,5 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
+import fr.adbonnin.cz2128.collect.ListUtils
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -8,6 +9,7 @@ import fr.adbonnin.cz2128.json.Json
 import spock.lang.Subject
 
 import java.util.function.Predicate
+import java.util.stream.Collectors
 import java.util.stream.Stream
 
 class MemorySetRepositorySpec extends BaseJsonProviderSpec {
@@ -102,18 +104,28 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
-        def found = repo.withStream { Stream<Cat> s -> s.filter(predicate).findFirst() }
+        def result = repo.withStream { Stream<Cat> s -> s.collect(Collectors.toList()) }
 
         then:
-        found.orElse(null)?.id == expectedFoundId
+        result == [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
 
         where:
-        searchId || expectedFoundId
-        0        || null
-        1        || 1
-
         content = '[{id: 1}, {id: 2}, {id: 3}]'
-        predicate = { it.id == searchId } as Predicate<Cat>
+    }
+
+    void "should read with an iterator"() {
+        given:
+        def provider = setupJsonProvider(content)
+        @Subject def repo = provider.node().setRepository(Cat)
+
+        when:
+        def result = repo.withIterator { ListUtils.newArrayList(it) }
+
+        then:
+        result == [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
+
+        where:
+        content = '[{id: 1}, {id: 2}, {id: 3}]'
     }
 
     void "should have no more element when the iterator is used outside the with block"() {

@@ -6,43 +6,32 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
-import fr.adbonnin.cz2128.json.JsonRepository;
 import fr.adbonnin.cz2128.json.iterator.SkipChildrenArrayIterator;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import static java.util.Objects.requireNonNull;
-
-public abstract class SetRepository<T> implements JsonRepository {
+public abstract class SetRepository<T> extends BaseRepository<T> {
 
     private final ObjectReader reader;
-
-    private final JsonProvider provider;
 
     protected abstract long saveAll(Iterable<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
 
     protected abstract long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
 
     public SetRepository(ObjectReader reader, JsonProvider provider) {
-        this.reader = requireNonNull(reader);
-        this.provider = requireNonNull(provider);
+        super(provider);
+        this.reader = reader;
     }
 
     public ObjectReader getReader() {
         return reader;
     }
 
-    public JsonProvider getProvider() {
-        return provider;
-    }
-
+    @Override
     public boolean isEmpty() {
         return count() == 0;
     }
@@ -73,26 +62,9 @@ public abstract class SetRepository<T> implements JsonRepository {
         });
     }
 
-    public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
-        return withIterator((iterator) -> {
-            final Spliterator<T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
-            final Stream<T> stream = StreamSupport.stream(spliterator, false);
-            return function.apply(stream);
-        });
-    }
-
+    @Override
     public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
         return withParser(parser -> function.apply(new ValueArrayIterator<>(parser, reader)));
-    }
-
-    @Override
-    public <R> R withParser(Function<JsonParser, ? extends R> function) {
-        return provider.withParser(function);
-    }
-
-    @Override
-    public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
-        return provider.withGenerator(function);
     }
 
     public boolean save(T element) {

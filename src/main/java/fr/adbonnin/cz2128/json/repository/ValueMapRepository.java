@@ -17,10 +17,6 @@ import static java.util.Objects.requireNonNull;
 
 public class ValueMapRepository<T> extends MapRepository<T> {
 
-    private final ObjectReader reader;
-
-    private final JsonProvider provider;
-
     private final ObjectMapper mapper;
 
     public ValueMapRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
@@ -33,8 +29,6 @@ public class ValueMapRepository<T> extends MapRepository<T> {
 
     public ValueMapRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
         super(reader, provider);
-        this.reader = requireNonNull(reader);
-        this.provider = requireNonNull(provider);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -44,17 +38,17 @@ public class ValueMapRepository<T> extends MapRepository<T> {
 
     @Override
     public <U> ValueMapRepository<U> of(Class<U> type) {
-        return new ValueMapRepository<>(type, provider, mapper);
+        return new ValueMapRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> ValueMapRepository<U> of(TypeReference<U> type) {
-        return new ValueMapRepository<>(type, provider, mapper);
+        return new ValueMapRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> ValueMapRepository<U> of(ObjectReader reader) {
-        return new ValueMapRepository<>(reader, provider, mapper);
+        return new ValueMapRepository<>(reader, getProvider(), mapper);
     }
 
     @Override
@@ -65,7 +59,7 @@ public class ValueMapRepository<T> extends MapRepository<T> {
         generator.writeStartObject();
 
         // Update old elements
-        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, reader);
+        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final Map.Entry<String, T> old = itr.next();
             final String key = old.getKey();
@@ -99,7 +93,7 @@ public class ValueMapRepository<T> extends MapRepository<T> {
         long deleted = 0;
         generator.writeStartObject();
 
-        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, reader);
+        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final Map.Entry<String, T> etr = itr.next();
             final String key = etr.getKey();

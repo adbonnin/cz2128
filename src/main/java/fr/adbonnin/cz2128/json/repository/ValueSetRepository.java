@@ -18,10 +18,6 @@ import static java.util.Objects.requireNonNull;
 
 public class ValueSetRepository<T> extends SetRepository<T> {
 
-    private final ObjectReader reader;
-
-    private final JsonProvider provider;
-
     private final ObjectMapper mapper;
 
     public ValueSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
@@ -34,8 +30,6 @@ public class ValueSetRepository<T> extends SetRepository<T> {
 
     public ValueSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
         super(reader, provider);
-        this.reader = requireNonNull(reader);
-        this.provider = requireNonNull(provider);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -45,17 +39,17 @@ public class ValueSetRepository<T> extends SetRepository<T> {
 
     @Override
     public <U> ValueSetRepository<U> of(Class<U> type) {
-        return new ValueSetRepository<>(type, provider, mapper);
+        return new ValueSetRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> ValueSetRepository<U> of(TypeReference<U> type) {
-        return new ValueSetRepository<>(type, provider, mapper);
+        return new ValueSetRepository<>(type, getProvider(), mapper);
     }
 
     @Override
     public <U> ValueSetRepository<U> of(ObjectReader reader) {
-        return new ValueSetRepository<>(reader, provider, mapper);
+        return new ValueSetRepository<>(reader, getProvider(), mapper);
     }
 
     @Override
@@ -67,7 +61,7 @@ public class ValueSetRepository<T> extends SetRepository<T> {
             .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
         // Update old elements
-        final ValueArrayIterator<T> itr = new ValueArrayIterator<>(parser, reader);
+        final ValueArrayIterator<T> itr = new ValueArrayIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final T oldElement = itr.next();
 
@@ -96,7 +90,7 @@ public class ValueSetRepository<T> extends SetRepository<T> {
         long deleted = 0;
         generator.writeStartArray();
 
-        final ValueArrayIterator<T> itr = new ValueArrayIterator<>(parser, reader);
+        final ValueArrayIterator<T> itr = new ValueArrayIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final T element = itr.next();
 
