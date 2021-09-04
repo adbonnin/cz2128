@@ -30,6 +30,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
         where:
         content        || expectedCount | expectedIsEmpty
+        ''             || 0             | true
         '[]'           || 0             | true
         '[{}]'         || 1             | false
         '[{}, {}, {}]' || 3             | false
@@ -74,10 +75,15 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
-        repo.findAll().collect { it.id } == [1, 2, 3]
+        repo.findAll() == new LinkedHashSet(expectedResult)
+        repo.withStream(streamToList()) == expectedResult
+        repo.withIterator(iteratorToList()) == expectedResult
 
         where:
-        content = '[{id: 1, name: "Kirk"}, {id: 2, name: "Spock"}, {id: 3, name: "Spock"}]'
+        content                       || expectedResult
+        ''                            || []
+        '[]'                          || []
+        '[{id: 1}, {id: 2}, {id: 3}]' || [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
     }
 
     void "should read all elements with a predicate"() {

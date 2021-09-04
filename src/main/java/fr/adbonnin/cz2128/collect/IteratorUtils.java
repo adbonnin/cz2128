@@ -1,9 +1,6 @@
 package fr.adbonnin.cz2128.collect;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
@@ -67,6 +64,26 @@ public class IteratorUtils {
             @Override
             public V next() {
                 return itr.next().getValue();
+            }
+        };
+    }
+
+    public static <T> Iterator<T> singletonIterator(T value) {
+        return new Iterator<T>() {
+            private boolean consumed;
+
+            @Override
+            public boolean hasNext() {
+                return !consumed;
+            }
+
+            @Override
+            public T next() {
+                if (consumed) {
+                    throw new NoSuchElementException();
+                }
+                consumed = true;
+                return value;
             }
         };
     }

@@ -129,4 +129,24 @@ class IteratorUtilsSpec extends Specification {
         then:
         thrown(NoSuchElementException)
     }
+
+    void "should transform a value into an iterator"() {
+        def value = new Object()
+
+        when:
+        def iterator = IteratorUtils.singletonIterator(value)
+
+        then:
+        iterator.hasNext()
+        iterator.next() == value
+
+        and:
+        !iterator.hasNext()
+
+        when:
+        iterator.next()
+
+        then:
+        thrown(NoSuchElementException)
+    }
 }

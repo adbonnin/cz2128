@@ -9,15 +9,15 @@ import java.util.stream.Stream;
 
 public interface JsonRepository<T> extends JsonProvider {
 
-    boolean isEmpty();
-
-    <R> R withStream(Function<Stream<? extends T>, ? extends R> function);
-
-    <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function);
-
     <U> JsonRepository<U> of(Class<U> type);
 
     <U> JsonRepository<U> of(TypeReference<U> type);
 
     <U> JsonRepository<U> of(ObjectReader reader);
+
+    boolean isEmpty();
+
+    <R> R withStream(Function<Stream<? extends T>, ? extends R> function);
+
+    <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function);
 }
