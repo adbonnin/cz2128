@@ -133,9 +133,9 @@ class JsonUtilsSpec extends BaseJsonSpec {
         def node = readObjectNode(json)
 
         given:
-        def provider = newMemoryJsonProvider()
-        def providerAtIndex = newMemoryJsonProvider()
-        def providerAtField = newMemoryJsonProvider()
+        def provider = newMemoryProviderFactory()
+        def providerAtIndex = newMemoryProviderFactory()
+        def providerAtField = newMemoryProviderFactory()
 
         when:
         JsonUtils.writeNode(node, provider)

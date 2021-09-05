@@ -8,7 +8,7 @@ class ConcurrentProviderSpec extends BaseJsonSpec {
 
     void "should use the wrapped json provider"() {
         given:
-        @Subject def provider = newMemoryJsonProvider().concurrent(2000)
+        @Subject def provider = newMemoryProviderFactory().concurrent(2000)
         def repository = provider.node().setRepository(Cat)
 
         when:

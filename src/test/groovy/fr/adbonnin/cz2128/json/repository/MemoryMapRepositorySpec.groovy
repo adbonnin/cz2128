@@ -13,13 +13,13 @@ import java.util.stream.Stream
 class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
-    Json.Provider setupJsonProvider(String content) {
-        return newMemoryJsonProvider(content)
+    Json.ProviderFactory setupProviderFactory(String content) {
+        return newMemoryProviderFactory(content)
     }
 
     void "should count elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -36,7 +36,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should count elements that test with a predicate on the key"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -54,7 +54,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should count elements that test with a predicate on the value"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -71,7 +71,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read the first element with a predicate on the key"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -87,7 +87,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read the first element with a predicate on the value"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -103,7 +103,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all entries"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
@@ -119,7 +119,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements with a predicate on the key"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -138,7 +138,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements with a predicate on the value"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -156,7 +156,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read with an entry stream"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
@@ -176,7 +176,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
@@ -192,7 +192,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the iterator is used outside the with block"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
@@ -207,7 +207,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the stream is used outside the with block"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         when:
@@ -222,7 +222,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save an element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -249,7 +249,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all numbers"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Integer)
 
         when:
@@ -274,7 +274,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all objects"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -300,7 +300,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all arrays"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(SpaceCat)
 
         when:
@@ -324,7 +324,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete an element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -349,7 +349,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list of elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -376,7 +376,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete all elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -399,7 +399,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list from a predicate"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).mapRepository(Cat)
 
         when:
@@ -426,7 +426,7 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
 
     void "should keep all fields with different type"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         def catRepo = factory.apply(provider).mapRepository(Cat)
         @Subject ponyRepo = repoBuilder(catRepo)
 

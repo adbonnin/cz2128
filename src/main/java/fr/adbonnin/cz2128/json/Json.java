@@ -29,35 +29,39 @@ public class Json {
         return mapper;
     }
 
-    public Provider fileProvider(Path file) {
-        return new Provider(new FileProvider(file, mapper.getFactory()));
+    public ProviderFactory fileProvider(Path file) {
+        return new ProviderFactory(new FileProvider(file, mapper.getFactory()));
     }
 
-    public Provider fileProvider(Path file, JsonEncoding encoding) {
-        return new Provider(new FileProvider(file, encoding, mapper.getFactory()));
+    public ProviderFactory fileProvider(Path file, JsonEncoding encoding) {
+        return new ProviderFactory(new FileProvider(file, encoding, mapper.getFactory()));
     }
 
-    public Provider fileProvider(Path file, Path tempFile, JsonEncoding encoding) {
-        return new Provider(new FileProvider(file, tempFile, encoding, mapper.getFactory()));
+    public ProviderFactory fileProvider(Path file, Path tempFile, JsonEncoding encoding) {
+        return new ProviderFactory(new FileProvider(file, tempFile, encoding, mapper.getFactory()));
     }
 
-    public Provider memoryProvider() {
-        return new Provider(new MemoryProvider(mapper.getFactory()));
+    public ProviderFactory fileProvider(Path file, Function<Path, Path> tempFileProvider, JsonEncoding encoding) {
+        return new ProviderFactory(new FileProvider(file, tempFileProvider, encoding, mapper.getFactory()));
     }
 
-    public Provider memoryProvider(String content) {
-        return new Provider(new MemoryProvider(content, mapper.getFactory()));
+    public ProviderFactory memoryProvider() {
+        return new ProviderFactory(new MemoryProvider(mapper.getFactory()));
     }
 
-    public Provider builder(JsonProvider provider) {
-        return new Provider(provider);
+    public ProviderFactory memoryProvider(String content) {
+        return new ProviderFactory(new MemoryProvider(content, mapper.getFactory()));
     }
 
-    public class Provider implements JsonProvider {
+    public ProviderFactory provider(JsonProvider provider) {
+        return new ProviderFactory(provider);
+    }
+
+    public class ProviderFactory implements JsonProvider {
 
         private final JsonProvider provider;
 
-        public Provider(JsonProvider provider) {
+        public ProviderFactory(JsonProvider provider) {
             this.provider = requireNonNull(provider);
         }
 
@@ -86,32 +90,32 @@ public class Json {
         }
 
         @Override
-        public Provider at(String name) {
-            return new Provider(provider.at(name));
+        public ProviderFactory at(String name) {
+            return new ProviderFactory(provider.at(name));
         }
 
         @Override
-        public Provider at(int index) {
-            return new Provider(provider.at(index));
+        public ProviderFactory at(int index) {
+            return new ProviderFactory(provider.at(index));
         }
 
         @Override
-        public Provider concurrent(long lockTimeout) {
-            return new Provider(provider.concurrent(lockTimeout));
+        public ProviderFactory concurrent(long lockTimeout) {
+            return new ProviderFactory(provider.concurrent(lockTimeout));
         }
 
-        public NodeRepository node() {
-            return new NodeRepository(provider);
+        public NodeRepositoryFactory node() {
+            return new NodeRepositoryFactory(provider);
         }
 
-        public ValueRepository value() {
-            return new ValueRepository(provider);
+        public ValueRepositoryFactory value() {
+            return new ValueRepositoryFactory(provider);
         }
     }
 
-    public abstract class Repository extends Provider {
+    public abstract class RepositoryFactory extends ProviderFactory {
 
-        public Repository(JsonProvider provider) {
+        public RepositoryFactory(JsonProvider provider) {
             super(provider);
         }
 
@@ -134,11 +138,11 @@ public class Json {
         public abstract <U> ElementRepository<U> elementRepository(ObjectReader reader);
     }
 
-    public class NodeRepository extends Repository {
+    public class NodeRepositoryFactory extends RepositoryFactory {
 
         private final JsonProvider provider;
 
-        public NodeRepository(JsonProvider provider) {
+        public NodeRepositoryFactory(JsonProvider provider) {
             super(provider);
             this.provider = provider;
         }
@@ -189,11 +193,11 @@ public class Json {
         }
     }
 
-    public class ValueRepository extends Repository {
+    public class ValueRepositoryFactory extends RepositoryFactory {
 
         private final JsonProvider provider;
 
-        public ValueRepository(JsonProvider provider) {
+        public ValueRepositoryFactory(JsonProvider provider) {
             super(provider);
             this.provider = provider;
         }

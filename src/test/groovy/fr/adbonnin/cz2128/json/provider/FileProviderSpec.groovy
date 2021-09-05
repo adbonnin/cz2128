@@ -7,8 +7,8 @@ import java.nio.file.Paths
 class FileProviderSpec extends MemoryProviderSpec {
 
     @Override
-    Json.Provider setupJsonProvider(String content) {
-        return newFileJsonProvider(content)
+    Json.ProviderFactory setupProviderFactory(String content) {
+        return newFileProviderFactory(content)
     }
 
     void "should build default temporary file"() {

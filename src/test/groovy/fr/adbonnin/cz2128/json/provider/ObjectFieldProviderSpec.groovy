@@ -18,7 +18,7 @@ class ObjectFieldProviderSpec extends BaseJsonSpec {
         ]
 
         given:
-        def provider = newMemoryJsonProvider('{init: {enterprise: "skipChildren"}}')
+        def provider = newMemoryProviderFactory('{init: {enterprise: "skipChildren"}}')
         @Subject def enterpriseRepository = provider.at("enterprise").node().setRepository(Cat)
         @Subject def discoveryRepository = provider.at("discovery").node().setRepository(Cat)
 

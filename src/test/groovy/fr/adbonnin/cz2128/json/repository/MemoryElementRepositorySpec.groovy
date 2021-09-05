@@ -12,13 +12,13 @@ import java.util.stream.Stream
 class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
-    Json.Provider setupJsonProvider(String content) {
-        return newMemoryJsonProvider(content)
+    Json.ProviderFactory setupProviderFactory(String content) {
+        return newMemoryProviderFactory(content)
     }
 
     void "should read the element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().elementRepository(Cat)
 
         expect:
@@ -41,7 +41,7 @@ class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save an element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).elementRepository(Cat)
 
         when:
@@ -66,7 +66,7 @@ class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save a number"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = factory.apply(provider).elementRepository(Integer)
 
         when:
@@ -91,7 +91,7 @@ class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete the element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().elementRepository(Integer)
 
         when:

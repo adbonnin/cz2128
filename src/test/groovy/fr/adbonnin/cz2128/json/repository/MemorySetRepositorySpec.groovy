@@ -15,13 +15,13 @@ import java.util.stream.Stream
 class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     @Override
-    Json.Provider setupJsonProvider(String content) {
-        return newMemoryJsonProvider(content)
+    Json.ProviderFactory setupProviderFactory(String content) {
+        return newMemoryProviderFactory(content)
     }
 
     void "should count elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
@@ -38,7 +38,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should count elements that test with a predicate"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
@@ -55,7 +55,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read the first element with a predicate"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
@@ -71,7 +71,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
@@ -88,7 +88,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read all elements with a predicate"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         expect:
@@ -106,7 +106,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read with a stream"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
@@ -121,7 +121,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should read with an iterator"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
@@ -136,7 +136,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the iterator is used outside the with block"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
@@ -151,7 +151,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should have no more element when the stream is used outside the with block"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
@@ -166,7 +166,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save an element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -192,7 +192,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all numbers"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Integer)
 
         when:
@@ -217,7 +217,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all objects"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -243,7 +243,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save all arrays"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(SpaceCat)
 
         when:
@@ -267,7 +267,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete an element"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -292,7 +292,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list of elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -319,7 +319,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete all elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -342,7 +342,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should delete a list from a predicate"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         @Subject def repo = repository.apply(provider).setRepository(Cat)
 
         when:
@@ -369,7 +369,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
 
     void "should save with a different type"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
         def catRepo = repository.apply(provider).setRepository(Cat)
         @Subject ponyRepo = repoBuilder(catRepo)
 

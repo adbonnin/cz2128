@@ -9,13 +9,13 @@ import static com.fasterxml.jackson.core.JsonToken.*
 class MemoryProviderSpec extends BaseJsonProviderSpec {
 
     @Override
-    Json.Provider setupJsonProvider(String content) {
-        return newMemoryJsonProvider(content)
+    Json.ProviderFactory setupProviderFactory(String content) {
+        return newMemoryProviderFactory(content)
     }
 
     void "should parse elements"() {
         given:
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
 
         when:
         def tokens = []
@@ -40,7 +40,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
     void "should generate elements"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
 
         when:
         def tokens = []
@@ -73,7 +73,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
     void "should not save content when exception is raised"() {
         given:
         def mapper = DEFAULT_MAPPER
-        def provider = setupJsonProvider(content)
+        def provider = setupProviderFactory(content)
 
         when:
         provider.withGenerator({ parser, generator ->
@@ -94,7 +94,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
 
     void "should read and write json node"() {
         given:
-        def provider = setupJsonProvider("")
+        def provider = setupProviderFactory("")
 
         when:
         def node = provider.readJsonNode()

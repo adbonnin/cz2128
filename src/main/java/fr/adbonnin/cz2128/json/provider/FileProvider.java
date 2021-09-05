@@ -27,7 +27,7 @@ public class FileProvider implements JsonProvider {
 
     private final Path file;
 
-    private final Path tempFile;
+    private final Function<Path, Path> tempFileProvider;
 
     private final JsonEncoding encoding;
 
@@ -38,12 +38,16 @@ public class FileProvider implements JsonProvider {
     }
 
     public FileProvider(Path file, JsonEncoding encoding, JsonFactory factory) {
-        this(file, buildDefaultTempFile(file), encoding, factory);
+        this(file, FileProvider::buildDefaultTempFile, encoding, factory);
     }
 
     public FileProvider(Path file, Path tempFile, JsonEncoding encoding, JsonFactory factory) {
+        this(file, (f) -> tempFile, encoding, factory);
+    }
+
+    public FileProvider(Path file, Function<Path, Path> tempFileProvider, JsonEncoding encoding, JsonFactory factory) {
         this.file = requireNonNull(file);
-        this.tempFile = requireNonNull(tempFile);
+        this.tempFileProvider = requireNonNull(tempFileProvider);
         this.encoding = requireNonNull(encoding);
         this.factory = requireNonNull(factory);
     }
@@ -52,8 +56,8 @@ public class FileProvider implements JsonProvider {
         return file;
     }
 
-    public Path getTempFile() {
-        return tempFile;
+    public Function<Path, Path> getTempFileProvider() {
+        return tempFileProvider;
     }
 
     public JsonEncoding getEncoding() {
@@ -111,6 +115,7 @@ public class FileProvider implements JsonProvider {
 
     public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         final R result;
+        final Path tempFile = tempFileProvider.apply(file);
 
         try {
             try (OutputStream tempOutput = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);

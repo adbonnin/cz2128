@@ -66,11 +66,11 @@ abstract class BaseJsonSpec extends Specification {
         }
     }
 
-    static Json.Provider newMemoryJsonProvider(String content = "") {
+    static Json.ProviderFactory newMemoryProviderFactory(String content = "") {
         return DEFAULT_CZ2128.memoryProvider(content)
     }
 
-    static Json.Provider newFileJsonProvider(String content) {
+    static Json.ProviderFactory newFileProviderFactory(String content) {
         def tempFile = Files.createTempFile('test-', '.json')
         tempFile.toFile().write(content)
         return DEFAULT_CZ2128.fileProvider(tempFile)

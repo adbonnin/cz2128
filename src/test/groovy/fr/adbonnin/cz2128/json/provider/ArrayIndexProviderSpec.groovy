@@ -18,7 +18,7 @@ class ArrayIndexProviderSpec extends BaseJsonSpec {
         ]
 
         given:
-        def provider = newMemoryJsonProvider()
+        def provider = newMemoryProviderFactory()
         @Subject def enterpriseRepository = provider.at(1).node().setRepository(Cat)
         @Subject def discoveryRepository = provider.at(2).node().setRepository(Cat)
 

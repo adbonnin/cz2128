@@ -9,18 +9,18 @@ import java.util.stream.Stream
 
 abstract class BaseJsonProviderSpec extends BaseJsonSpec {
 
-    abstract Json.Provider setupJsonProvider(String content)
+    abstract Json.ProviderFactory setupProviderFactory(String content)
 
-    static RepositoryMapper node = new RepositoryMapper() {
+    static RepositoryFactory node = new RepositoryFactory() {
         @Override
-        Json.Repository apply(Json.Provider provider) {
+        Json.RepositoryFactory apply(Json.ProviderFactory provider) {
             return provider.node()
         }
     }
 
-    static RepositoryMapper value = new RepositoryMapper() {
+    static RepositoryFactory value = new RepositoryFactory() {
         @Override
-        Json.Repository apply(Json.Provider provider) {
+        Json.RepositoryFactory apply(Json.ProviderFactory provider) {
             return provider.value()
         }
     }
@@ -43,5 +43,5 @@ abstract class BaseJsonProviderSpec extends BaseJsonSpec {
         }
     }
 
-    static interface RepositoryMapper extends Function<Json.Provider, Json.Repository> {}
+    static interface RepositoryFactory extends Function<Json.ProviderFactory, Json.RepositoryFactory> {}
 }
