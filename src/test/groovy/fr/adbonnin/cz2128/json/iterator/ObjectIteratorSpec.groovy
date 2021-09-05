@@ -5,6 +5,21 @@ import fr.adbonnin.cz2128.fixture.Cat
 
 class ObjectIteratorSpec extends BaseJsonSpec {
 
+    void "should raise an exception if the element is not an object"() {
+        given:
+        def parser = DEFAULT_MAPPER.getFactory().createParser("[]")
+
+        and:
+        def itr = new ObjectIterator(parser)
+
+        when:
+        itr.hasNext()
+
+        then:
+        def exception = thrown(IllegalStateException)
+        exception.message == 'Parser must start with an object token; token: START_ARRAY'
+    }
+
     void "should iterate on object fields"() {
 
         def enterprise = [

@@ -22,6 +22,10 @@ class ArrayIndexProviderSpec extends BaseJsonSpec {
         @Subject def enterpriseRepository = provider.at(1).node().setRepository(Cat)
         @Subject def discoveryRepository = provider.at(2).node().setRepository(Cat)
 
+        expect:
+        enterpriseRepository.isEmpty()
+        discoveryRepository.isEmpty()
+
         when:
         enterpriseRepository.saveAll(enterprise)
 

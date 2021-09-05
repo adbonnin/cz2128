@@ -22,6 +22,10 @@ class ObjectFieldProviderSpec extends BaseJsonSpec {
         @Subject def enterpriseRepository = provider.at("enterprise").node().setRepository(Cat)
         @Subject def discoveryRepository = provider.at("discovery").node().setRepository(Cat)
 
+        expect:
+        enterpriseRepository.isEmpty()
+        discoveryRepository.isEmpty()
+
         when:
         enterpriseRepository.saveAll(enterprise)
 

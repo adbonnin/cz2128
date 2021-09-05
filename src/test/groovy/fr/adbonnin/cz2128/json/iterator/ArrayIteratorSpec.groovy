@@ -5,6 +5,21 @@ import fr.adbonnin.cz2128.fixture.Cat
 
 class ArrayIteratorSpec extends BaseJsonSpec {
 
+    void "should raise an exception if the element is not an array"() {
+        given:
+        def parser = DEFAULT_MAPPER.getFactory().createParser("{}")
+
+        and:
+        def itr = new ArrayIterator(parser)
+
+        when:
+        itr.hasNext()
+
+        then:
+        def exception = thrown(IllegalStateException)
+        exception.message == 'Parser must start with an array token; token: START_OBJECT'
+    }
+
     void "should iterate on object fields"() {
 
         def enterprise = [
