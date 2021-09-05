@@ -178,17 +178,17 @@ public class Json {
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(Class<U> type) {
+        public <U> NodeElementRepository<U> elementRepository(Class<U> type) {
             return new NodeElementRepository<>(type, provider, mapper);
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(TypeReference<U> type) {
+        public <U> NodeElementRepository<U> elementRepository(TypeReference<U> type) {
             return new NodeElementRepository<>(type, provider, mapper);
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(ObjectReader reader) {
+        public <U> NodeElementRepository<U> elementRepository(ObjectReader reader) {
             return new NodeElementRepository<>(reader, provider, mapper);
         }
     }
@@ -233,17 +233,17 @@ public class Json {
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(Class<U> type) {
+        public <U> ValueElementRepository<U> elementRepository(Class<U> type) {
             return new ValueElementRepository<>(type, provider, mapper);
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(TypeReference<U> type) {
+        public <U> ValueElementRepository<U> elementRepository(TypeReference<U> type) {
             return new ValueElementRepository<>(type, provider, mapper);
         }
 
         @Override
-        public <U> ElementRepository<U> elementRepository(ObjectReader reader) {
+        public <U> ValueElementRepository<U> elementRepository(ObjectReader reader) {
             return new ValueElementRepository<>(reader, provider, mapper);
         }
     }
