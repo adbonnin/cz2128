@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
-public class ValueMapRepository<T> extends MapRepository<T> {
+public class ValueMapRepository<T> extends BaseMapRepository<T> {
 
     private final ObjectMapper mapper;
 
@@ -89,7 +89,7 @@ public class ValueMapRepository<T> extends MapRepository<T> {
     }
 
     @Override
-    protected long deleteAll(Predicate<? super Map.Entry<String, ? extends T>> predicate, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long deleteAll(Predicate<? super Map.Entry<String, T>> predicate, JsonParser parser, JsonGenerator generator) throws IOException {
         long deleted = 0;
         generator.writeStartObject();
 
