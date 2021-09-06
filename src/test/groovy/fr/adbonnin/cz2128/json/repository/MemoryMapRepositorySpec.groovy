@@ -190,6 +190,21 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         '{a: {id: 1}, b: {id: 2}, c: {id: 3}}' || [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
     }
 
+    void "should read fields"() {
+        given:
+        def provider = setupProviderFactory(content)
+        @Subject def repo = provider.node().mapRepository(Cat)
+
+        expect:
+        repo.withFieldIterator(iteratorToList()) == expectedResult
+
+        where:
+        content                                || expectedResult
+        ''                                     || []
+        'null'                                 || []
+        '{a: {id: 1}, b: {id: 2}, c: {id: 3}}' || ['a', 'b', 'c']
+    }
+
     void "should have no more element when the iterator is used outside the with block"() {
         given:
         def provider = setupProviderFactory(content)

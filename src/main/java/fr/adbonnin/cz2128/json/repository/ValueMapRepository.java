@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.json.JsonProvider;
-import fr.adbonnin.cz2128.json.iterator.ValueObjectIterator;
+import fr.adbonnin.cz2128.json.iterator.FieldValueObjectIterator;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -59,7 +59,7 @@ public class ValueMapRepository<T> extends MapRepository<T> {
         generator.writeStartObject();
 
         // Update old elements
-        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, getReader());
+        final FieldValueObjectIterator<T> itr = new FieldValueObjectIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final Map.Entry<String, T> old = itr.next();
             final String key = old.getKey();
@@ -93,7 +93,7 @@ public class ValueMapRepository<T> extends MapRepository<T> {
         long deleted = 0;
         generator.writeStartObject();
 
-        final ValueObjectIterator<T> itr = new ValueObjectIterator<>(parser, getReader());
+        final FieldValueObjectIterator<T> itr = new FieldValueObjectIterator<>(parser, getReader());
         while (itr.hasNext()) {
             final Map.Entry<String, T> etr = itr.next();
             final String key = etr.getKey();

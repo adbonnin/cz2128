@@ -11,13 +11,13 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
-public class ValueObjectIterator<E> implements Iterator<Map.Entry<String, E>> {
+public class FieldValueObjectIterator<E> implements Iterator<Map.Entry<String, E>> {
 
     private final ObjectIterator iterator;
 
     private final ObjectReader reader;
 
-    public ValueObjectIterator(JsonParser parser, ObjectReader reader) {
+    public FieldValueObjectIterator(JsonParser parser, ObjectReader reader) {
         this.reader = requireNonNull(reader);
         this.iterator = new ObjectIterator(parser);
     }
@@ -29,14 +29,17 @@ public class ValueObjectIterator<E> implements Iterator<Map.Entry<String, E>> {
 
     @Override
     public Map.Entry<String, E> next() {
+        final Map.Entry<String, JsonParser> next = iterator.next();
+
+        final E value;
         try {
-            final Map.Entry<String, JsonParser> next = iterator.next();
-            final E value = reader.readValue(next.getValue());
-            return Pair.of(next.getKey(), value);
+            value = reader.readValue(next.getValue());
         }
         catch (IOException e) {
             throw new JsonException(e);
         }
+
+        return Pair.of(next.getKey(), value);
     }
 
     @Override

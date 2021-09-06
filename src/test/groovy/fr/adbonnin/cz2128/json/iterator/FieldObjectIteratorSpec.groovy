@@ -2,7 +2,7 @@ package fr.adbonnin.cz2128.json.iterator
 
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 
-class SkipChildrenObjectIteratorSpec extends BaseJsonSpec {
+class FieldObjectIteratorSpec extends BaseJsonSpec {
 
     void "should iterate over elements"() {
         given:
@@ -10,15 +10,15 @@ class SkipChildrenObjectIteratorSpec extends BaseJsonSpec {
         def parser = createJsonParser(content)
 
         when:
-        def iterator = new SkipChildrenObjectIterator(parser)
+        def iterator = new FieldObjectIterator(parser)
 
         then:
         iterator.hasNext()
-        iterator.next() == null
+        iterator.next() == 'a'
 
         and:
         iterator.hasNext()
-        iterator.next() == null
+        iterator.next() == 'b'
 
         and:
         !iterator.hasNext()

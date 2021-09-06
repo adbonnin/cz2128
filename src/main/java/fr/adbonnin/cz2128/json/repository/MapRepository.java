@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import fr.adbonnin.cz2128.collect.IteratorUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonProvider;
-import fr.adbonnin.cz2128.json.iterator.SkipChildrenObjectIterator;
-import fr.adbonnin.cz2128.json.iterator.ValueObjectIterator;
+import fr.adbonnin.cz2128.json.iterator.FieldObjectIterator;
+import fr.adbonnin.cz2128.json.iterator.FieldValueObjectIterator;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,7 +41,7 @@ public abstract class MapRepository<T> extends BaseRepository<T> {
     }
 
     public long count() {
-        return withParser(parser -> IteratorUtils.count(new SkipChildrenObjectIterator(parser)));
+        return withFieldIterator(IteratorUtils::count);
     }
 
     public long count(Predicate<? super Map.Entry<String, T>> predicate) {
@@ -74,16 +74,26 @@ public abstract class MapRepository<T> extends BaseRepository<T> {
         });
     }
 
+    public <R> R withFieldIterator(Function<Iterator<? extends String>, ? extends R> function) {
+        return withParser(parser -> {
+            final FieldObjectIterator fieldIterator = new FieldObjectIterator(parser);
+            return function.apply(fieldIterator);
+        });
+    }
+
+    public <R> R withEntryIterator(Function<Iterator<? extends Map.Entry<String, T>>, ? extends R> function) {
+        return withParser(parser -> {
+            final FieldValueObjectIterator<T> fieldValueIterator = new FieldValueObjectIterator<>(parser, reader);
+            return function.apply(fieldValueIterator);
+        });
+    }
+
     public <R> R withEntryStream(Function<Stream<? extends Map.Entry<String, T>>, ? extends R> function) {
         return withEntryIterator(iterator -> {
             final Spliterator<Map.Entry<String, T>> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
             final Stream<Map.Entry<String, T>> stream = StreamSupport.stream(spliterator, false);
             return function.apply(stream);
         });
-    }
-
-    public <R> R withEntryIterator(Function<Iterator<? extends Map.Entry<String, T>>, ? extends R> function) {
-        return withParser(parser -> function.apply(new ValueObjectIterator<>(parser, reader)));
     }
 
     public boolean save(String key, T element) {

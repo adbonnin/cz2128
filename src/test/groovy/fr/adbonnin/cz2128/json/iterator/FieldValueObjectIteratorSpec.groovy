@@ -3,7 +3,7 @@ package fr.adbonnin.cz2128.json.iterator
 import fr.adbonnin.cz2128.fixture.BaseJsonSpec
 import fr.adbonnin.cz2128.fixture.Cat
 
-class ValueObjectIteratorSpec extends BaseJsonSpec {
+class FieldValueObjectIteratorSpec extends BaseJsonSpec {
 
     void "should iterates over object elements"() {
         given:
@@ -12,7 +12,7 @@ class ValueObjectIteratorSpec extends BaseJsonSpec {
         def reader = DEFAULT_MAPPER.readerFor(Cat)
 
         when:
-        def iterator = new ValueObjectIterator<Cat>(parser, reader)
+        def iterator = new FieldValueObjectIterator<Cat>(parser, reader)
 
         then:
         iterator.hasNext()
@@ -55,7 +55,7 @@ class ValueObjectIteratorSpec extends BaseJsonSpec {
         def reader = DEFAULT_MAPPER.readerFor(Number)
 
         when:
-        def iterator = new ValueObjectIterator<Number>(parser, reader)
+        def iterator = new FieldValueObjectIterator<Number>(parser, reader)
 
         then:
         iterator.hasNext()

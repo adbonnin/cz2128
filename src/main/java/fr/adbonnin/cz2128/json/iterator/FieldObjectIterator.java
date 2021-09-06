@@ -5,12 +5,13 @@ import fr.adbonnin.cz2128.json.JsonException;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
-public class SkipChildrenObjectIterator implements Iterator<Void> {
+public class FieldObjectIterator implements Iterator<String> {
 
     private final ObjectIterator iterator;
 
-    public SkipChildrenObjectIterator(JsonParser parser) {
+    public FieldObjectIterator(JsonParser parser) {
         this.iterator = new ObjectIterator(parser);
     }
 
@@ -20,14 +21,17 @@ public class SkipChildrenObjectIterator implements Iterator<Void> {
     }
 
     @Override
-    public Void next() {
+    public String next() {
+        final Map.Entry<String, JsonParser> next = iterator.next();
+
         try {
-            iterator.next().getValue().skipChildren();
-            return null;
+            next.getValue().skipChildren();
         }
         catch (IOException e) {
             throw new JsonException(e);
         }
+
+        return next.getKey();
     }
 
     @Override
