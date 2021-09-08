@@ -33,14 +33,14 @@ public abstract class ElementRepository<T> extends BaseRepository<T> {
 
     @Override
     public boolean isEmpty() {
-        return !get().isPresent();
+        return !value().isPresent();
     }
 
     public boolean isPresent() {
-        return get().isPresent();
+        return value().isPresent();
     }
 
-    public Optional<T> get() {
+    public Optional<T> value() {
         return withParser(parser -> {
             try {
                 final JsonToken token = parser.hasCurrentToken()
@@ -62,15 +62,11 @@ public abstract class ElementRepository<T> extends BaseRepository<T> {
 
     @Override
     public <R> R withIterator(Function<Iterator<? extends T>, ? extends R> function) {
-        return withParser(parser -> {
-            final Optional<T> value = get();
+        final Iterator<T> iterator = value()
+            .map(IteratorUtils::singletonIterator)
+            .orElse(Collections.emptyIterator());
 
-            final Iterator<T> iterator = value
-                .map(IteratorUtils::singletonIterator)
-                .orElse(Collections.emptyIterator());
-
-            return function.apply(iterator);
-        });
+        return function.apply(iterator);
     }
 
     public boolean save(T element) {

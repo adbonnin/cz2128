@@ -26,7 +26,7 @@ class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
         repo.isPresent() == !expectedIsEmpty
 
         and:
-        repo.get().orElse(null) == expectedValue
+        repo.value().orElse(null) == expectedValue
 
         and:
         repo.withStream { Stream<Cat> stream -> stream.collect(Collectors.toList()) } == expectedValues

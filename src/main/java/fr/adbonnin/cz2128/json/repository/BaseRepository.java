@@ -27,7 +27,7 @@ public abstract class BaseRepository<T> implements JsonRepository<T> {
     }
 
     public <R> R withStream(Function<Stream<? extends T>, ? extends R> function) {
-        return withIterator((iterator) -> {
+        return withIterator(iterator -> {
             final Spliterator<T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
             final Stream<T> stream = StreamSupport.stream(spliterator, false);
             return function.apply(stream);
