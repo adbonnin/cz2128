@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
-import fr.adbonnin.cz2128.collect.ListUtils
+import fr.adbonnin.cz2128.collect.IteratorUtils
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.json.Json
@@ -30,7 +30,7 @@ class MemoryElementRepositorySpec extends BaseJsonProviderSpec {
 
         and:
         repo.withStream { Stream<Cat> stream -> stream.collect(Collectors.toList()) } == expectedValues
-        repo.withIterator { ListUtils.newArrayList(it) } == expectedValues
+        repo.withIterator { IteratorUtils.newArrayList(it) } == expectedValues
 
         where:
         content   || expectedIsEmpty | expectedValue  | expectedValues

@@ -6,6 +6,37 @@ import java.util.function.Predicate
 
 class IteratorUtilsSpec extends Specification {
 
+    void "should transform the first iterator element in optional"() {
+        given:
+        def iterator = list.iterator()
+
+        expect:
+        IteratorUtils.first(iterator) == expectedResult
+
+        where:
+        list      || expectedResult
+        []        || Optional.empty()
+        [null]    || Optional.empty()
+        [1, 2, 3] || Optional.of(1)
+    }
+
+    void "should create a new ArrayList from an iterator"() {
+        def list = [1, 2, 3]
+
+        given:
+        def iterator = list.iterator()
+
+        when:
+        def result = IteratorUtils.newArrayList(iterator)
+
+        then:
+        result == list
+
+        and:
+        result instanceof ArrayList
+        !result.is(list)
+    }
+
     void "should add all elements"() {
         given:
         def list = []
@@ -21,6 +52,39 @@ class IteratorUtilsSpec extends Specification {
         elements || expectWasModified
         []       || false
         [1, 2]   || true
+    }
+
+    void "should create a new LinkedHashMap from an iterator"() {
+        def map = [a: 1, b: 2, c: 3] as LinkedHashMap
+
+        given:
+        def iterator = map.entrySet().iterator()
+
+        when:
+        def result = IteratorUtils.newLinkedHashMap(iterator)
+
+        then:
+        result == map
+
+        and:
+        result instanceof LinkedHashMap
+        !result.is(map)
+    }
+
+    void "should put all elements"() {
+        given:
+        def map = [:]
+
+        when:
+        IteratorUtils.putAll(map, elements.entrySet().iterator())
+
+        then:
+        map == elements
+
+        where:
+        elements                      | _
+        [:] as LinkedHashMap          | _
+        [a: 1, b: 2] as LinkedHashMap | _
     }
 
     void "should count elements"() {

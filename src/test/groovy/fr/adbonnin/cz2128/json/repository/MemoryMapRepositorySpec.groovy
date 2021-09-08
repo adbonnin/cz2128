@@ -1,5 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
+import fr.adbonnin.cz2128.base.Pair
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -34,13 +35,14 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         '{a: {}, b: {}, c: {}}' || 3             | false
     }
 
-    void "should count elements that test with a predicate on the key"() {
+    void "should count elements that test with a predicate on the field"() {
         given:
         def provider = setupProviderFactory(content)
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
-        repo.count { Map.Entry<String, Cat> etr -> etr.key == searchKey } == expectedCount
+        repo.countFields { it == searchKey } == expectedCount
+        repo.countEntries { it.key == searchKey } == expectedCount
 
         where:
         searchKey || expectedCount
@@ -58,7 +60,8 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
-        repo.count { Map.Entry<String, Cat> etr -> etr.value.name == searchName } == expectedCount
+        repo.count { it.name == searchName } == expectedCount
+        repo.countEntries { it.value.name == searchName } == expectedCount
 
         where:
         searchName || expectedCount
@@ -75,12 +78,13 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
-        repo.findFirst { it.key == searchKey }.orElse(null)?.key == expectedFoundKey
+        repo.findFirstField { it == searchKey } == expectedFoundKey
+        repo.findFirstEntry { it.key == searchKey } == expectedFoundKey
 
         where:
         searchKey || expectedFoundKey
-        'd'       || null
-        'a'       || 'a'
+        'd'       || Optional.empty()
+        'a'       || Optional.of(Pair.of('a', new Cat(id: 1)))
 
         content = '{a: {id: 1}, b: {id: 2}, c: {id: 3}}'
     }
@@ -91,12 +95,13 @@ class MemoryMapRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().mapRepository(Cat)
 
         expect:
-        repo.findFirst { it.value.id == searchId }.orElse(null)?.value?.id == expectedFoundId
+        repo.findFirst { it.id == searchId } == expectedFoundId
+        repo.findFirstEntry { it.value.id == searchId } == expectedFoundId
 
         where:
         searchId || expectedFoundId
-        0        || null
-        1        || 1
+        0        || Optional.empty()
+        1        || Optional.of(Pair.of('a', new Cat(id: 1)))
 
         content = '{a: {id: 1}, b: {id: 2}, c: {id: 3}}'
     }

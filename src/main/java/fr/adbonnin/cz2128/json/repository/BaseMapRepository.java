@@ -46,28 +46,46 @@ public abstract class BaseMapRepository<T> extends BaseRepository<T> implements 
     }
 
     @Override
-    public long count(Predicate<? super Map.Entry<String, T>> predicate) {
-        return withEntryIterator(iterator -> IteratorUtils.count(IteratorUtils.filter(iterator, predicate)));
+    public long count(Predicate<? super T> predicate) {
+        return withEntryIterator(field -> true, predicate, IteratorUtils::count);
     }
 
     @Override
-    public Optional<Map.Entry<String, T>> findFirst(Predicate<? super Map.Entry<String, T>> predicate) {
+    public long countFields(Predicate<String> predicate) {
+        return withEntryIterator(predicate, value -> true, IteratorUtils::count);
+    }
+
+    @Override
+    public long countEntries(Predicate<? super Map.Entry<String, T>> predicate) {
+        return withEntryIterator(iterator -> {
+            final Iterator<Map.Entry<String, T>> filtered = IteratorUtils.filter(iterator, predicate);
+            return IteratorUtils.count(filtered);
+        });
+    }
+
+    public Optional<Map.Entry<String, T>> findFirst(Predicate<? super T> predicate) {
+        return withEntryIterator(field -> true, predicate, IteratorUtils::first);
+    }
+
+    public Optional<Map.Entry<String, T>> findFirstField(Predicate<String> predicate) {
+        return withEntryIterator(predicate, value -> true, IteratorUtils::first);
+    }
+
+    @Override
+    public Optional<Map.Entry<String, T>> findFirstEntry(Predicate<? super Map.Entry<String, T>> predicate) {
         return withEntryIterator(iterator -> IteratorUtils.find(iterator, predicate));
     }
 
     @Override
     public Map<String, T> findAll() {
-        return findAll(x -> true);
+        return findAll(entry -> true);
     }
 
     @Override
     public Map<String, T> findAll(Predicate<? super Map.Entry<String, T>> predicate) {
         return withEntryIterator(iterator -> {
-            final Iterator<Map.Entry<String, T>> itr = IteratorUtils.filter(iterator, predicate);
-
-            final Map<String, T> result = new LinkedHashMap<>();
-            itr.forEachRemaining(e -> result.put(e.getKey(), e.getValue()));
-            return result;
+            final Iterator<? extends Map.Entry<String, ? extends T>> filtered = IteratorUtils.filter(iterator, predicate);
+            return IteratorUtils.newLinkedHashMap(filtered);
         });
     }
 
@@ -89,8 +107,12 @@ public abstract class BaseMapRepository<T> extends BaseRepository<T> implements 
 
     @Override
     public <R> R withEntryIterator(Function<Iterator<? extends Map.Entry<String, T>>, R> function) {
+        return withEntryIterator(field -> true, value -> true, function);
+    }
+
+    private <R> R withEntryIterator(Predicate<String> fieldPredicate, Predicate<? super T> valuePredicate, Function<Iterator<? extends Map.Entry<String, T>>, R> function) {
         return withParser(parser -> {
-            final FieldValueObjectIterator<T> fieldValueIterator = new FieldValueObjectIterator<>(parser, reader);
+            final FieldValueObjectIterator<T> fieldValueIterator = new FieldValueObjectIterator<>(parser, reader, fieldPredicate, valuePredicate);
             return function.apply(fieldValueIterator);
         });
     }

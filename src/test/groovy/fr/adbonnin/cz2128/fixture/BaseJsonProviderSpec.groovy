@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.fixture
 
-import fr.adbonnin.cz2128.collect.ListUtils
+import fr.adbonnin.cz2128.collect.IteratorUtils
 import fr.adbonnin.cz2128.json.Json
 
 import java.util.function.Function
@@ -38,7 +38,7 @@ abstract class BaseJsonProviderSpec extends BaseJsonSpec {
         return new Function<Iterator<? extends T>, List<T>>() {
             @Override
             List<T> apply(Iterator<? extends T> iterator) {
-                return ListUtils.newArrayList(iterator)
+                return IteratorUtils.newArrayList(iterator)
             }
         }
     }

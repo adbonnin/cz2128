@@ -1,6 +1,6 @@
 package fr.adbonnin.cz2128.json.repository
 
-import fr.adbonnin.cz2128.collect.ListUtils
+import fr.adbonnin.cz2128.collect.IteratorUtils
 import fr.adbonnin.cz2128.fixture.BaseJsonProviderSpec
 import fr.adbonnin.cz2128.fixture.Cat
 import fr.adbonnin.cz2128.fixture.Pony
@@ -125,7 +125,7 @@ class MemorySetRepositorySpec extends BaseJsonProviderSpec {
         @Subject def repo = provider.node().setRepository(Cat)
 
         when:
-        def result = repo.withIterator { ListUtils.newArrayList(it) }
+        def result = repo.withIterator { IteratorUtils.newArrayList(it) }
 
         then:
         result == [new Cat(id: 1), new Cat(id: 2), new Cat(id: 3)]
