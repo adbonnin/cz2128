@@ -15,6 +15,7 @@ class PairSpec extends Specification {
         pair.hashCode() == expectedHashCode
 
         and:
+        (pair.equals(pair))
         (pair.equals(pair12)) == expectedEquals
         (pair.equals(etr12)) == expectedEquals
         (pair.hashCode() == pair12.hashCode()) == expectedEquals

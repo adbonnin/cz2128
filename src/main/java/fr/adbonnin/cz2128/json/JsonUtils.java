@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -22,7 +23,7 @@ public class JsonUtils {
 
     public static final JsonEncoding DEFAULT_ENCODING = JsonEncoding.UTF8;
 
-    private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory();
+    private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory(new JsonMapper());
 
     public static JsonParser newEmptyParser() throws IOException {
         return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(NULL_INPUT_STREAM);

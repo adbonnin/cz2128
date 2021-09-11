@@ -11,6 +11,11 @@ class FileProviderSpec extends MemoryProviderSpec {
         return newFileProviderFactory(content)
     }
 
+    @Override
+    ContentProvider setupProvider() {
+        return newFileProvider()
+    }
+
     void "should build default temporary file"() {
         expect:
         FileProvider.buildDefaultTempFile(Paths.get(file)) == Paths.get(expectedTempFile)

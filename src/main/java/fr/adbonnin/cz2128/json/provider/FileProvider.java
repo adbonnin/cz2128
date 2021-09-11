@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.base.FileUtils;
 import fr.adbonnin.cz2128.json.JsonException;
-import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.JsonUtils;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class FileProvider implements JsonProvider {
+public class FileProvider implements ContentProvider {
 
     public static final String DEFAULT_TEMPORARY_FILE_SUFFIX = ".tmp";
 
@@ -72,24 +71,16 @@ public class FileProvider implements JsonProvider {
         return factory;
     }
 
-    public String getContent() {
-        try {
-            final byte[] bytes = Files.readAllBytes(file);
-            return new String(bytes, getJavaEncoding());
-        }
-        catch (IOException e) {
-            throw new JsonException(e);
-        }
+    @Override
+    public String getContent() throws IOException {
+        final byte[] bytes = Files.readAllBytes(file);
+        return new String(bytes, getJavaEncoding());
     }
 
-    public void setContent(String content) {
-        try {
-            final byte[] bytes = content.getBytes(getJavaEncoding());
-            Files.write(file, bytes, StandardOpenOption.WRITE);
-        }
-        catch (IOException e) {
-            throw new JsonException(e);
-        }
+    @Override
+    public void setContent(String content) throws IOException {
+        final byte[] bytes = content.getBytes(getJavaEncoding());
+        Files.write(file, bytes, StandardOpenOption.WRITE);
     }
 
     @Override

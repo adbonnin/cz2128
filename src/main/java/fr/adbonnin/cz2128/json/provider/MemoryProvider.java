@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.json.JsonException;
-import fr.adbonnin.cz2128.json.JsonProvider;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -13,7 +12,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
-public class MemoryProvider implements JsonProvider {
+public class MemoryProvider implements ContentProvider {
 
     volatile private String content;
 
@@ -28,10 +27,12 @@ public class MemoryProvider implements JsonProvider {
         this.factory = requireNonNull(factory);
     }
 
+    @Override
     public String getContent() {
         return content;
     }
 
+    @Override
     public void setContent(String content) {
         this.content = content;
     }

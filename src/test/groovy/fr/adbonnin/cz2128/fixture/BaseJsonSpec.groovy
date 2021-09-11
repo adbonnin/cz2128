@@ -11,9 +11,13 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import fr.adbonnin.cz2128.json.Json
 import fr.adbonnin.cz2128.json.JsonProvider
+import fr.adbonnin.cz2128.json.provider.ContentProvider
+import fr.adbonnin.cz2128.json.provider.FileProvider
+import fr.adbonnin.cz2128.json.provider.MemoryProvider
 import spock.lang.Specification
 
 import java.nio.file.Files
+import java.nio.file.Path
 
 abstract class BaseJsonSpec extends Specification {
 
@@ -70,10 +74,29 @@ abstract class BaseJsonSpec extends Specification {
         return DEFAULT_CZ2128.memoryProvider(content)
     }
 
+    static ContentProvider newMemoryProvider() {
+        return new MemoryProvider(DEFAULT_MAPPER.getFactory())
+    }
+
     static Json.ProviderFactory newFileProviderFactory(String content) {
-        def tempFile = Files.createTempFile('test-', '.json')
-        tempFile.toFile().write(content)
+        def tempFile = newTempFile()
+
+        if (content != null && !content.isEmpty()) {
+            tempFile.toFile().write(content)
+        }
+        else {
+            Files.deleteIfExists(tempFile)
+        }
+
         return DEFAULT_CZ2128.fileProvider(tempFile)
+    }
+
+    static ContentProvider newFileProvider() {
+        return new FileProvider(newTempFile(), DEFAULT_MAPPER.getFactory())
+    }
+
+    static Path newTempFile() {
+        return Files.createTempFile('test-', '.json')
     }
 
     static JsonParser createJsonParser(String content) {

@@ -37,21 +37,57 @@ class IteratorUtilsSpec extends Specification {
         !result.is(list)
     }
 
-    void "should add all elements"() {
+    void "should create a new LinkedHashSet from an iterator"() {
+        def set = [1, 2, 3]
+
         given:
-        def list = []
+        def iterator = set.iterator()
+
+        when:
+        def result = IteratorUtils.newLinkedHashSet(iterator)
+
+        then:
+        result == (set as LinkedHashSet)
+
+        and:
+        result instanceof LinkedHashSet
+        !result.is(set)
+    }
+
+    void "should add all elements to a list"() {
+        given:
+        def list = [1] as List
 
         when:
         def wasModified = IteratorUtils.addAll(list, elements.iterator())
 
         then:
         wasModified == expectWasModified
-        list == elements
+        list == expectedList
 
         where:
-        elements || expectWasModified
-        []       || false
-        [1, 2]   || true
+        elements || expectedList | expectWasModified
+        []       || [1]          | false
+        [1]      || [1, 1]       | true
+        [1, 2]   || [1, 1, 2]    | true
+    }
+
+    void "should add all elements to a set"() {
+        given:
+        def list = [1] as LinkedHashSet
+
+        when:
+        def wasModified = IteratorUtils.addAll(list, elements.iterator())
+
+        then:
+        wasModified == expectWasModified
+        new ArrayList(list) == expectedSet
+
+        where:
+        elements || expectedSet | expectWasModified
+        []       || [1]         | false
+        [1]      || [1]         | false
+        [1, 2]   || [1, 2]      | true
     }
 
     void "should create a new LinkedHashMap from an iterator"() {

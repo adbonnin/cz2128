@@ -55,10 +55,7 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
     public Set<T> findAll(Predicate<? super T> predicate) {
         return withIterator(iterator -> {
             final Iterator<T> itr = IteratorUtils.filter(iterator, predicate);
-
-            final Set<T> result = new LinkedHashSet<>();
-            itr.forEachRemaining(result::add);
-            return result;
+            return IteratorUtils.newLinkedHashSet(itr);
         });
     }
 

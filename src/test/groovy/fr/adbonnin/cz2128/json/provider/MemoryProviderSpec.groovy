@@ -13,19 +13,37 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
         return newMemoryProviderFactory(content)
     }
 
+    ContentProvider setupProvider() {
+        return newMemoryProvider()
+    }
+
+    void "should read and write content"() {
+        def content = 'test'
+
+        given:
+        def provider = setupProvider()
+
+        when:
+        provider.content = content
+        def result = provider.content
+
+        then:
+        content == result
+    }
+
     void "should parse elements"() {
         given:
         def provider = setupProviderFactory(content)
 
         when:
         def tokens = []
-        def parsed = provider.withParser({ parser ->
+        def parsed = provider.withParser { parser ->
             def token
             while ((token = parser.nextToken()) != null) {
                 tokens.add(token)
             }
             return result
-        })
+        }
 
         then:
         parsed == result
@@ -44,7 +62,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
 
         when:
         def tokens = []
-        def parsed = provider.withGenerator({ parser, generator ->
+        def parsed = provider.withGenerator { parser, generator ->
 
             def token
             while ((token = parser.nextToken()) != null) {
@@ -53,7 +71,7 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
 
             mapper.writeValue(generator, cat)
             return result
-        })
+        }
 
         then:
         parsed == result
@@ -76,10 +94,10 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
         def provider = setupProviderFactory(content)
 
         when:
-        provider.withGenerator({ parser, generator ->
+        provider.withGenerator { parser, generator ->
             mapper.writeValue(generator, cat)
             throw new IllegalArgumentException(errorMessage)
-        })
+        }
 
         then:
         def e = thrown(IllegalArgumentException)

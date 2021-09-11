@@ -17,6 +17,12 @@ public class IteratorUtils {
         return list;
     }
 
+    public static <E> LinkedHashSet<E> newLinkedHashSet(Iterator<? extends E> iterator) {
+        final LinkedHashSet<E> list = new LinkedHashSet<>();
+        IteratorUtils.addAll(list, iterator);
+        return list;
+    }
+
     public static <E> boolean addAll(Collection<E> addTo, Iterator<? extends E> iterator) {
         requireNonNull(addTo);
         requireNonNull(iterator);
@@ -59,6 +65,7 @@ public class IteratorUtils {
     public static <E> Iterator<E> filter(Iterator<? extends E> iterator, Predicate<? super E> predicate) {
         requireNonNull(iterator);
         requireNonNull(predicate);
+
         return new AbstractIterator<E>() {
 
             @Override
@@ -81,6 +88,7 @@ public class IteratorUtils {
 
     public static <K, V> Iterator<V> valueIterator(Iterator<? extends Map.Entry<? extends K, ? extends V>> itr) {
         requireNonNull(itr);
+
         return new Iterator<V>() {
             @Override
             public boolean hasNext() {
