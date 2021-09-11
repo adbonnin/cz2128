@@ -15,7 +15,11 @@ public interface JsonRepository<T> extends JsonProvider {
 
     <U> JsonRepository<U> of(ObjectReader reader);
 
-    boolean isEmpty();
+    default boolean isEmpty() {
+        return count() == 0;
+    }
+
+    long count();
 
     <R> R withStream(Function<Stream<? extends T>, ? extends R> function);
 

@@ -32,10 +32,6 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return count() == 0;
-    }
-
     public long count() {
         return withParser(parser -> IteratorUtils.count(new SkipChildrenArrayIterator(parser)));
     }

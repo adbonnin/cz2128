@@ -12,10 +12,6 @@ import java.util.stream.Stream;
 
 public interface MapRepository<T> extends JsonRepository<T> {
 
-    boolean isEmpty();
-
-    long count();
-
     long count(Predicate<? super T> predicate);
 
     long countFields(Predicate<String> predicate);

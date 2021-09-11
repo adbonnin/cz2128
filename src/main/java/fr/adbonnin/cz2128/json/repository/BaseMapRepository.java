@@ -36,11 +36,6 @@ public abstract class BaseMapRepository<T> extends BaseRepository<T> implements 
     }
 
     @Override
-    public boolean isEmpty() {
-        return count() == 0;
-    }
-
-    @Override
     public long count() {
         return withFieldIterator(IteratorUtils::count);
     }

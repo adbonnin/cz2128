@@ -40,6 +40,11 @@ public abstract class ElementRepository<T> extends BaseRepository<T> {
         return value().isPresent();
     }
 
+    @Override
+    public long count() {
+        return value().isPresent() ? 1 : 0;
+    }
+
     public Optional<T> value() {
         return withParser(parser -> {
             try {
