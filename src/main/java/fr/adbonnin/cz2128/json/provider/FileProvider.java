@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import fr.adbonnin.cz2128.base.FileUtils;
+import fr.adbonnin.cz2128.base.IOUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonUtils;
 
@@ -120,7 +120,7 @@ public class FileProvider implements ContentProvider {
             throw new JsonException(e);
         }
         finally {
-            FileUtils.deleteIfExistsQuietly(tempFile);
+            IOUtils.deleteIfExistsQuietly(tempFile);
         }
 
         return result;
