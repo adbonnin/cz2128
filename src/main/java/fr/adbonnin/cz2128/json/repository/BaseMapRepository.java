@@ -58,10 +58,12 @@ public abstract class BaseMapRepository<T> extends BaseRepository<T> implements 
         });
     }
 
+    @Override
     public Optional<Map.Entry<String, T>> findFirst(Predicate<? super T> predicate) {
         return withEntryIterator(field -> true, predicate, IteratorUtils::first);
     }
 
+    @Override
     public Optional<Map.Entry<String, T>> findFirstField(Predicate<String> predicate) {
         return withEntryIterator(predicate, value -> true, IteratorUtils::first);
     }

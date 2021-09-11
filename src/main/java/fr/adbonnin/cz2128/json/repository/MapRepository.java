@@ -18,6 +18,10 @@ public interface MapRepository<T> extends JsonRepository<T> {
 
     long countEntries(Predicate<? super Map.Entry<String, T>> predicate);
 
+    Optional<Map.Entry<String, T>> findFirst(Predicate<? super T> predicate);
+
+    Optional<Map.Entry<String, T>> findFirstField(Predicate<String> predicate);
+
     Optional<Map.Entry<String, T>> findFirstEntry(Predicate<? super Map.Entry<String, T>> predicate);
 
     Map<String, T> findAll();
