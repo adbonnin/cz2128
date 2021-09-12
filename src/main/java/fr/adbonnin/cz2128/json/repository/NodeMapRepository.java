@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
-public class NodeMapRepository<T> extends BaseMapRepository<T> {
+public class NodeMapRepository<T> extends MapRepository<T> {
 
     private final ObjectMapper mapper;
 
