@@ -41,7 +41,7 @@ public class FileProvider implements ContentProvider {
     }
 
     public FileProvider(Path file, Path tempFile, JsonEncoding encoding, JsonFactory factory) {
-        this(file, (f) -> tempFile, encoding, factory);
+        this(file, f -> tempFile, encoding, factory);
     }
 
     public FileProvider(Path file, Function<Path, Path> tempFileProvider, JsonEncoding encoding, JsonFactory factory) {

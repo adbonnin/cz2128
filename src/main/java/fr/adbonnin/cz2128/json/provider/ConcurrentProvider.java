@@ -14,27 +14,44 @@ import static java.util.Objects.requireNonNull;
 
 public class ConcurrentProvider implements JsonProvider {
 
+    private final JsonProvider provider;
+
+    private final ReentrantReadWriteLock lock;
+
     private final ReentrantReadWriteLock.ReadLock readLock;
 
     private final ReentrantReadWriteLock.WriteLock writeLock;
 
-    private final JsonProvider provider;
+    private final long timeout;
 
-    private final long lockTimeout;
+    public ConcurrentProvider(JsonProvider provider, long timeout) {
+        this(provider, new ReentrantReadWriteLock(), timeout);
+    }
 
-    public ConcurrentProvider(JsonProvider provider, long lockTimeout) {
+    public ConcurrentProvider(JsonProvider provider, ReentrantReadWriteLock lock, long timeout) {
         this.provider = requireNonNull(provider);
-        this.lockTimeout = lockTimeout;
-
-        final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+        this.lock = requireNonNull(lock);
         this.readLock = lock.readLock();
         this.writeLock = lock.writeLock();
+        this.timeout = timeout;
+    }
+
+    public JsonProvider getProvider() {
+        return provider;
+    }
+
+    public ReentrantReadWriteLock getLock() {
+        return lock;
+    }
+
+    public long getTimeout() {
+        return timeout;
     }
 
     @Override
     public <R> R withParser(Function<JsonParser, ? extends R> function) {
         try {
-            if (readLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
+            if (readLock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     return provider.withParser(function);
                 }
@@ -54,7 +71,7 @@ public class ConcurrentProvider implements JsonProvider {
     @Override
     public <R> R withGenerator(BiFunction<JsonParser, JsonGenerator, ? extends R> function) {
         try {
-            if (writeLock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
+            if (writeLock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     return provider.withGenerator(function);
                 }
