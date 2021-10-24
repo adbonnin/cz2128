@@ -11,8 +11,7 @@ import fr.adbonnin.cz2128.json.JsonUtils;
 import fr.adbonnin.cz2128.json.iterator.JsonNodeArrayIterator;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
@@ -55,8 +54,8 @@ public class NodeSetRepository<T> extends SetRepository<T> {
     }
 
     @Override
-    protected long saveAll(Iterable<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
-        final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
+    protected long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
+        final Map<T, T> newElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elements, Spliterator.ORDERED), false)
             .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
         long updates = 0;

@@ -18,7 +18,7 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
 
     private final ObjectReader reader;
 
-    protected abstract long saveAll(Iterable<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
 
     protected abstract long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
 
@@ -69,6 +69,10 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
     }
 
     public long saveAll(Iterable<? extends T> elements) {
+        return saveAll(elements.iterator());
+    }
+
+    public long saveAll(Iterator<? extends T> elements) {
         return withGenerator((parser, generator) -> {
             try {
                 return saveAll(elements, parser, generator);

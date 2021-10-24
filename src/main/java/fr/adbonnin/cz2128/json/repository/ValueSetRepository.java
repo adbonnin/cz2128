@@ -9,8 +9,7 @@ import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.iterator.ValueArrayIterator;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
@@ -53,11 +52,11 @@ public class ValueSetRepository<T> extends SetRepository<T> {
     }
 
     @Override
-    protected long saveAll(Iterable<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
         long updates = 0;
         generator.writeStartArray();
 
-        final Map<T, T> newElements = StreamSupport.stream(elements.spliterator(), false)
+        final Map<T, T> newElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elements, Spliterator.ORDERED), false)
             .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
         // Update old elements
