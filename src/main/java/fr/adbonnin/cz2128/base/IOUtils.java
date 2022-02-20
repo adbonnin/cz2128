@@ -16,7 +16,7 @@ public class IOUtils {
             try {
                 Files.deleteIfExists(path);
             }
-            catch (IOException e) {
+            catch (IOException ignored) {
                 // nothing to do
             }
         }

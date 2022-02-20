@@ -19,16 +19,16 @@ public class ValueSetRepository<T> extends SetRepository<T> {
 
     private final ObjectMapper mapper;
 
-    public ValueSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public ValueSetRepository(JsonProvider provider, ObjectMapper mapper, Class<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public ValueSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public ValueSetRepository(JsonProvider provider, ObjectMapper mapper, TypeReference<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public ValueSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
-        super(reader, provider);
+    public ValueSetRepository(JsonProvider provider, ObjectMapper mapper, ObjectReader reader) {
+        super(provider, reader);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -38,21 +38,21 @@ public class ValueSetRepository<T> extends SetRepository<T> {
 
     @Override
     public <U> ValueSetRepository<U> of(Class<U> type) {
-        return new ValueSetRepository<>(type, getProvider(), mapper);
+        return new ValueSetRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> ValueSetRepository<U> of(TypeReference<U> type) {
-        return new ValueSetRepository<>(type, getProvider(), mapper);
+        return new ValueSetRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> ValueSetRepository<U> of(ObjectReader reader) {
-        return new ValueSetRepository<>(reader, getProvider(), mapper);
+        return new ValueSetRepository<>(getProvider(), mapper, reader);
     }
 
     @Override
-    protected long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long saveAll(JsonParser parser, JsonGenerator generator, Iterator<? extends T> elements) throws IOException {
         long updates = 0;
         generator.writeStartArray();
 
@@ -85,7 +85,7 @@ public class ValueSetRepository<T> extends SetRepository<T> {
     }
 
     @Override
-    protected long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long deleteAll(JsonParser parser, JsonGenerator generator, Predicate<? super T> predicate) throws IOException {
         long deleted = 0;
         generator.writeStartArray();
 

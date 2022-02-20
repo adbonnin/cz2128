@@ -20,9 +20,9 @@ public abstract class ElementRepository<T> extends BaseRepository<T> {
 
     private final ObjectReader reader;
 
-    protected abstract boolean save(T element, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract boolean save(JsonParser parser, JsonGenerator generator, T element) throws IOException;
 
-    public ElementRepository(ObjectReader reader, JsonProvider provider) {
+    public ElementRepository(JsonProvider provider, ObjectReader reader) {
         super(provider);
         this.reader = reader;
     }
@@ -77,7 +77,7 @@ public abstract class ElementRepository<T> extends BaseRepository<T> {
     public boolean save(T element) {
         return withGenerator((parser, generator) -> {
             try {
-                return save(element, parser, generator);
+                return save(parser, generator, element);
             }
             catch (IOException e) {
                 throw new JsonException(e);

@@ -22,11 +22,11 @@ public abstract class MapRepository<T> extends BaseRepository<T> {
 
     private final ObjectReader reader;
 
-    protected abstract long saveAll(Map<String, ? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract long saveAll(JsonParser parser, JsonGenerator generator, Map<String, ? extends T> elements) throws IOException;
 
-    protected abstract long deleteAll(Predicate<? super Map.Entry<String, T>> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract long deleteAll(JsonParser parser, JsonGenerator generator, Predicate<? super Map.Entry<String, T>> predicate) throws IOException;
 
-    public MapRepository(ObjectReader reader, JsonProvider provider) {
+    public MapRepository(JsonProvider provider, ObjectReader reader) {
         super(provider);
         this.reader = requireNonNull(reader);
     }
@@ -119,7 +119,7 @@ public abstract class MapRepository<T> extends BaseRepository<T> {
     public long saveAll(Map<String, ? extends T> elements) {
         return withGenerator((parser, generator) -> {
             try {
-                return saveAll(elements, parser, generator);
+                return saveAll(parser, generator, elements);
             }
             catch (IOException e) {
                 throw new JsonException(e);
@@ -142,7 +142,7 @@ public abstract class MapRepository<T> extends BaseRepository<T> {
     public long deleteAll(Predicate<? super Map.Entry<String, T>> predicate) {
         return withGenerator((parser, generator) -> {
             try {
-                return deleteAll(predicate, parser, generator);
+                return deleteAll(parser, generator, predicate);
             }
             catch (IOException e) {
                 throw new JsonException(e);

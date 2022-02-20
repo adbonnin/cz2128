@@ -149,47 +149,47 @@ public class Json {
 
         @Override
         public <U> NodeSetRepository<U> setRepository(Class<U> type) {
-            return new NodeSetRepository<>(type, provider, mapper);
+            return new NodeSetRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeSetRepository<U> setRepository(TypeReference<U> type) {
-            return new NodeSetRepository<>(type, provider, mapper);
+            return new NodeSetRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeSetRepository<U> setRepository(ObjectReader reader) {
-            return new NodeSetRepository<>(reader, provider, mapper);
+            return new NodeSetRepository<>(provider, mapper, reader);
         }
 
         @Override
         public <U> NodeMapRepository<U> mapRepository(Class<U> type) {
-            return new NodeMapRepository<>(type, provider, mapper);
+            return new NodeMapRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeMapRepository<U> mapRepository(TypeReference<U> type) {
-            return new NodeMapRepository<>(type, provider, mapper);
+            return new NodeMapRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeMapRepository<U> mapRepository(ObjectReader reader) {
-            return new NodeMapRepository<>(reader, provider, mapper);
+            return new NodeMapRepository<>(provider, mapper, reader);
         }
 
         @Override
         public <U> NodeElementRepository<U> elementRepository(Class<U> type) {
-            return new NodeElementRepository<>(type, provider, mapper);
+            return new NodeElementRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeElementRepository<U> elementRepository(TypeReference<U> type) {
-            return new NodeElementRepository<>(type, provider, mapper);
+            return new NodeElementRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> NodeElementRepository<U> elementRepository(ObjectReader reader) {
-            return new NodeElementRepository<>(reader, provider, mapper);
+            return new NodeElementRepository<>(provider, mapper, reader);
         }
     }
 
@@ -204,47 +204,47 @@ public class Json {
 
         @Override
         public <U> ValueSetRepository<U> setRepository(Class<U> type) {
-            return new ValueSetRepository<>(type, provider, mapper);
+            return new ValueSetRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueSetRepository<U> setRepository(TypeReference<U> type) {
-            return new ValueSetRepository<>(type, provider, mapper);
+            return new ValueSetRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueSetRepository<U> setRepository(ObjectReader reader) {
-            return new ValueSetRepository<>(reader, provider, mapper);
+            return new ValueSetRepository<>(provider, mapper, reader);
         }
 
         @Override
         public <U> ValueMapRepository<U> mapRepository(Class<U> type) {
-            return new ValueMapRepository<>(type, provider, mapper);
+            return new ValueMapRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueMapRepository<U> mapRepository(TypeReference<U> type) {
-            return new ValueMapRepository<>(type, provider, mapper);
+            return new ValueMapRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueMapRepository<U> mapRepository(ObjectReader reader) {
-            return new ValueMapRepository<>(reader, provider, mapper);
+            return new ValueMapRepository<>(provider, mapper, reader);
         }
 
         @Override
         public <U> ValueElementRepository<U> elementRepository(Class<U> type) {
-            return new ValueElementRepository<>(type, provider, mapper);
+            return new ValueElementRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueElementRepository<U> elementRepository(TypeReference<U> type) {
-            return new ValueElementRepository<>(type, provider, mapper);
+            return new ValueElementRepository<>(provider, mapper, type);
         }
 
         @Override
         public <U> ValueElementRepository<U> elementRepository(ObjectReader reader) {
-            return new ValueElementRepository<>(reader, provider, mapper);
+            return new ValueElementRepository<>(provider, mapper, reader);
         }
     }
 }

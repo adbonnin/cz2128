@@ -21,16 +21,16 @@ public class NodeSetRepository<T> extends SetRepository<T> {
 
     private final ObjectMapper mapper;
 
-    public NodeSetRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public NodeSetRepository(JsonProvider provider, ObjectMapper mapper, Class<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public NodeSetRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public NodeSetRepository(JsonProvider provider, ObjectMapper mapper, TypeReference<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public NodeSetRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
-        super(reader, provider);
+    public NodeSetRepository(JsonProvider provider, ObjectMapper mapper, ObjectReader reader) {
+        super(provider, reader);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -40,21 +40,21 @@ public class NodeSetRepository<T> extends SetRepository<T> {
 
     @Override
     public <U> NodeSetRepository<U> of(Class<U> type) {
-        return new NodeSetRepository<>(type, getProvider(), mapper);
+        return new NodeSetRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> NodeSetRepository<U> of(TypeReference<U> type) {
-        return new NodeSetRepository<>(type, getProvider(), mapper);
+        return new NodeSetRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> NodeSetRepository<U> of(ObjectReader reader) {
-        return new NodeSetRepository<>(reader, getProvider(), mapper);
+        return new NodeSetRepository<>(getProvider(), mapper, reader);
     }
 
     @Override
-    protected long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long saveAll(JsonParser parser, JsonGenerator generator, Iterator<? extends T> elements) throws IOException {
         final Map<T, T> newElements = StreamSupport.stream(Spliterators.spliteratorUnknownSize(elements, Spliterator.ORDERED), false)
             .collect(LinkedHashMap::new, (map, item) -> map.put(item, item), Map::putAll);
 
@@ -92,7 +92,7 @@ public class NodeSetRepository<T> extends SetRepository<T> {
     }
 
     @Override
-    protected long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected long deleteAll(JsonParser parser, JsonGenerator generator, Predicate<? super T> predicate) throws IOException {
         long deleted = 0;
         generator.writeStartArray();
 

@@ -16,41 +16,38 @@ import static java.util.Objects.requireNonNull;
 
 public class NodeElementRepository<T> extends ElementRepository<T> {
 
-    private final JsonProvider provider;
-
     private final ObjectMapper mapper;
 
-    public NodeElementRepository(Class<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public NodeElementRepository(JsonProvider provider, ObjectMapper mapper, Class<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public NodeElementRepository(TypeReference<T> type, JsonProvider provider, ObjectMapper mapper) {
-        this(mapper.readerFor(type), provider, mapper);
+    public NodeElementRepository(JsonProvider provider, ObjectMapper mapper, TypeReference<T> type) {
+        this(provider, mapper, mapper.readerFor(type));
     }
 
-    public NodeElementRepository(ObjectReader reader, JsonProvider provider, ObjectMapper mapper) {
-        super(reader, provider);
-        this.provider = requireNonNull(provider);
+    public NodeElementRepository(JsonProvider provider, ObjectMapper mapper, ObjectReader reader) {
+        super(provider, reader);
         this.mapper = requireNonNull(mapper);
     }
 
     @Override
     public <U> NodeElementRepository<U> of(Class<U> type) {
-        return new NodeElementRepository<>(type, provider, mapper);
+        return new NodeElementRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> NodeElementRepository<U> of(TypeReference<U> type) {
-        return new NodeElementRepository<>(type, provider, mapper);
+        return new NodeElementRepository<>(getProvider(), mapper, type);
     }
 
     @Override
     public <U> NodeElementRepository<U> of(ObjectReader reader) {
-        return new NodeElementRepository<>(reader, provider, mapper);
+        return new NodeElementRepository<>(getProvider(), mapper, reader);
     }
 
     @Override
-    protected boolean save(T element, JsonParser parser, JsonGenerator generator) throws IOException {
+    protected boolean save(JsonParser parser, JsonGenerator generator, T element) throws IOException {
         final JsonToken token = parser.hasCurrentToken()
             ? parser.getCurrentToken()
             : parser.nextToken();

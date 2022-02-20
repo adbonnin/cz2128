@@ -18,11 +18,11 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
 
     private final ObjectReader reader;
 
-    protected abstract long saveAll(Iterator<? extends T> elements, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract long saveAll(JsonParser parser, JsonGenerator generator, Iterator<? extends T> elements) throws IOException;
 
-    protected abstract long deleteAll(Predicate<? super T> predicate, JsonParser parser, JsonGenerator generator) throws IOException;
+    protected abstract long deleteAll(JsonParser parser, JsonGenerator generator, Predicate<? super T> predicate) throws IOException;
 
-    public SetRepository(ObjectReader reader, JsonProvider provider) {
+    public SetRepository(JsonProvider provider, ObjectReader reader) {
         super(provider);
         this.reader = reader;
     }
@@ -75,7 +75,7 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
     public long saveAll(Iterator<? extends T> elements) {
         return withGenerator((parser, generator) -> {
             try {
-                return saveAll(elements, parser, generator);
+                return saveAll(parser, generator, elements);
             }
             catch (IOException e) {
                 throw new JsonException(e);
@@ -98,7 +98,7 @@ public abstract class SetRepository<T> extends BaseRepository<T> {
     public long deleteAll(Predicate<? super T> predicate) {
         return withGenerator((parser, generator) -> {
             try {
-                return deleteAll(predicate, parser, generator);
+                return deleteAll(parser, generator, predicate);
             }
             catch (IOException e) {
                 throw new JsonException(e);
