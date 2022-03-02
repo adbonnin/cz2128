@@ -1,25 +1,11 @@
-package fr.adbonnin.cz2128.base;
+package fr.adbonnin.cz2128.io;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-public class IOUtils {
+public class StreamUtils {
 
     public static InputStream nullInputStream() {
         return NULL_INPUT_STREAM;
-    }
-
-    public static void deleteIfExistsQuietly(Path path) {
-        if (path != null) {
-            try {
-                Files.deleteIfExists(path);
-            }
-            catch (IOException ignored) {
-                // nothing to do
-            }
-        }
     }
 
     private static final InputStream NULL_INPUT_STREAM = new InputStream() {
@@ -50,5 +36,5 @@ public class IOUtils {
         }
     };
 
-    private IOUtils() { /* Cannot be instantiated */ }
+    private StreamUtils() { /* Cannot be instantiated */ }
 }

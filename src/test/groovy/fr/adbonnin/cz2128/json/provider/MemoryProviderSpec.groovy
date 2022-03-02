@@ -23,6 +23,9 @@ class MemoryProviderSpec extends BaseJsonProviderSpec {
         given:
         def provider = setupProvider()
 
+        expect:
+        provider.content == ''
+
         when:
         provider.content = content
         def result = provider.content

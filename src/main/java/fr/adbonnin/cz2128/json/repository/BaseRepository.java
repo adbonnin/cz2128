@@ -5,12 +5,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import fr.adbonnin.cz2128.json.JsonProvider;
 import fr.adbonnin.cz2128.json.JsonRepository;
 
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.util.Objects.requireNonNull;
 

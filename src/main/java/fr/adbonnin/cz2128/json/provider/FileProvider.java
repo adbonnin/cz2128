@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import fr.adbonnin.cz2128.base.IOUtils;
+import fr.adbonnin.cz2128.io.FileUtils;
 import fr.adbonnin.cz2128.json.JsonException;
 import fr.adbonnin.cz2128.json.JsonUtils;
 
@@ -73,6 +73,11 @@ public class FileProvider implements ContentProvider {
 
     @Override
     public String getContent() throws IOException {
+
+        if (!Files.exists(file)) {
+            return "";
+        }
+
         final byte[] bytes = Files.readAllBytes(file);
         return new String(bytes, getJavaEncoding());
     }
@@ -80,7 +85,8 @@ public class FileProvider implements ContentProvider {
     @Override
     public void setContent(String content) throws IOException {
         final byte[] bytes = content.getBytes(getJavaEncoding());
-        Files.write(file, bytes, StandardOpenOption.WRITE);
+        FileUtils.createParentDirectories(file);
+        Files.write(file, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
     }
 
     @Override
@@ -109,18 +115,20 @@ public class FileProvider implements ContentProvider {
         final Path tempFile = tempFileProvider.apply(file);
 
         try {
+            FileUtils.createParentDirectories(tempFile);
             try (OutputStream tempOutput = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
                  JsonGenerator tempGenerator = factory.createGenerator(tempOutput, encoding)) {
                 result = withParser(parser -> function.apply(parser, tempGenerator));
             }
 
+            FileUtils.createParentDirectories(file);
             Files.move(tempFile, file, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException e) {
             throw new JsonException(e);
         }
         finally {
-            IOUtils.deleteIfExistsQuietly(tempFile);
+            FileUtils.deleteIfExistsQuietly(tempFile);
         }
 
         return result;

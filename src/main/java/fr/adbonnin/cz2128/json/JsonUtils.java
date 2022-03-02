@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.adbonnin.cz2128.base.IOUtils;
+import fr.adbonnin.cz2128.io.StreamUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -26,7 +26,7 @@ public class JsonUtils {
     private static final JsonFactory DEFAULT_EMPTY_JSON_PARSER_FACTORY = new JsonFactory(new JsonMapper());
 
     public static JsonParser newEmptyParser() throws IOException {
-        return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(IOUtils.nullInputStream());
+        return DEFAULT_EMPTY_JSON_PARSER_FACTORY.createParser(StreamUtils.nullInputStream());
     }
 
     public static LinkedHashMap<String, JsonNode> mapFieldsToLinkedHashMap(JsonNode node) {
